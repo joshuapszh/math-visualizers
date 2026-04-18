@@ -1,0 +1,322 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{font-family:Arial,sans-serif;max-width:780px;margin:0 auto;padding:1.2rem 1rem 2rem;background:#FFFDF5}
+.ref-panel{background:#FFF3C4;border:2px solid #B8860B;border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.5rem}
+.ref-title{font-size:14px;font-weight:700;color:#000;margin-bottom:0.7rem}
+.id-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.id-card{background:#FFFFF0;border:1.5px solid #B8860B;border-radius:7px;padding:0.6rem 0.9rem}
+.id-label{font-size:12px;font-weight:700;color:#4A2E00;margin-bottom:3px}
+.id-formula{font-size:15px;color:#000;font-family:monospace}
+.ex-block{background:#FFFFF8;border:2px solid #B8860B;border-radius:10px;margin-bottom:1.2rem;overflow:hidden}
+.ex-head{display:flex;align-items:flex-start;justify-content:space-between;padding:0.9rem 1.1rem;cursor:pointer;background:#FFF3C4;gap:8px}
+.ex-head:hover{background:#FFE88A}
+.ex-title{font-size:16px;font-weight:700;color:#111}
+.toggle{font-size:18px;color:#333;flex-shrink:0;margin-top:2px;transition:transform 0.2s}
+.toggle.open{transform:rotate(180deg)}
+.ex-body{display:none;background:#FFFFF8}
+.ex-body.open{display:block}
+.q-nav{display:flex;align-items:center;justify-content:space-between;padding:0.8rem 1.1rem;background:#FFF8E0;border-bottom:1px solid #D4B96A;gap:8px}
+.q-label{font-size:13px;font-weight:700;color:#5C3D00}
+.nav-btns{display:flex;gap:8px}
+.step-working{background:#F5F0DC;border-left:5px solid #B8860B;border-radius:0 7px 7px 0;padding:0.9rem 1rem;font-family:monospace;color:#000;line-height:1.9;margin-bottom:6px}
+.step-working .ln{display:block}
+.annot-box{background:#FFF3C4;border:1.5px solid #B8860B;border-radius:7px;padding:0.55rem 0.9rem;margin-bottom:6px;font-size:14px;color:#000}
+.explain-box{background:#E6F5E6;border:1.5px solid #2E7D2E;border-radius:7px;padding:0.6rem 0.9rem;font-size:15px;color:#000;line-height:1.65;margin-bottom:10px}
+.done-msg{display:none;font-size:14px;font-weight:700;color:#000;background:#C8EEC8;border:2px solid #2E7D2E;border-radius:7px;padding:8px 14px}
+.q-focus{font-size:26px;font-weight:700;font-family:monospace;color:#1A0D00;background:#FFF8E0;border:3px solid #B8860B;border-radius:10px;padding:1rem 1.2rem;margin:0.8rem 1.1rem 0.5rem;text-align:center;letter-spacing:0.02em}
+.steps-area{padding:0 1.1rem}
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 1.1rem 1.1rem}
+.footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #D4B96A;text-align:center;font-family:Arial,sans-serif;font-size:12px;color:#7A5C00;line-height:1.7}
+.footer strong{color:#5C3D00}
+h1{font-size:22px;font-weight:700;color:#111;margin-bottom:4px}
+.sub{font-size:13px;color:#333;margin-bottom:1.2rem}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden">Factorisation using Algebraic Identities — focus mode visualizer</h2>
+<h1>Factorisation using Algebraic Identities</h1>
+<p class="sub">Chapter 4 · Mathematics Tutor 2A · Heritage Academy | Open an example. One question at a time. Use the blue button to reveal each step.</p>
+
+<div class="ref-panel">
+  <div class="ref-title">Identity Reference Panel — always visible</div>
+  <div class="id-grid">
+    <div class="id-card"><div class="id-label">Perfect square (sum)</div><div class="id-formula">a²+2ab+b² = (a+b)²</div></div>
+    <div class="id-card"><div class="id-label">Perfect square (difference)</div><div class="id-formula">a²−2ab+b² = (a−b)²</div></div>
+    <div class="id-card"><div class="id-label">Difference of two squares</div><div class="id-formula">a²−b² = (a+b)(a−b)</div></div>
+    <div class="id-card"><div class="id-label">Common factor first</div><div class="id-formula">ka²−kb² = k(a+b)(a−b)</div></div>
+  </div>
+</div>
+
+<div id="exList"></div>
+
+<div class="footer">
+  <strong>Created by Joshua Poon</strong><br>
+  Heritage Academy, Singapore · Chapter 4: Expansion and Factorisation using Special Algebraic Identities<br>
+  Mathematics Tutor 2A · Secondary 2
+</div>
+</div>
+
+<script>
+const EX=[
+{t:"Worked Example 1 — Perfect square factorisation",
+ qs:[
+  {label:"(a)  x² + 2x + 1",
+   steps:[
+    {w:["(a)  x² + 2x + 1"],a:"Pattern: a² + 2ab + b²  →  a = x, b = 1",e:"Look at the three terms: a squared term, a middle term, and a constant. The middle term 2×x×1 = 2x ✓  This fits the perfect square sum pattern. Factorisation is expansion in reverse."},
+    {w:["= x² + 2(x)(1) + 1²","= (x + 1)²"],a:"Apply: a² + 2ab + b² = (a+b)²",e:"Setting a=x and b=1 shows how the identity maps onto the expression. The answer is a bracket squared — that is what 'perfect square' means."}
+   ]},
+  {label:"(b)  x² + 10x + 25",
+   steps:[
+    {w:["(b)  x² + 10x + 25"],a:"Check: does this fit a² + 2ab + b²?",e:"Always check both conditions: does the constant equal b²? Does the middle term equal 2ab? Let us find b first."},
+    {w:["= x² + 2(x)(5) + 5²","= (x + 5)²"],a:"10x = 2×x×5  and  25 = 5²  →  perfect square sum",e:"25 = 5² ✓  and  2×x×5 = 10x ✓  Both match. Apply the identity with a=x, b=5."}
+   ]},
+  {label:"(c)  y² − 6y + 9",
+   steps:[
+    {w:["(c)  y² − 6y + 9"],a:"Minus middle term, positive last term — which identity?",e:"The middle term is negative but the last term is still positive (+9). This is the perfect square DIFFERENCE pattern, not the sum. If the last term were negative, it would be difference of two squares instead."},
+    {w:["= y² − 2(y)(3) + 3²","= (y − 3)²"],a:"Apply: a² − 2ab + b² = (a−b)²  with a=y, b=3",e:"2×y×3 = 6y ✓  and  3² = 9 ✓  The answer is (y−3)². The minus sign moves into the bracket."}
+   ]},
+  {label:"(d)  4x² − 8x + 4",
+   steps:[
+    {w:["(d)  4x² − 8x + 4"],a:"Spot the common factor before applying any identity",e:"Every term is divisible by 4. Always extract common factors first — it simplifies the remaining expression and makes the identity easier to spot."},
+    {w:["= 4(x² − 2x + 1)"],a:"Factor out 4",e:"Inside the bracket: x²−2x+1. Now check: does this fit a perfect square pattern?"},
+    {w:["= 4[x² − 2(x)(1) + 1²]","= 4(x − 1)²"],a:"Apply a² − 2ab + b² = (a−b)²  inside the bracket",e:"2×x×1 = 2x ✓  and  1² = 1 ✓  The inside factorises to (x−1)². Keep the 4 outside."}
+   ]},
+  {label:"(e)  4x² + 20x + 25",
+   steps:[
+    {w:["(e)  4x² + 20x + 25"],a:"The x² coefficient is 4, not 1 — what is a?",e:"When the leading coefficient is not 1, ask: what expression squared gives 4x²? Answer: (2x)² = 4x². So a = 2x, not just x."},
+    {w:["= (2x)² + 2(2x)(5) + 5²","= (2x + 5)²"],a:"a = 2x, b = 5  →  check: 2×(2x)×5 = 20x ✓",e:"2×(2x)×5 = 20x ✓  and  5² = 25 ✓  All three terms match. The answer is (2x+5)²."}
+   ]},
+  {label:"(f)  9x² − 12xy + 4y²",
+   steps:[
+    {w:["(f)  9x² − 12xy + 4y²"],a:"Two variables — can we still use the identity?",e:"Yes! The identity a²−2ab+b²=(a−b)² works with any algebraic expressions as a and b, not just single numbers. Here 9x²=(3x)² and 4y²=(2y)²."},
+    {w:["= (3x)² − 2(3x)(2y) + (2y)²","= (3x − 2y)²"],a:"a = 3x, b = 2y  →  verify: 2×(3x)×(2y) = 12xy ✓",e:"2×(3x)×(2y) = 12xy ✓  All three terms match. The answer is (3x−2y)²."}
+   ]}
+ ]},
+{t:"Worked Example 2 — Difference of two squares",
+ qs:[
+  {label:"(a)  x² − 36",
+   steps:[
+    {w:["(a)  x² − 36","= x² − 6²","= (x + 6)(x − 6)"],a:"a²−b² = (a+b)(a−b)  with a=x, b=6",e:"Two perfect squares with a minus between them. Write 36 as 6² to make the pattern visible. The result is always two brackets: one plus, one minus."}
+   ]},
+  {label:"(b)  1 − 4y²",
+   steps:[
+    {w:["(b)  1 − 4y²","= 1² − (2y)²","= (1 + 2y)(1 − 2y)"],a:"Write 1 as 1² — constants can be perfect squares too",e:"Easy to forget that 1=1². Also note: 4y²=(2y)². Always ask: what expression squared gives me this term?"}
+   ]},
+  {label:"(c)  2x² − 50",
+   steps:[
+    {w:["(c)  2x² − 50","= 2(x² − 25)"],a:"Common factor 2 first",e:"Never apply an identity until all common factors are extracted. Both terms share factor 2. After extracting, x²−25 is clearly a difference of two squares."},
+    {w:["= 2(x² − 5²)","= 2(x + 5)(x − 5)"],a:"Apply a²−b² = (a+b)(a−b)  inside the bracket",e:"x²−25 = x²−5². Apply the identity with a=x, b=5. Keep the 2 outside."}
+   ]},
+  {label:"(d)  x⁴ − y²",
+   steps:[
+    {w:["(d)  x⁴ − y²","= (x²)² − y²","= (x² + y)(x² − y)"],a:"x⁴ = (x²)² — higher powers can still be perfect squares",e:"x⁴ means (x²)². So a=x² and b=y. The identity applies perfectly. These factors cannot be simplified further."}
+   ]},
+  {label:"(e)  16x²y² − 49y²",
+   steps:[
+    {w:["(e)  16x²y² − 49y²","= y²(16x² − 49)"],a:"Extract common factor y²",e:"Both terms contain y², so extract it first. Inside the bracket, check whether the remaining expression is a difference of two squares."},
+    {w:["= y²[(4x)² − 7²]","= y²(4x + 7)(4x − 7)"],a:"16x² = (4x)²  and  49 = 7²  →  apply the identity",e:"Apply a²−b² with a=4x, b=7. Keep y² outside. Final answer: y²(4x+7)(4x−7)."}
+   ]},
+  {label:"(f)  p² − (q + r)²",
+   steps:[
+    {w:["(f)  p² − (q + r)²"],a:"b can be a compound expression — here b = (q+r)",e:"The whole expression (q+r) counts as a single b. The identity a²−b²=(a+b)(a−b) still applies with a=p and b=(q+r)."},
+    {w:["= [p + (q+r)][p − (q+r)]","= (p + q + r)(p − q − r)"],a:"Apply identity, then expand each bracket",e:"After applying the identity, expand: p+(q+r)=p+q+r and p−(q+r)=p−q−r. The minus sign distributes into the second bracket."}
+   ]},
+  {label:"(g)  81x⁴ − y⁴",
+   steps:[
+    {w:["(g)  81x⁴ − y⁴","= (9x²)² − (y²)²","= (9x² + y²)(9x² − y²)"],a:"First factorisation: a=9x², b=y²",e:"Both terms are perfect squares: 81x⁴=(9x²)² and y⁴=(y²)². Apply the identity — but always check each factor for further factorisation."},
+    {w:["= (9x² + y²)[(3x)² − y²]","= (9x² + y²)(3x + y)(3x − y)"],a:"9x²−y² is itself a difference of two squares — apply again",e:"9x²−y²=(3x+y)(3x−y). The factor 9x²+y² is a sum of squares — it cannot be factorised over real numbers. We are done."}
+   ]}
+ ]},
+{t:"Worked Example 3 — Proof: multiple of 12",
+ qs:[
+  {label:"Show (3n+1)² − (3n−1)² is a multiple of 12",
+   steps:[
+    {w:["(3n+1)² − (3n−1)²"],a:"Spot the pattern: difference of two squares",e:"Two expressions each squared, with a minus between them. That is the difference of two squares identity, even when only algebra is involved."},
+    {w:["= [(3n+1)+(3n−1)][(3n+1)−(3n−1)]"],a:"Apply a²−b² = (a+b)(a−b)  with a=3n+1, b=3n−1",e:"Write out the two brackets: the sum and the difference of the two expressions. Now simplify each bracket."},
+    {w:["= [6n][2]  =  12n","∴ A multiple of 12 for all positive integers n. (Shown)"],a:"(3n+1)+(3n−1) = 6n  and  (3n+1)−(3n−1) = 2",e:"The +1 and −1 cancel neatly: 6n×2=12n. This is 12 times a positive integer for ALL values of n, not just specific ones. Proof complete."}
+   ]}
+ ]},
+{t:"Worked Example 4 — Evaluate without a calculator",
+ qs:[
+  {label:"(a)  29² + 58 + 1",steps:[{w:["29² + 58 + 1","= 29² + 2(29)(1) + 1²","= (29+1)² = 30² = 900"],a:"58 = 2×29×1 → perfect square sum, a=29, b=1",e:"Key insight: 58=2×29. The expression is a perfect square in disguise. Rewriting as (30)² makes the calculation trivial."}]},
+  {label:"(b)  81² − 162 + 1",steps:[{w:["81² − 162 + 1","= 81² − 2(81)(1) + 1²","= (81−1)² = 80² = 6400"],a:"162 = 2×81×1, last term 1=1² → perfect square difference",e:"Negative middle term with positive last term → a²−2ab+b²=(a−b)². Rewrite as (80)²=6400."}]},
+  {label:"(c)  88² + 352 + 4",steps:[{w:["88² + 352 + 4","= 88² + 2(88)(2) + 2²","= (88+2)² = 90² = 8100"],a:"352 = 2×88×2  and  4=2²  →  a=88, b=2",e:"Divide middle by 2: 352÷2=176=88×2, so b=2. Last term 4=2² ✓. Rewrite as (90)²=8100."}]},
+  {label:"(d)  77² − 23²",steps:[{w:["77² − 23²","= (77+23)(77−23)","= (100)(54) = 5400"],a:"Difference of two squares → (77+23)(77−23)",e:"Instead of computing 77² and 23² separately, the identity gives round-number factors. 77+23=100 makes multiplication easy."}]},
+  {label:"(e)  105² − 25",steps:[{w:["105² − 25","= 105² − 5²","= (105+5)(105−5)","= (110)(100) = 11 000"],a:"Write 25 as 5² to reveal difference of two squares",e:"25=5². The factors become (110)(100) — both round numbers. Always look to turn awkward arithmetic into round numbers."}]},
+  {label:"(f)  59.5² − 40.5²",steps:[{w:["59.5² − 40.5²","= (59.5+40.5)(59.5−40.5)","= (100)(19) = 1900"],a:"Works with decimals — the identity is algebraic",e:"59.5+40.5=100 and 59.5−40.5=19. The identity converts messy decimal arithmetic into a clean multiplication."}]},
+  {label:"(g)  68×95 − 85×68",steps:[{w:["68×95 − 85×68","= 68(95−85)","= 68(10) = 680"],a:"ab − ac = a(b−c): factor out 68",e:"Both products share factor 68. Factoring it out reverses the distributive law, turning two multiplications into one simple step."}]},
+  {label:"(h)  78×22 + 78²",steps:[{w:["78×22 + 78²","= 78(22+78)","= 78(100) = 7800"],a:"ab + a² = a(b+a): factor out 78",e:"78²=78×78, so both terms share factor 78. Factoring gives 78×100. Always look for a common factor when two products share a base."}]}
+ ]},
+{t:"Worked Example 5 — Find factors of a number",
+ qs:[
+  {label:"(a)  Factorise  x² − 9",steps:[{w:["x² − 9","= x² − 3²","= (x+3)(x−3)"],a:"Difference of two squares with a=x, b=3",e:"Write 9 as 3² to make the pattern clear. We will use this algebraic result in part (b) to factorise the number 1591."}]},
+  {label:"(b)  Find two factors of 1591",steps:[
+    {w:["1591  =  1600 − 9","= 40² − 3²"],a:"Rewrite 1591 as a difference of two perfect squares",e:"Look for a nearby perfect square: 40²=1600, and 1600−1591=9=3². Rewriting the number this way lets the identity from part (a) apply."},
+    {w:["= (40+3)(40−3)","= (43)(37)","∴ The two factors are 43 and 37."],a:"Substitute x=40 into the factorisation from part (a)",e:"With x=40: (40+3)(40−3)=43×37. This confirms 1591 is not prime. Using algebra to find numerical factors is a genuine mathematical method."}
+  ]}
+ ]},
+{t:"Worked Example 6 — Given two equations, find x+y",
+ qs:[
+  {label:"Given x²−y²=28 and x−y=8,  find x+y",
+   steps:[
+    {w:["x² − y² = 28"],a:"Left side is a difference of two squares",e:"We have two equations. x²−y² is a difference of two squares. The second equation gives us x−y=8. These connect through the identity."},
+    {w:["(x+y)(x−y) = 28","(x+y)(8) = 28"],a:"Apply identity, then substitute x−y=8",e:"The left side becomes (x+y)(x−y). We know x−y=8, so replace it immediately."},
+    {w:["x + y = 28 ÷ 8","x + y = 3½"],a:"Solve for x+y by dividing both sides by 8",e:"One equation, one unknown. Dividing both sides by 8 gives the answer — without needing to find x and y separately."}
+   ]}
+ ]},
+{t:"Worked Example 7 — Three variables",
+ qs:[
+  {label:"Factorise  x² − 2xy + y² − z²",
+   steps:[
+    {w:["x² − 2xy + y² − z²"],a:"Four terms — group the first three together",e:"With four terms, look for a group that matches a known identity. The first three terms x²−2xy+y² look like a perfect square pattern."},
+    {w:["= (x²−2xy+y²) − z²","= (x−y)² − z²"],a:"Apply a²−2ab+b² = (a−b)² to the first three terms",e:"Grouping reveals (x−y)². The whole expression is now (x−y)²−z², which is a difference of two squares with a=(x−y) and b=z."},
+    {w:["= [(x−y)+z][(x−y)−z]","= (x−y+z)(x−y−z)"],a:"Apply a²−b² = (a+b)(a−b) with a=(x−y), b=z",e:"Expand carefully: (x−y)+z gives x−y+z, and (x−y)−z gives x−y−z. The minus sign distributes into the second bracket."}
+   ]}
+ ]},
+{t:"Worked Example 8 — Real-world: photo frame",
+ qs:[
+  {label:"(a)  Area = (9x²−42x+49) cm²  →  Find the side length",
+   steps:[
+    {w:["Area = 9x² − 42x + 49"],a:"Recognise this as a perfect square expression",e:"The area is a quadratic. Since the frame is a square, Area=side². We need to factorise the expression to find the side length."},
+    {w:["= (3x)² − 2(3x)(7) + 7²","= (3x−7)² cm²"],a:"a=3x, b=7  →  check: 2(3x)(7)=42x ✓  and  7²=49 ✓",e:"9x²=(3x)², middle 42x=2×3x×7, constant 49=7². All three match a²−2ab+b². The expression is (3x−7)²."},
+    {w:["Side = √(3x−7)²  =  (3x − 7) cm"],a:"Area = side²  so  side = √Area",e:"The square root of (3x−7)² is simply (3x−7), assuming 3x>7 so the length is positive. Factorisation reveals the geometric structure."}
+   ]},
+  {label:"(b)  Find the perimeter in terms of x",
+   steps:[
+    {w:["Perimeter = 4 × (3x − 7)","= (12x − 28) cm"],a:"Perimeter of a square = 4 × side",e:"Multiply side length by 4. Distribute: 4×3x=12x and 4×7=28. The perimeter is (12x−28) cm, expressed in terms of x as required."}
+   ]}
+ ]}
+];
+
+const st={};
+EX.forEach((_,ei)=>{st[ei]={qi:0,si:-1};});
+
+function btn(label,onclick,style){
+  const b=document.createElement('button');
+  b.textContent=label;
+  b.setAttribute('style',style);
+  b.onclick=onclick;
+  return b;
+}
+
+const BLUE='display:inline-block;padding:11px 20px;background:#0D47A1;color:#FFFFFF;border:3px solid #083378;border-radius:8px;font-size:15px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;line-height:1;-webkit-appearance:none;appearance:none';
+const BLUE_DIS='display:inline-block;padding:11px 20px;background:#888;color:#fff;border:3px solid #666;border-radius:8px;font-size:15px;font-weight:700;font-family:Arial,sans-serif;cursor:not-allowed;line-height:1;-webkit-appearance:none;appearance:none';
+const GREY='display:inline-block;padding:11px 16px;background:#fff;color:#000;border:2px solid #333;border-radius:8px;font-size:14px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;line-height:1;-webkit-appearance:none;appearance:none';
+const NAV='display:inline-block;padding:8px 14px;background:#B8860B;color:#fff;border:2px solid #8B6508;border-radius:7px;font-size:14px;font-weight:700;font-family:Arial,sans-serif;cursor:pointer;line-height:1;-webkit-appearance:none;appearance:none';
+const NAV_DIS='display:inline-block;padding:8px 14px;background:#D4C890;color:#888;border:2px solid #B0A070;border-radius:7px;font-size:14px;font-weight:700;font-family:Arial,sans-serif;cursor:not-allowed;line-height:1;-webkit-appearance:none;appearance:none';
+
+function renderQ(ei){
+  const ex=EX[ei];
+  const {qi,si}=st[ei];
+  const q=ex.qs[qi];
+  const total=ex.qs.length;
+
+  // question focus box
+  document.getElementById('qfocus'+ei).textContent=q.label;
+
+  // nav label
+  document.getElementById('qlabel'+ei).textContent=total>1?`Question ${qi+1} of ${total}`:'';
+
+  // prev/next nav buttons
+  const prevBtn=document.getElementById('qprev'+ei);
+  const nextBtn=document.getElementById('qnext'+ei);
+  if(total>1){
+    prevBtn.setAttribute('style',qi===0?NAV_DIS:NAV);
+    prevBtn.onclick=qi===0?null:()=>changeQ(ei,-1);
+    nextBtn.setAttribute('style',qi===total-1?NAV_DIS:NAV);
+    nextBtn.onclick=qi===total-1?null:()=>changeQ(ei,1);
+  } else {
+    prevBtn.style.display='none';
+    nextBtn.style.display='none';
+  }
+
+  // steps
+  document.getElementById('sa'+ei).innerHTML='';
+  document.getElementById('dn'+ei).style.display='none';
+
+  // next step button
+  const ct=document.getElementById('ct'+ei);
+  ct.innerHTML='';
+  const stepBtn=btn(`▶ Show next step (1/${q.steps.length})`,()=>nxt(ei),BLUE);
+  stepBtn.id='bn'+ei;
+  ct.appendChild(stepBtn);
+  ct.appendChild(btn('↺ Reset',()=>rstQ(ei),GREY));
+}
+
+function changeQ(ei,dir){
+  st[ei].qi+=dir;
+  st[ei].si=-1;
+  renderQ(ei);
+}
+
+function rstQ(ei){
+  st[ei].si=-1;
+  renderQ(ei);
+}
+
+function nxt(ei){
+  const q=EX[ei].qs[st[ei].qi];
+  st[ei].si++;
+  const si=st[ei].si;
+  const step=q.steps[si];
+  const area=document.getElementById('sa'+ei);
+  const div=document.createElement('div');
+  const lines=step.w.map(l=>`<span style="display:block">${l}</span>`).join('');
+  // font size scales with length
+  const fs=step.w.join('').length>60?'19px':'22px';
+  div.innerHTML=`<div style="background:#F5F0DC;border-left:5px solid #B8860B;border-radius:0 7px 7px 0;padding:0.9rem 1rem;font-family:monospace;font-size:${fs};color:#000;line-height:1.9;margin-bottom:6px">${lines}</div>
+    <div style="background:#FFF3C4;border:1.5px solid #B8860B;border-radius:7px;padding:0.55rem 0.9rem;margin-bottom:6px;font-size:14px;color:#000;font-family:Arial,sans-serif"><b>Identity / Rule:</b> ${step.a}</div>
+    <div style="background:#E6F5E6;border:1.5px solid #2E7D2E;border-radius:7px;padding:0.6rem 0.9rem;font-size:15px;color:#000;line-height:1.65;margin-bottom:10px;font-family:Arial,sans-serif">${step.e}</div>`;
+  area.appendChild(div);
+  div.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const total=q.steps.length;
+  const stepBtn=document.getElementById('bn'+ei);
+  if(si>=total-1){
+    stepBtn.setAttribute('style',BLUE_DIS);
+    stepBtn.textContent='▶ All steps shown';
+    stepBtn.onclick=null;
+    document.getElementById('dn'+ei).style.display='block';
+  } else {
+    stepBtn.textContent=`▶ Show next step (${si+2}/${total})`;
+  }
+}
+
+function tog(ei){
+  const b=document.getElementById('bd'+ei);
+  const ic=document.getElementById('ic'+ei);
+  const o=b.classList.toggle('open');
+  ic.classList.toggle('open',o);
+}
+
+function build(){
+  const L=document.getElementById('exList');
+  EX.forEach((ex,ei)=>{
+    const d=document.createElement('div');
+    d.className='ex-block';
+    const hasMulti=ex.qs.length>1;
+    d.innerHTML=`
+      <div class="ex-head" onclick="tog(${ei})">
+        <div style="flex:1"><div class="ex-title">${ex.t}</div></div>
+        <div class="toggle" id="ic${ei}">▼</div>
+      </div>
+      <div class="ex-body" id="bd${ei}">
+        <div class="q-nav" id="qnav${ei}" style="${hasMulti?'':'display:none'}">
+          <span class="q-label" id="qlabel${ei}"></span>
+          <div class="nav-btns">
+            <button id="qprev${ei}" style="${NAV_DIS}">◀ Prev</button>
+            <button id="qnext${ei}" style="${NAV}">Next ▶</button>
+          </div>
+        </div>
+        <div id="qfocus${ei}" style="font-size:26px;font-weight:700;font-family:monospace;color:#1A0D00;background:#FFF8E0;border:3px solid #B8860B;border-radius:10px;padding:1rem 1.2rem;margin:0.8rem 1.1rem 0.5rem;text-align:center;line-height:1.5"></div>
+        <div id="sa${ei}" style="padding:0 1.1rem"></div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0.5rem 1.1rem 1.1rem" id="ct${ei}"></div>
+        <div class="done-msg" id="dn${ei}" style="margin:0 1.1rem 1rem">✓ All steps shown — well done!</div>
+      </div>`;
+    L.appendChild(d);
+    renderQ(ei);
+  });
+}
+
+build();
+</script>

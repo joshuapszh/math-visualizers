@@ -1,0 +1,234 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+.wrap{background:#FFFDF5;padding:1.5rem;font-family:Georgia,serif;max-width:820px;margin:0 auto;}
+.ref-box{background:#EFF6FF;border:2px solid #BFDBFE;border-radius:10px;padding:1rem 1.5rem;margin-bottom:1.25rem;}
+.ref-box h2{font-size:18px;font-weight:700;color:#1E40AF;margin-bottom:0.6rem;}
+.id-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;}
+.id-pill{background:#fff;border:1px solid #93C5FD;border-radius:8px;padding:0.5rem 0.75rem;text-align:center;font-size:16px;color:#1E40AF;font-weight:600;line-height:1.5;}
+.id-pill span{display:block;font-size:12px;color:#3B82F6;font-weight:400;margin-top:2px;}
+.we-card{background:#fff;border:1px solid #D1D5DB;border-radius:10px;margin-bottom:1rem;overflow:hidden;}
+.we-hdr{background:#1D4ED8;padding:0.7rem 1.2rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.we-hdr h3{font-size:19px;font-weight:600;color:#fff;}
+.we-hdr .tog{font-size:18px;color:#fff;}
+.we-body{display:none;padding:1rem 1.2rem;}
+.q-focus{border:3px solid #B8860B;border-radius:8px;background:#FFFBEA;padding:0.75rem 1rem;text-align:center;font-family:monospace;font-size:26px;color:#1a1a1a;margin-bottom:0.75rem;min-height:60px;display:flex;align-items:center;justify-content:center;}
+.nav-row{display:flex;gap:10px;justify-content:center;margin-bottom:0.75rem;}
+.steps-area{min-height:40px;margin-bottom:0.75rem;}
+.step{animation:fadeIn 0.3s ease;margin-bottom:0.75rem;}
+.step-work{font-size:22px;line-height:1.9;background:#1E3A5F;color:#FFFFFF;border-radius:8px;padding:0.75rem 1.25rem;font-family:monospace;font-weight:500;}
+.step-ann{display:inline-block;background:#FEF9C3;border:1px solid #F59E0B;border-radius:6px;padding:4px 12px;font-size:15px;color:#78350F;margin-top:6px;font-weight:600;}
+.step-exp{background:#F0FDF4;border:1px solid #86EFAC;border-radius:8px;padding:0.6rem 1rem;font-size:17px;color:#14532D;margin-top:6px;line-height:1.7;}
+.step-div{border:none;border-top:0.5px solid #E5E7EB;margin:0.75rem 0;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:0.5rem;}
+.done-badge{background:#DCFCE7;color:#166534;border:1px solid #86EFAC;border-radius:6px;padding:6px 14px;font-size:15px;display:none;}
+.footer{text-align:center;font-size:13px;color:#9CA3AF;margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid #E5E7EB;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+</style>
+
+<div class="wrap">
+<div class="ref-box">
+  <h2>Identity Reference</h2>
+  <div class="id-grid">
+    <div class="id-pill">a² + 2ab + b² = (a+b)²<span>Perfect square (sum)</span></div>
+    <div class="id-pill">a² − 2ab + b² = (a−b)²<span>Perfect square (difference)</span></div>
+    <div class="id-pill">a² − b² = (a+b)(a−b)<span>Difference of two squares</span></div>
+  </div>
+</div>
+<div id="cards"></div>
+<div class="footer">Created by Joshua Poon | Heritage Academy, Singapore<br>Factorisation using Algebraic Identities · Secondary 2 · Set A Homework Debrief</div>
+</div>
+
+<script>
+const BLUE='background:#0D47A1;color:#FFFFFF;border:3px solid #083378;padding:10px 20px;font-size:17px;border-radius:8px;cursor:pointer;font-family:Georgia,serif;';
+const BLUE_DIS='background:#888;color:#fff;border:3px solid #666;padding:10px 20px;font-size:17px;border-radius:8px;cursor:not-allowed;font-family:Georgia,serif;';
+const GREY='background:#fff;color:#000;border:2px solid #333;padding:10px 20px;font-size:17px;border-radius:8px;cursor:pointer;font-family:Georgia,serif;';
+const NAV='background:#B8860B;color:#fff;border:2px solid #8B6508;padding:8px 18px;font-size:16px;border-radius:8px;cursor:pointer;font-family:Georgia,serif;';
+const NAV_DIS='background:#D4C890;color:#888;border:2px solid #D4C890;padding:8px 18px;font-size:16px;border-radius:8px;cursor:not-allowed;font-family:Georgia,serif;';
+
+const data=[
+  {
+    t:"Q26 — Factorise using Perfect Square Identity",
+    qs:[
+      {
+        label:"(a)  x² + 6x + 9",
+        steps:[
+          {w:["x² + 6x + 9","= x² + 2(x)(3) + 3²","= (x + 3)²"],a:"Identity: a² + 2ab + b² = (a+b)²",e:"💡 Look at the first and last terms: x² and 9 = 3². Now check the middle: 2 × x × 3 = 6x ✓. All three terms fit the pattern, so we write the answer as (x + 3)²."}
+        ]
+      },
+      {
+        label:"(b)  m² − 8m + 16",
+        steps:[
+          {w:["m² − 8m + 16","= m² − 2(m)(4) + 4²","= (m − 4)²"],a:"Identity: a² − 2ab + b² = (a−b)²",e:"💡 The middle term is negative, so use the (a−b)² identity. Check: a = m, b = 4. Middle term: 2 × m × 4 = 8m ✓. Last term: 4² = 16 ✓. Answer: (m − 4)²."}
+        ]
+      },
+      {
+        label:"(d)  4x² + 12x + 9",
+        steps:[
+          {w:["4x² + 12x + 9","= (2x)² + 2(2x)(3) + 3²","= (2x + 3)²"],a:"Identity: a² + 2ab + b² = (a+b)²",e:"💡 Key step: rewrite 4x² as (2x)² and 9 as 3². Now a = 2x, b = 3. Check middle: 2 × 2x × 3 = 12x ✓. Answer: (2x + 3)²."}
+        ]
+      },
+      {
+        label:"(e)  2x² − 12x + 18",
+        steps:[
+          {w:["2x² − 12x + 18","= 2(x² − 6x + 9)"],a:"Step 1: Extract common factor 2",e:"💡 Always check for a common factor first. Here 2 divides all three terms. Factor it out before applying any identity."},
+          {w:["= 2(x² − 2(x)(3) + 3²)","= 2(x − 3)²"],a:"Identity: a² − 2ab + b² = (a−b)²",e:"💡 Inside the bracket: x² − 6x + 9. Now a = x, b = 3. Middle term: 2 × x × 3 = 6x ✓. Final answer: 2(x − 3)²."}
+        ]
+      }
+    ]
+  },
+  {
+    t:"Q27 — Factorise using Difference of Two Squares",
+    qs:[
+      {
+        label:"(a)  x² − 9",
+        steps:[
+          {w:["x² − 9","= x² − 3²","= (x + 3)(x − 3)"],a:"Identity: a² − b² = (a+b)(a−b)",e:"💡 Two perfect squares with a minus sign between them — that is the difference of two squares pattern. a = x, b = 3 (since 3² = 9). Apply directly: (x+3)(x−3)."}
+        ]
+      },
+      {
+        label:"(f)  4x² − y²",
+        steps:[
+          {w:["4x² − y²","= (2x)² − y²","= (2x + y)(2x − y)"],a:"Identity: a² − b² = (a+b)(a−b)",e:"💡 Rewrite 4x² as (2x)². Now a = 2x, b = y. Apply the identity: (2x+y)(2x−y). Both factors have the same terms — one with + and one with −."}
+        ]
+      },
+      {
+        label:"(k)  3x² − 48",
+        steps:[
+          {w:["3x² − 48","= 3(x² − 16)"],a:"Step 1: Extract common factor 3",e:"💡 Both terms are divisible by 3. Always factor out the common factor first — this simplifies what is left inside the bracket."},
+          {w:["= 3(x² − 4²)","= 3(x + 4)(x − 4)"],a:"Identity: a² − b² = (a+b)(a−b)",e:"💡 Inside: x² − 16 = x² − 4². Now apply DOTS. Final answer: 3(x+4)(x−4)."}
+        ]
+      },
+      {
+        label:"(l)  2x³ − 50x",
+        steps:[
+          {w:["2x³ − 50x","= 2x(x² − 25)"],a:"Step 1: Extract common factor 2x",e:"💡 Both terms share a factor of 2x — not just 2, but 2x. A common mistake is to only take out 2 and miss the x. Factor out 2x completely."},
+          {w:["= 2x(x² − 5²)","= 2x(x + 5)(x − 5)"],a:"Identity: a² − b² = (a+b)(a−b)",e:"💡 Inside: x² − 25 = x² − 5². Apply DOTS. Final answer: 2x(x+5)(x−5). This is a three-factor answer — all three parts must be written."}
+        ]
+      }
+    ]
+  },
+  {
+    t:"Q28 — Factorise Completely (Two-Stage)",
+    qs:[
+      {
+        label:"(a)  x⁴ − y⁴",
+        steps:[
+          {w:["x⁴ − y⁴","= (x²)² − (y²)²","= (x² + y²)(x² − y²)"],a:"First application: a² − b² = (a+b)(a−b)",e:"💡 Recognise that x⁴ = (x²)² and y⁴ = (y²)². Treat x² and y² as single units. Apply DOTS once to get two factors."},
+          {w:["= (x² + y²)(x + y)(x − y)"],a:"Second application: factorise (x² − y²) again",e:"💡 The second factor (x² − y²) can be factorised again using DOTS. The first factor (x² + y²) is a SUM of squares — it cannot be factorised further. Final answer has three factors."}
+        ]
+      }
+    ]
+  }
+];
+
+function buildCard(ex){
+  const card=document.createElement('div');
+  card.className='we-card';
+  const hdr=document.createElement('div');
+  hdr.className='we-hdr';
+  hdr.innerHTML=`<h3>${ex.t}</h3><span class="tog">▶</span>`;
+  const body=document.createElement('div');
+  body.className='we-body';
+
+  let qIdx=0,stepShown=0;
+
+  const qFocus=document.createElement('div');
+  qFocus.className='q-focus';
+
+  const navRow=document.createElement('div');
+  navRow.className='nav-row';
+  const btnPrev=document.createElement('button');
+  const btnNextQ=document.createElement('button');
+  btnPrev.textContent='◀ Prev';
+  btnNextQ.textContent='Next ▶';
+
+  const stepsArea=document.createElement('div');
+  stepsArea.className='steps-area';
+
+  const btnRow=document.createElement('div');
+  btnRow.className='btn-row';
+  const btnShow=document.createElement('button');
+  const btnReset=document.createElement('button');
+  btnReset.textContent='Reset';
+  btnReset.setAttribute('style',GREY);
+  const badge=document.createElement('div');
+  badge.className='done-badge';
+  badge.textContent='✓ All steps shown';
+  btnRow.appendChild(btnShow);
+  btnRow.appendChild(btnReset);
+  btnRow.appendChild(badge);
+
+  function renderStep(i){
+    const s=ex.qs[qIdx].steps[i];
+    if(i>0){const hr=document.createElement('hr');hr.className='step-div';stepsArea.appendChild(hr);}
+    const div=document.createElement('div');div.className='step';
+    const w=document.createElement('div');w.className='step-work';
+    w.innerHTML=s.w.map(l=>`<div>${l}</div>`).join('');
+    div.appendChild(w);
+    if(s.a){const an=document.createElement('div');an.className='step-ann';an.textContent=s.a;div.appendChild(an);}
+    if(s.e){const ex2=document.createElement('div');ex2.className='step-exp';ex2.innerHTML=s.e;div.appendChild(ex2);}
+    stepsArea.appendChild(div);
+  }
+
+  function loadQ(){
+    qFocus.textContent=ex.qs[qIdx].label;
+    stepsArea.innerHTML='';
+    stepShown=0;
+    badge.style.display='none';
+    updateShow();
+    updateNav();
+  }
+
+  function updateShow(){
+    const total=ex.qs[qIdx].steps.length;
+    if(stepShown>=total){
+      btnShow.textContent='All steps shown';
+      btnShow.setAttribute('style',BLUE_DIS);
+      btnShow.disabled=true;
+      badge.style.display='inline-block';
+    } else {
+      btnShow.textContent=`▶ Show next step (${stepShown}/${total})`;
+      btnShow.setAttribute('style',BLUE);
+      btnShow.disabled=false;
+    }
+  }
+
+  function updateNav(){
+    const multi=ex.qs.length>1;
+    navRow.style.display=multi?'flex':'none';
+    btnPrev.setAttribute('style',qIdx===0?NAV_DIS:NAV);
+    btnPrev.disabled=qIdx===0;
+    btnNextQ.setAttribute('style',qIdx===ex.qs.length-1?NAV_DIS:NAV);
+    btnNextQ.disabled=qIdx===ex.qs.length-1;
+  }
+
+  btnShow.addEventListener('click',()=>{
+    if(stepShown<ex.qs[qIdx].steps.length){renderStep(stepShown);stepShown++;updateShow();}
+  });
+  btnReset.addEventListener('click',()=>loadQ());
+  btnPrev.addEventListener('click',()=>{if(qIdx>0){qIdx--;loadQ();}});
+  btnNextQ.addEventListener('click',()=>{if(qIdx<ex.qs.length-1){qIdx++;loadQ();}});
+
+  navRow.appendChild(btnPrev);
+  navRow.appendChild(btnNextQ);
+  body.appendChild(qFocus);
+  body.appendChild(navRow);
+  body.appendChild(stepsArea);
+  body.appendChild(btnRow);
+
+  hdr.addEventListener('click',()=>{
+    const open=body.style.display==='block';
+    body.style.display=open?'none':'block';
+    hdr.querySelector('.tog').textContent=open?'▶':'▼';
+    if(!open)loadQ();
+  });
+
+  card.appendChild(hdr);
+  card.appendChild(body);
+  return card;
+}
+
+const cont=document.getElementById('cards');
+data.forEach(ex=>cont.appendChild(buildCard(ex)));
+</script>
