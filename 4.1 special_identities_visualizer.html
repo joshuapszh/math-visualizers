@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Special Algebraic Identities — Heritage Academy Sec 2</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #F5F0E8; font-family: Georgia, 'Times New Roman', serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 16px; background: #FFFDF5; min-height: 100vh; }
+
+  /* ── IDENTITY PANEL ── */
+  #identity-panel {
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 18px;
+    position: sticky;
+    top: 8px;
+    z-index: 100;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  }
+  #identity-panel h2 {
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #FFD700;
+    margin-bottom: 10px;
+  }
+  .id-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px;
+  }
+  .id-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .id-card .label { color: #FFD700; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .id-card .formula { font-family: 'Courier New', monospace; font-size: 14px; color: #fff; line-height: 1.6; }
+
+  /* ── EXAMPLE ACCORDION ── */
+  .example-block { border: 1px solid #ddd; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .example-header {
+    background: #f0ebe0;
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a1a2e;
+    user-select: none;
+    border-left: 5px solid #0D47A1;
+  }
+  .example-header:hover { background: #e8e0d0; }
+  .example-header .chevron { font-size: 18px; transition: transform 0.2s; }
+  .example-header.open .chevron { transform: rotate(90deg); }
+  .example-body { display: none; padding: 16px; }
+  .example-body.open { display: block; }
+
+  /* ── QUESTION FOCUS BOX ── */
+  .question-box {
+    background: #FFFBEA;
+    border: 3px solid #DAA520;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 26px;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.5;
+  }
+
+  /* ── PART NAVIGATION ── */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .part-indicator {
+    font-size: 15px;
+    color: #555;
+    font-style: italic;
+    min-width: 90px;
+    text-align: center;
+  }
+
+  /* ── STEPS AREA ── */
+  .steps-area { margin-top: 10px; }
+  .step-block {
+    margin-bottom: 10px;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .working-lines {
+    background: #f8f8f8;
+    border-left: 4px solid #0D47A1;
+    padding: 10px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 19px;
+    line-height: 1.8;
+    border-radius: 0 6px 6px 0;
+  }
+  .annotation-box {
+    background: #FFFDE7;
+    border: 1px solid #F9A825;
+    border-radius: 5px;
+    padding: 7px 12px;
+    font-size: 14px;
+    color: #5D4037;
+    margin-top: 5px;
+  }
+  .annotation-box::before { content: "📌 Rule: "; font-weight: bold; }
+  .explanation-box {
+    background: #E8F5E9;
+    border: 1px solid #66BB6A;
+    border-radius: 5px;
+    padding: 8px 12px;
+    font-size: 15px;
+    color: #2E7D32;
+    margin-top: 5px;
+  }
+  .explanation-box::before { content: "💡 Why: "; font-weight: bold; }
+
+  /* ── BUTTON ROW ── */
+  .btn-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .step-counter {
+    font-size: 13px;
+    color: #777;
+    margin-left: 4px;
+  }
+
+  /* ── TIP BOX ── */
+  .tip-box {
+    background: #FFF3E0;
+    border: 1px dashed #FB8C00;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #E65100;
+    margin-top: 12px;
+  }
+  .tip-box::before { content: "⚠️ Tip: "; font-weight: bold; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding: 16px;
+    font-size: 12px;
+    color: #999;
+    border-top: 1px solid #eee;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- IDENTITY REFERENCE PANEL -->
+  <div id="identity-panel">
+    <h2>📐 Special Algebraic Identities — Quick Reference</h2>
+    <div class="id-grid">
+      <div class="id-card">
+        <div class="label">Perfect Square (Sum)</div>
+        <div class="formula">(a + b)² = a² + 2ab + b²</div>
+      </div>
+      <div class="id-card">
+        <div class="label">Perfect Square (Difference)</div>
+        <div class="formula">(a − b)² = a² − 2ab + b²</div>
+      </div>
+      <div class="id-card">
+        <div class="label">Difference of Two Squares</div>
+        <div class="formula">(a + b)(a − b) = a² − b²</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="examples-container"></div>
+
+  <footer>
+    Created by Joshua Poon | Heritage Academy, Singapore<br>
+    Chapter 4 Section 4.1 · Expansion using Special Algebraic Identities · Secondary 2 · Mathematics Tutor 2A
+  </footer>
+</div>
+
+<script>
+// ── COLOUR CONSTANTS ──
+const BLUE     = 'background:#0D47A1;color:#FFFFFF;border:3px solid #083378;padding:9px 18px;border-radius:6px;font-size:15px;cursor:pointer;font-family:Georgia,serif;';
+const BLUE_DIS = 'background:#888;color:#fff;border:3px solid #666;padding:9px 18px;border-radius:6px;font-size:15px;cursor:not-allowed;font-family:Georgia,serif;';
+const GREY     = 'background:#fff;color:#000;border:2px solid #333;padding:9px 18px;border-radius:6px;font-size:15px;cursor:pointer;font-family:Georgia,serif;';
+const NAV      = 'background:#B8860B;color:#fff;border:2px solid #8B6508;padding:7px 16px;border-radius:6px;font-size:15px;cursor:pointer;font-family:Georgia,serif;';
+const NAV_DIS  = 'background:#D4C890;color:#888;border:2px solid #ccc;padding:7px 16px;border-radius:6px;font-size:15px;cursor:not-allowed;font-family:Georgia,serif;';
+
+// ── DATA ──
+const EXAMPLES = [
+  {
+    t: "Worked Example 1 — Perfect Squares",
+    qs: [
+      {
+        label: "(a)  Expand  (x + 5)²",
+        steps: [
+          {
+            w: ["(x + 5)² = x² + 2(x)(5) + 5²"],
+            a: "(a + b)² = a² + 2ab + b²,  here a = x, b = 5",
+            e: "We apply the Perfect Square (Sum) identity. Replace a with x and b with 5. The middle term is 2 × x × 5."
+          },
+          {
+            w: ["= x² + 10x + 25"],
+            a: "Simplify 2(x)(5) = 10x and 5² = 25",
+            e: "Multiply out: 2 × x × 5 = 10x, and 5² = 25. We now have the fully expanded form."
+          }
+        ]
+      },
+      {
+        label: "(b)  Expand  (2x + 3)²",
+        steps: [
+          {
+            w: ["(2x + 3)² = (2x)² + 2(2x)(3) + 3²"],
+            a: "(a + b)² = a² + 2ab + b²,  here a = 2x, b = 3",
+            e: "This time the 'a' value is 2x (not just x). Be careful: (2x)² means 2² × x² = 4x². The whole bracket is squared."
+          },
+          {
+            w: ["= 4x² + 12x + 9"],
+            a: "Simplify (2x)² = 4x², 2(2x)(3) = 12x, 3² = 9",
+            e: "Evaluate each term: (2x)² = 4x², middle term = 12x, last term = 9. Done."
+          }
+        ]
+      },
+      {
+        label: "(c)  Expand  (3x − 4)²",
+        steps: [
+          {
+            w: ["(3x − 4)² = (3x)² − 2(3x)(4) + 4²"],
+            a: "(a − b)² = a² − 2ab + b²,  here a = 3x, b = 4",
+            e: "Because the bracket has a minus sign, we use the Perfect Square (Difference) identity. The middle term is now subtracted: −2 × 3x × 4."
+          },
+          {
+            w: ["= 9x² − 24x + 16"],
+            a: "Simplify (3x)² = 9x², 2(3x)(4) = 24x, 4² = 16",
+            e: "Work out each part: 9x² − 24x + 16. Notice the last term +16 is always positive — it is b², and a square is always positive."
+          }
+        ]
+      },
+      {
+        label: "(d)  Expand  (5x − 7y)²",
+        steps: [
+          {
+            w: ["(5x − 7y)² = (5x)² − 2(5x)(7y) + (7y)²"],
+            a: "(a − b)² = a² − 2ab + b²,  here a = 5x, b = 7y",
+            e: "Both a and b contain variables. a = 5x and b = 7y. Apply the same identity — just substitute carefully."
+          },
+          {
+            w: ["= 25x² − 70xy + 49y²"],
+            a: "Simplify (5x)² = 25x², 2(5x)(7y) = 70xy, (7y)² = 49y²",
+            e: "Each term has variables in it: 25x², 70xy, 49y². The result is a trinomial in two variables."
+          }
+        ]
+      }
+    ],
+    tip: "(x + 5)² ≠ x² + 25.  You must include the middle term 2ab. Forgetting it is the most common mistake!"
+  },
+
+  {
+    t: "Worked Example 2 — Difference of Two Squares",
+    qs: [
+      {
+        label: "(a)  Expand  (x + 1)(x − 1)",
+        steps: [
+          {
+            w: ["(x + 1)(x − 1) = x² − 1²"],
+            a: "(a + b)(a − b) = a² − b²,  here a = x, b = 1",
+            e: "This is the Difference of Two Squares. When two identical brackets differ only by a sign, they multiply to give a² − b². The middle terms cancel each other out."
+          },
+          {
+            w: ["= x² − 1"],
+            a: "Simplify 1² = 1",
+            e: "The answer is just two terms. No middle term — that is what makes this identity special and fast."
+          }
+        ]
+      },
+      {
+        label: "(b)  Expand  (3 + x)(3 − x)",
+        steps: [
+          {
+            w: ["(3 + x)(3 − x) = 3² − x²"],
+            a: "(a + b)(a − b) = a² − b²,  here a = 3, b = x",
+            e: "This time a = 3 (a number) and b = x (a variable). Order matters: the common term (3) comes first, so a = 3."
+          },
+          {
+            w: ["= 9 − x²"],
+            a: "Simplify 3² = 9",
+            e: "Result: 9 − x². Notice the answer is written with the constant first. Either 9 − x² or −x² + 9 is acceptable."
+          }
+        ]
+      },
+      {
+        label: "(c)  Expand  (2x − 5)(2x + 5)",
+        steps: [
+          {
+            w: ["(2x − 5)(2x + 5) = (2x)² − 5²"],
+            a: "(a + b)(a − b) = a² − b²,  here a = 2x, b = 5",
+            e: "Even though the minus sign appears in the first bracket, the pattern still fits. Both brackets share 2x, so a = 2x."
+          },
+          {
+            w: ["= 4x² − 25"],
+            a: "Simplify (2x)² = 4x², 5² = 25",
+            e: "Result is a binomial (two terms only). This pattern always gives exactly two terms — very clean and efficient."
+          }
+        ]
+      },
+      {
+        label: "(d)  Expand  (½x + 3y)(½x − 3y)",
+        steps: [
+          {
+            w: ["(½x + 3y)(½x − 3y) = (½x)² − (3y)²"],
+            a: "(a + b)(a − b) = a² − b²,  here a = ½x, b = 3y",
+            e: "Fractions are allowed! Treat ½x as a single unit for 'a'. Apply the identity the same way."
+          },
+          {
+            w: ["= ¼x² − 9y²"],
+            a: "Simplify (½x)² = ¼x², (3y)² = 9y²",
+            e: "(½)² = ¼ and (3)² = 9. The variables x and y are also squared. Result: ¼x² − 9y²."
+          }
+        ]
+      },
+      {
+        label: "(e)  Expand  (xy + 1)(xy − 1)",
+        steps: [
+          {
+            w: ["(xy + 1)(xy − 1) = (xy)² − 1²"],
+            a: "(a + b)(a − b) = a² − b²,  here a = xy, b = 1",
+            e: "The variable 'a' can be a product of two variables like xy. Treat the whole of xy as one unit."
+          },
+          {
+            w: ["= x²y² − 1"],
+            a: "Simplify (xy)² = x²y², 1² = 1",
+            e: "(xy)² means x² × y². So the result is x²y² − 1."
+          }
+        ]
+      },
+      {
+        label: "(f)  Expand  (x + y + 2)(x + y − 2)",
+        steps: [
+          {
+            w: ["(x + y + 2)(x + y − 2)", "= [(x + y) + 2][(x + y) − 2]"],
+            a: "Regroup: treat (x + y) as a single unit 'a', and 2 as 'b'",
+            e: "When you spot two brackets that only differ by ±2 on a common chunk, regroup. Here, (x + y) plays the role of 'a'."
+          },
+          {
+            w: ["= (x + y)² − 2²"],
+            a: "(a + b)(a − b) = a² − b²,  here a = (x + y), b = 2",
+            e: "Apply Difference of Two Squares. The result is (x + y)² minus 4."
+          },
+          {
+            w: ["= x² + 2xy + y² − 4"],
+            a: "(a + b)² = a² + 2ab + b²,  expand (x + y)²",
+            e: "Now expand (x + y)² using the Perfect Square identity. Final answer has four terms: x² + 2xy + y² − 4."
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    t: "Worked Example 3 — Numerical Evaluation using Identities",
+    qs: [
+      {
+        label: "(a)  Evaluate  605²",
+        steps: [
+          {
+            w: ["605² = (600 + 5)²"],
+            a: "Rewrite as a perfect square: 605 = 600 + 5",
+            e: "We cannot compute 605² by hand easily. But 600 is a round number, so we split 605 into 600 + 5. This lets us use the identity."
+          },
+          {
+            w: ["= 600² + 2(600)(5) + 5²"],
+            a: "(a + b)² = a² + 2ab + b²,  here a = 600, b = 5",
+            e: "Apply the Perfect Square identity. Each part is now easy to calculate mentally."
+          },
+          {
+            w: ["= 360 000 + 6 000 + 25"],
+            a: "Evaluate: 600² = 360 000, 2(600)(5) = 6 000, 5² = 25",
+            e: "Compute each term: 600² = 360 000; 2 × 600 × 5 = 6 000; 5² = 25."
+          },
+          {
+            w: ["= 366 025"],
+            a: "Add the three results",
+            e: "Sum them: 360 000 + 6 000 + 25 = 366 025. This identity makes large calculations manageable without a calculator!"
+          }
+        ]
+      },
+      {
+        label: "(b)  Evaluate  897²",
+        steps: [
+          {
+            w: ["897² = (900 − 3)²"],
+            a: "Rewrite: 897 = 900 − 3 (nearest round number is 900)",
+            e: "897 is close to 900. Writing it as 900 − 3 lets us use the Perfect Square (Difference) identity."
+          },
+          {
+            w: ["= 900² − 2(900)(3) + 3²"],
+            a: "(a − b)² = a² − 2ab + b²,  here a = 900, b = 3",
+            e: "Apply the identity. Three parts: 900², minus 2 × 900 × 3, plus 3²."
+          },
+          {
+            w: ["= 810 000 − 5 400 + 9"],
+            a: "Evaluate: 900² = 810 000, 2(900)(3) = 5 400, 3² = 9",
+            e: "Work out each part: 810 000, subtract 5 400, add back 9."
+          },
+          {
+            w: ["= 804 609"],
+            a: "Combine: 810 000 − 5 400 + 9 = 804 609",
+            e: "Final answer: 804 609. Quicker and more reliable than long multiplication."
+          }
+        ]
+      },
+      {
+        label: "(c)  Evaluate  301 × 299",
+        steps: [
+          {
+            w: ["301 × 299 = (300 + 1)(300 − 1)"],
+            a: "Rewrite: 301 = 300 + 1 and 299 = 300 − 1",
+            e: "Notice that 301 and 299 are both 1 away from 300 — one above, one below. That means they fit the Difference of Two Squares pattern perfectly."
+          },
+          {
+            w: ["= 300² − 1²"],
+            a: "(a + b)(a − b) = a² − b²,  here a = 300, b = 1",
+            e: "Apply the identity. The result is simply 300² minus 1²."
+          },
+          {
+            w: ["= 90 000 − 1"],
+            a: "Evaluate: 300² = 90 000, 1² = 1",
+            e: "300² = 90 000 (just 3² × 10 000 = 9 × 10 000). 1² = 1."
+          },
+          {
+            w: ["= 89 999"],
+            a: "Subtract: 90 000 − 1 = 89 999",
+            e: "Final answer: 89 999. One subtraction is all it takes — much faster than multiplying 301 × 299 digit by digit."
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    t: "Worked Example 4 — Simplification (Mixed Identities)",
+    qs: [
+      {
+        label: "(a)  Simplify  (2x − 3)² + 5x(4x − 1)",
+        steps: [
+          {
+            w: ["(2x − 3)² = (2x)² − 2(2x)(3) + 3²", "= 4x² − 12x + 9"],
+            a: "(a − b)² = a² − 2ab + b²,  here a = 2x, b = 3",
+            e: "First, expand (2x − 3)² using the Perfect Square identity. Keep the expansion ready — we'll add the second part next."
+          },
+          {
+            w: ["5x(4x − 1) = 20x² − 5x"],
+            a: "Distributive law (ordinary expansion)",
+            e: "Now expand 5x(4x − 1) using the ordinary distributive law — multiply 5x by each term inside the bracket."
+          },
+          {
+            w: ["(2x − 3)² + 5x(4x − 1)", "= 4x² − 12x + 9 + 20x² − 5x"],
+            a: "Combine both expanded parts",
+            e: "Write out everything together. We now need to collect like terms."
+          },
+          {
+            w: ["= 24x² − 17x + 9"],
+            a: "Collect like terms: 4x² + 20x² = 24x², −12x − 5x = −17x",
+            e: "Group x² terms: 4 + 20 = 24. Group x terms: −12 − 5 = −17. The constant 9 stays. Final answer: 24x² − 17x + 9."
+          }
+        ]
+      },
+      {
+        label: "(b)  Simplify  (3x + y)² − 7(x − 2y)(x + 2y)",
+        steps: [
+          {
+            w: ["(3x + y)² = 9x² + 6xy + y²"],
+            a: "(a + b)² = a² + 2ab + b²,  here a = 3x, b = y",
+            e: "Expand (3x + y)² first. a = 3x, b = y. Note that 2ab = 2(3x)(y) = 6xy."
+          },
+          {
+            w: ["(x − 2y)(x + 2y) = x² − (2y)²", "= x² − 4y²"],
+            a: "(a + b)(a − b) = a² − b²,  here a = x, b = 2y",
+            e: "The second part is a Difference of Two Squares. a = x, b = 2y. Result: x² − 4y²."
+          },
+          {
+            w: ["7(x − 2y)(x + 2y) = 7(x² − 4y²)", "= 7x² − 28y²"],
+            a: "Multiply through by 7",
+            e: "Multiply each term by 7: 7 × x² = 7x², 7 × (−4y²) = −28y²."
+          },
+          {
+            w: ["= 9x² + 6xy + y² − (7x² − 28y²)", "= 9x² + 6xy + y² − 7x² + 28y²"],
+            a: "Subtract the second expansion — distribute the minus sign carefully",
+            e: "Subtracting (7x² − 28y²) means changing all signs inside: −7x² and +28y²."
+          },
+          {
+            w: ["= 2x² + 6xy + 29y²"],
+            a: "Collect like terms: 9x² − 7x² = 2x², y² + 28y² = 29y²",
+            e: "Combine x² terms: 9 − 7 = 2. Combine y² terms: 1 + 28 = 29. The xy term (6xy) stands alone. Final answer: 2x² + 6xy + 29y²."
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    t: "Worked Example 5 — Finding Values using Identities",
+    qs: [
+      {
+        label: "(a)  If x² + y² = 29 and xy = 10, find (x + y)²",
+        steps: [
+          {
+            w: ["(x + y)² = x² + 2xy + y²"],
+            a: "(a + b)² = a² + 2ab + b²",
+            e: "We want (x + y)². Expand it using the identity. The result contains x², y², and xy — exactly the values we are given!"
+          },
+          {
+            w: ["= x² + y² + 2xy"],
+            a: "Rearrange: x² + y² groups together",
+            e: "Rearrange to group x² + y² (we know this equals 29) and 2xy (we know xy = 10, so 2xy = 20)."
+          },
+          {
+            w: ["= (29) + 2(10)", "= 29 + 20", "= 49"],
+            a: "Substitute x² + y² = 29 and xy = 10",
+            e: "Plug in the known values. The answer is 49 — we never needed to find x or y individually!"
+          }
+        ]
+      },
+      {
+        label: "(b)  If x − y = 8 and xy = −12, find x² + y²",
+        steps: [
+          {
+            w: ["(x − y)² = x² − 2xy + y²"],
+            a: "(a − b)² = a² − 2ab + b²",
+            e: "We want x² + y², but we are given x − y and xy. Expand (x − y)² — it contains x² + y² and xy."
+          },
+          {
+            w: ["x² + y² = (x − y)² + 2xy"],
+            a: "Rearrange: isolate x² + y²",
+            e: "Rearrange the identity to make x² + y² the subject. Move 2xy to the other side: x² + y² = (x − y)² + 2xy."
+          },
+          {
+            w: ["= 8² + 2(−12)", "= 64 − 24", "= 40"],
+            a: "Substitute x − y = 8 and xy = −12",
+            e: "Substitute: 8² = 64, and 2 × (−12) = −24. So x² + y² = 64 − 24 = 40. Note: xy is negative here, which is fine."
+          }
+        ]
+      },
+      {
+        label: "(c)  If x + y = 7 and x − y = 11, find 3x² − 3y²",
+        steps: [
+          {
+            w: ["(x + y)(x − y) = x² − y²"],
+            a: "(a + b)(a − b) = a² − b²",
+            e: "We want x² − y². The Difference of Two Squares identity gives us exactly (x + y)(x − y) = x² − y². We know both factors!"
+          },
+          {
+            w: ["(7)(11) = x² − y²", "x² − y² = 77"],
+            a: "Substitute x + y = 7 and x − y = 11",
+            e: "Multiply the two given values: 7 × 11 = 77. So x² − y² = 77."
+          },
+          {
+            w: ["3(x² − y²) = 3(77)", "3x² − 3y² = 231"],
+            a: "Multiply both sides by 3",
+            e: "We need 3x² − 3y², which is just 3 times (x² − y²). Multiply both sides by 3: 3 × 77 = 231."
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    t: "Worked Example 6 — Reciprocal Expressions",
+    qs: [
+      {
+        label: "(a)  Given x − 1/x = 9 (x > 0), find x² + 1/x²",
+        steps: [
+          {
+            w: ["(x − 1/x)² = 9²"],
+            a: "Square both sides of the equation",
+            e: "We want x² + 1/x², but we are given x − 1/x. Squaring the given expression will produce x² and 1/x² — that is the connection."
+          },
+          {
+            w: ["x² − 2(x)(1/x) + (1/x)² = 81"],
+            a: "(a − b)² = a² − 2ab + b²,  here a = x, b = 1/x",
+            e: "Expand the left side using the Perfect Square (Difference) identity. The middle term is 2 × x × 1/x."
+          },
+          {
+            w: ["x² − 2 + 1/x² = 81"],
+            a: "Simplify middle term: 2(x)(1/x) = 2",
+            e: "x × 1/x = 1, so 2(x)(1/x) = 2. This simplifies the expression nicely."
+          },
+          {
+            w: ["x² + 1/x² = 81 + 2", "x² + 1/x² = 83"],
+            a: "Rearrange: move −2 to the right side",
+            e: "Add 2 to both sides to isolate x² + 1/x². Final answer: 83."
+          }
+        ]
+      },
+      {
+        label: "(b)  Given (y + 1/y)² = 24 (y > 0), find y² + 1/y²",
+        steps: [
+          {
+            w: ["(y + 1/y)² = 24"],
+            a: "Given directly — expand the left side",
+            e: "The square is already given. Expand using the Perfect Square (Sum) identity. This will give us y² + 1/y² plus a constant term."
+          },
+          {
+            w: ["y² + 2(y)(1/y) + (1/y)² = 24"],
+            a: "(a + b)² = a² + 2ab + b²,  here a = y, b = 1/y",
+            e: "Expand: y², the middle term 2 × y × 1/y, and 1/y²."
+          },
+          {
+            w: ["y² + 2 + 1/y² = 24"],
+            a: "Simplify: 2(y)(1/y) = 2",
+            e: "y × 1/y = 1, so the middle term = 2. The equation becomes y² + 2 + 1/y² = 24."
+          },
+          {
+            w: ["y² + 1/y² = 24 − 2", "y² + 1/y² = 22"],
+            a: "Rearrange: subtract 2 from both sides",
+            e: "Move the +2 to the right side: y² + 1/y² = 22. Final answer: 22."
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// ── STATE ──
+const state = {}; // { exIdx: { partIdx, stepsShown } }
+
+function initState(exIdx) {
+  state[exIdx] = { partIdx: 0, stepsShown: 0 };
+}
+
+// ── BUILD UI ──
+function buildExamples() {
+  const container = document.getElementById('examples-container');
+  EXAMPLES.forEach((ex, exIdx) => {
+    initState(exIdx);
+    const block = document.createElement('div');
+    block.className = 'example-block';
+    block.id = `ex-${exIdx}`;
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'example-header';
+    header.innerHTML = `<span>${ex.t}</span><span class="chevron">▶</span>`;
+    header.addEventListener('click', () => toggleExample(exIdx));
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'example-body';
+    body.id = `body-${exIdx}`;
+    body.innerHTML = renderBody(exIdx);
+
+    block.appendChild(header);
+    block.appendChild(body);
+    container.appendChild(block);
+  });
+}
+
+function toggleExample(exIdx) {
+  const header = document.querySelector(`#ex-${exIdx} .example-header`);
+  const body = document.getElementById(`body-${exIdx}`);
+  const isOpen = body.classList.contains('open');
+  if (isOpen) {
+    body.classList.remove('open');
+    header.classList.remove('open');
+  } else {
+    body.classList.add('open');
+    header.classList.add('open');
+    refreshBody(exIdx);
+  }
+}
+
+function renderBody(exIdx) {
+  return `<div id="inner-${exIdx}"></div>`;
+}
+
+function refreshBody(exIdx) {
+  const ex = EXAMPLES[exIdx];
+  const s = state[exIdx];
+  const q = ex.qs[s.partIdx];
+  const inner = document.getElementById(`inner-${exIdx}`);
+
+  let html = '';
+
+  // Question box
+  html += `<div class="question-box" id="qbox-${exIdx}">${q.label}</div>`;
+
+  // Nav bar (only if multiple parts)
+  if (ex.qs.length > 1) {
+    html += `<div class="nav-bar" id="nav-${exIdx}">
+      <button id="prev-${exIdx}" onclick="navPart(${exIdx},-1)"></button>
+      <span class="part-indicator">Part ${s.partIdx+1} of ${ex.qs.length}</span>
+      <button id="next-${exIdx}" onclick="navPart(${exIdx},1)"></button>
+    </div>`;
+  }
+
+  // Steps area
+  html += `<div class="steps-area" id="steps-${exIdx}">`;
+  for (let i = 0; i < s.stepsShown; i++) {
+    const step = q.steps[i];
+    html += `<div class="step-block">
+      <div class="working-lines">${step.w.join('<br>')}</div>
+      <div class="annotation-box">${step.a}</div>
+      <div class="explanation-box">${step.e}</div>
+    </div>`;
+  }
+  html += `</div>`;
+
+  // Buttons
+  html += `<div class="btn-row">
+    <button id="show-btn-${exIdx}" onclick="showStep(${exIdx})"></button>
+    <button id="reset-btn-${exIdx}" onclick="resetQ(${exIdx})"></button>
+    <span class="step-counter" id="counter-${exIdx}"></span>
+  </div>`;
+
+  // Tip (only WE1)
+  if (ex.tip) {
+    html += `<div class="tip-box">${ex.tip}</div>`;
+  }
+
+  inner.innerHTML = html;
+  applyButtonStyles(exIdx);
+}
+
+function applyButtonStyles(exIdx) {
+  const ex = EXAMPLES[exIdx];
+  const s = state[exIdx];
+  const q = ex.qs[s.partIdx];
+  const total = q.steps.length;
+
+  const showBtn = document.getElementById(`show-btn-${exIdx}`);
+  const resetBtn = document.getElementById(`reset-btn-${exIdx}`);
+  const counter = document.getElementById(`counter-${exIdx}`);
+
+  if (showBtn) {
+    if (s.stepsShown < total) {
+      showBtn.textContent = 'Show next step ▶';
+      showBtn.setAttribute('style', BLUE);
+      showBtn.disabled = false;
+    } else {
+      showBtn.textContent = 'All steps shown';
+      showBtn.setAttribute('style', BLUE_DIS);
+      showBtn.disabled = true;
+    }
+  }
+  if (resetBtn) {
+    resetBtn.textContent = 'Reset';
+    resetBtn.setAttribute('style', GREY);
+  }
+  if (counter) {
+    counter.textContent = s.stepsShown > 0 ? `(${s.stepsShown}/${total})` : '';
+  }
+
+  // Nav buttons
+  if (ex.qs.length > 1) {
+    const prevBtn = document.getElementById(`prev-${exIdx}`);
+    const nextBtn = document.getElementById(`next-${exIdx}`);
+    if (prevBtn) {
+      prevBtn.textContent = '◀ Prev';
+      prevBtn.setAttribute('style', s.partIdx === 0 ? NAV_DIS : NAV);
+      prevBtn.disabled = s.partIdx === 0;
+    }
+    if (nextBtn) {
+      nextBtn.textContent = 'Next ▶';
+      nextBtn.setAttribute('style', s.partIdx === ex.qs.length - 1 ? NAV_DIS : NAV);
+      nextBtn.disabled = s.partIdx === ex.qs.length - 1;
+    }
+  }
+}
+
+function showStep(exIdx) {
+  const ex = EXAMPLES[exIdx];
+  const s = state[exIdx];
+  const q = ex.qs[s.partIdx];
+  if (s.stepsShown >= q.steps.length) return;
+
+  s.stepsShown++;
+  const stepsArea = document.getElementById(`steps-${exIdx}`);
+  const step = q.steps[s.stepsShown - 1];
+  const div = document.createElement('div');
+  div.className = 'step-block';
+  div.innerHTML = `
+    <div class="working-lines">${step.w.join('<br>')}</div>
+    <div class="annotation-box">${step.a}</div>
+    <div class="explanation-box">${step.e}</div>`;
+  stepsArea.appendChild(div);
+
+  applyButtonStyles(exIdx);
+  div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function resetQ(exIdx) {
+  state[exIdx].stepsShown = 0;
+  refreshBody(exIdx);
+}
+
+function navPart(exIdx, dir) {
+  const ex = EXAMPLES[exIdx];
+  const s = state[exIdx];
+  const newIdx = s.partIdx + dir;
+  if (newIdx < 0 || newIdx >= ex.qs.length) return;
+  s.partIdx = newIdx;
+  s.stepsShown = 0;
+  refreshBody(exIdx);
+}
+
+buildExamples();
+</script>
+</body>
+</html>
