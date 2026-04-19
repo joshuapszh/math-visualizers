@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework Debrief Visualizer - Part 3 | Heritage Academy</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+        }
+        .wrap {
+            background-color: #FFFDF5;
+            max-width: 1100px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        #targets-panel {
+            background: #fff;
+            border-left: 8px solid #B8860B;
+            padding: 20px 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        #targets-panel h2 { margin-top: 0; color: #B8860B; font-size: 30px; }
+        #targets-panel ul { font-size: 22px; line-height: 1.5; color: #000; font-weight: bold; }
+        
+        #identity-panel {
+            background: #fff;
+            border-left: 8px solid #0D47A1;
+            padding: 20px 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        #identity-panel h3 { margin-top: 0; color: #0D47A1; font-size: 28px; }
+        .rule-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+        .rule-box { background: #f5f8fc; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 20px; flex: 1; min-width: 300px; border: 1px solid #ccc; color:#000; }
+        
+        .we-header {
+            background: #0D47A1;
+            color: white;
+            border: 3px solid #083378;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px;
+        }
+        .we-header:hover { background: #1565C0; }
+        .we-content {
+            display: none;
+            padding: 30px;
+            background: #fff;
+            border: 2px solid #ccc;
+            border-top: none;
+            margin-bottom: 30px;
+            margin-top: -15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .q-text {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        .focus-box {
+            border: 6px solid #B8860B;
+            padding: 40px;
+            text-align: center;
+            font-size: 32px;
+            font-family: monospace;
+            background: #fff;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .svg-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        .step-container { margin-bottom: 30px; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .working-line {
+            background-color: #1E3A5F;
+            color: #FFFFFF;
+            font-size: 28px;
+            font-family: monospace;
+            margin-bottom: 5px;
+            padding: 15px 25px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .annotation-box {
+            background: #FFF9C4;
+            border-left: 6px solid #FBC02D;
+            padding: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 22px;
+            color: #000;
+        }
+        .explanation-box {
+            background: #E8F5E9;
+            border-left: 6px solid #4CAF50;
+            padding: 15px;
+            font-size: 22px;
+            line-height: 1.6;
+            color: #000;
+        }
+        
+        .nav-container { text-align: center; margin-bottom: 30px; }
+        .controls-container { margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        
+        footer {
+            text-align: center;
+            color: #333;
+            font-size: 18px;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    
+    <div id="targets-panel">
+        <h2>Chapter 5 Targets</h2>
+        <ul>
+            <li>Draw quadratic graphs.</li>
+            <li>State the properties of quadratic graphs (positive/negative coefficient, maximum/minimum points, symmetry).</li>
+        </ul>
+    </div>
+
+    <div id="identity-panel">
+        <h3>Reference: Properties of Quadratic Graphs (y = ax² + bx + c)</h3>
+        <div class="rule-grid">
+            <div class="rule-box">
+                <strong>Shape of the Curve (Parabola):</strong><br>
+                If <strong>a > 0</strong> (positive): U-shape (has a Minimum point).<br>
+                If <strong>a < 0</strong> (negative): N-shape (has a Maximum point).
+            </div>
+            <div class="rule-box">
+                <strong>Key Features:</strong><br>
+                <strong>Line of Symmetry:</strong> A vertical line passing exactly through the turning point.<br>
+                <strong>y-intercept:</strong> The curve cuts the y-axis at (0, c).
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content"></div>
+
+    <footer>
+        Created by Joshua Poon | Heritage Academy, Singapore | SA1 Revision<br>
+        Secondary 2 Mathematics — Chapter 5: Quadratic Equations and Graphs (Part 3)
+    </footer>
+</div>
+
+<script>
+const btnStyles = {
+    BLUE: "background:#0D47A1; color:#FFFFFF; border:3px solid #083378; padding:12px 24px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px;",
+    BLUE_DIS: "background:#888; color:#fff; border:3px solid #666; padding:12px 24px; font-size:20px; font-weight:bold; cursor:not-allowed; border-radius:6px;",
+    GREY: "background:#fff; color:#000; border:2px solid #333; padding:12px 24px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px;",
+    NAV: "background:#B8860B; color:#fff; border:2px solid #8B6508; padding:10px 20px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px; margin:0 8px;",
+    NAV_DIS: "background:#D4C890; color:#888; border:2px solid #D4C890; padding:10px 20px; font-size:20px; font-weight:bold; cursor:not-allowed; border-radius:6px; margin:0 8px;"
+};
+
+function applyBtnStyle(btnElement, styleKey) {
+    btnElement.setAttribute('style', btnStyles[styleKey]);
+}
+
+const weData = [
+    {
+        t: "Worked Example 1 — Interpreting a U-Shaped Parabola",
+        qs: [
+            {
+                label: "(a) Draw the graph of y = x² + 2 for -3 ≤ x ≤ 3.",
+                steps: [
+                    { w: ["x: -3 | -2 | -1 | 0 | 1 | 2 | 3\ny: 11 |  6 |  3 | 2 | 3 | 6 | 11"], a: "Construct a table of values", e: "Substitute each x-value into the equation to find the corresponding y-value. For example, when x = -3, y = (-3)² + 2 = 11." },
+                    { w: ["Plot the points on a graph paper.", "Join them to form a smooth curve."], a: "Draw the parabola", e: "Choose a suitable scale. Remember to draw a smooth U-shaped curve, not straight lines between the points." }
+                ]
+            },
+            {
+                q_text: "From your graph, find:",
+                diagram_svg: `<svg viewBox="0 0 600 350" width="100%" height="300px" style="background:#fff; border: 2px solid #ccc;">
+                                <line x1="50" y1="280" x2="550" y2="280" stroke="#000" stroke-width="4" /> <line x1="300" y1="20" x2="300" y2="300" stroke="#000" stroke-width="4" /> <path d="M 100 50 Q 300 480 500 50" fill="none" stroke="#0D47A1" stroke-width="5" />
+                                <text x="530" y="310" font-size="24" font-weight="bold" fill="#000">x</text>
+                                <text x="270" y="30" font-size="24" font-weight="bold" fill="#000">y</text>
+                                <circle cx="300" cy="240" r="6" fill="#000" />
+                                <text x="315" y="250" font-size="22" font-weight="bold" fill="#000">2</text>
+                                <line x1="410" y1="280" x2="410" y2="160" stroke="#D32F2F" stroke-dasharray="6,6" stroke-width="3" />
+                                <line x1="410" y1="160" x2="300" y2="160" stroke="#D32F2F" stroke-dasharray="6,6" stroke-width="3" />
+                                <text x="390" y="315" font-size="22" font-weight="bold" fill="#D32F2F">1.7</text>
+                                <text x="250" y="165" font-size="22" font-weight="bold" fill="#D32F2F">4.9</text>
+                                <text x="440" y="100" font-size="20" font-weight="bold" fill="#0D47A1">y = x² + 2</text>
+                              </svg>`,
+                label: "(b) Interpret Graph Features",
+                steps: [
+                    { w: ["(i) When x = 1.7, y ≈ 4.9"], a: "Read from the graph", e: "Draw a dashed vertical line up from 1.7 on the x-axis to the curve, then a horizontal line across to the y-axis." },
+                    { w: ["(ii) Minimum point = (0, 2)"], a: "Locate the turning point", e: "Because 'a' is positive (1x²), the graph is a U-shape. The lowest point sits exactly on the y-axis at y=2." },
+                    { w: ["(iii) Line of symmetry: x = 0"], a: "Identify the mirror line", e: "The vertical line of symmetry passes straight through the minimum point's x-coordinate." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Worked Example 2 — Reading Both Axes",
+        qs: [
+            {
+                label: "(a) Draw the graph of y = x² + x - 2 for -4 ≤ x ≤ 3.",
+                steps: [
+                    { w: ["x: -4 | -3 | -2 | -1 |  0 | 1 | 2 | 3\ny: 10 |  4 |  0 | -2 | -2 | 0 | 4 | 10"], a: "Construct a table of values", e: "Calculate y for each x. For example, when x = -4, y = (-4)² + (-4) - 2 = 16 - 4 - 2 = 10." },
+                    { w: ["Plot the points and draw a smooth curve."], a: "Draw the parabola", e: "Notice that between x = -1 and x = 0, both plotted y-values are -2. The curve dips slightly below -2 to form its true minimum point. Do not draw a flat straight line!" }
+                ]
+            },
+            {
+                q_text: "From your graph, find:",
+                diagram_svg: `<svg viewBox="0 0 600 350" width="100%" height="300px" style="background:#fff; border: 2px solid #ccc;">
+                                <line x1="50" y1="200" x2="550" y2="200" stroke="#000" stroke-width="4" /> <line x1="300" y1="20" x2="300" y2="330" stroke="#000" stroke-width="4" /> <path d="M 100 40 Q 275 420 500 40" fill="none" stroke="#0D47A1" stroke-width="5" />
+                                <text x="530" y="230" font-size="24" font-weight="bold" fill="#000">x</text>
+                                <text x="270" y="30" font-size="24" font-weight="bold" fill="#000">y</text>
+                                <line x1="275" y1="20" x2="275" y2="330" stroke="#388E3C" stroke-dasharray="8,4" stroke-width="3" />
+                                <text x="120" y="320" font-size="22" font-weight="bold" fill="#388E3C">x = -0.5</text>
+                                <line x1="160" y1="110" x2="300" y2="110" stroke="#D32F2F" stroke-dasharray="6,6" stroke-width="3" />
+                                <line x1="160" y1="110" x2="160" y2="200" stroke="#D32F2F" stroke-dasharray="6,6" stroke-width="3" />
+                                <text x="130" y="235" font-size="20" font-weight="bold" fill="#D32F2F">-3.2</text>
+                                <text x="310" y="105" font-size="20" font-weight="bold" fill="#D32F2F">5</text>
+                              </svg>`,
+                label: "(b) Interpret Graph Features",
+                steps: [
+                    { w: ["(i) When x = 1.6, y ≈ 2.2"], a: "Find y given x", e: "Read vertically up from x = 1.6 to the curve, then horizontally across to the y-axis." },
+                    { w: ["(ii) When y = 5, x ≈ -3.2 or x ≈ 2.2"], a: "Find x given y", e: "Read horizontally across from y = 5. The line intersects the U-shape twice, giving two valid x-values." },
+                    { w: ["(iii) Smallest value of y ≈ -2.3"], a: "Find the exact minimum point", e: "The curve dips below the plotted y = -2 points, bottoming out around y = -2.3." },
+                    { w: ["(iv) Line of symmetry: x = -0.5"], a: "Identify the mirror line", e: "The vertical mirror line cuts perfectly through the middle of the parabola at x = -0.5." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Worked Example 3 — Interpreting an N-Shaped Parabola",
+        qs: [
+            {
+                label: "(a) Complete table for y = 1 + 2x - x²   &   (b) Draw graph",
+                steps: [
+                    { w: ["x = 0: y = 1 + 0 - 0 = 1\nx = 1: y = 1 + 2 - 1 = 2\nx = 4: y = 1 + 8 - 16 = -7"], a: "Calculate missing table values", e: "Substitute the missing x values (0, 1, and 4) into the equation to find their y values." },
+                    { w: ["x: -3 | -2 | -1 | 0 | 1 | 2 |  3 |  4 |  5\ny:-14 | -7 | -2 | 1 | 2 | 1 | -2 | -7 | -14"], a: "Complete the table", e: "Here is the fully completed table of values." },
+                    { w: ["Plot points and draw a smooth N-shaped curve."], a: "Draw the parabola", e: "Because the x² term is negative (-x²), the graph opens downwards, giving us a maximum peak rather than a minimum dip." }
+                ]
+            },
+            {
+                q_text: "From your graph, find:",
+                diagram_svg: `<svg viewBox="0 0 600 350" width="100%" height="300px" style="background:#fff; border: 2px solid #ccc;">
+                                <line x1="50" y1="80" x2="550" y2="80" stroke="#000" stroke-width="4" /> <line x1="250" y1="20" x2="250" y2="330" stroke="#000" stroke-width="4" /> <path d="M 80 330 Q 320 -150 520 330" fill="none" stroke="#0D47A1" stroke-width="5" />
+                                <circle cx="320" cy="50" r="6" fill="#000" />
+                                <line x1="320" y1="20" x2="320" y2="330" stroke="#388E3C" stroke-dasharray="8,4" stroke-width="3" />
+                                <text x="330" y="320" font-size="22" font-weight="bold" fill="#388E3C">x = 1</text>
+                                <line x1="165" y1="220" x2="435" y2="220" stroke="#D32F2F" stroke-dasharray="6,6" stroke-width="3" />
+                                <line x1="165" y1="220" x2="165" y2="80" stroke="#D32F2F" stroke-dasharray="6,6" stroke-width="3" />
+                                <line x1="435" y1="220" x2="435" y2="80" stroke="#D32F2F" stroke-dasharray="6,6" stroke-width="3" />
+                                <text x="210" y="215" font-size="20" font-weight="bold" fill="#D32F2F">-9</text>
+                              </svg>`,
+                label: "(c) Interpret Graph Features",
+                steps: [
+                    { w: ["(i) When x = -1.6, y ≈ -4.8\nWhen x = 3.2, y ≈ -2.8"], a: "Find y given x", e: "Draw vertical lines from the x-axis down to the curve, then read across to the y-axis." },
+                    { w: ["(ii) When y = -9, x ≈ -2.3 or x ≈ 4.3"], a: "Find x given y", e: "Draw a horizontal line at y = -9. It hits the curve in two places." },
+                    { w: ["(iii) Greatest value of y = 2\nOccurs when x = 1"], a: "Identify the Maximum point", e: "The absolute highest peak of the curve sits at the coordinates (1, 2)." },
+                    { w: ["(iv) Line of symmetry: x = 1"], a: "Identify the mirror line", e: "The vertical line splitting the N-shape perfectly in half runs straight through the maximum point's x-coordinate." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Worked Example 4 — Finding Coordinates Algebraically",
+        qs: [
+            {
+                q_text: "The graph of y = x² - 2x - 8 cuts the x-axis at A and B, and the y-axis at C. D is the minimum point.",
+                diagram_svg: `<svg viewBox="0 0 600 350" width="100%" height="300px" style="background:#fff; border: 2px solid #ccc;">
+                                <line x1="50" y1="150" x2="550" y2="150" stroke="#000" stroke-width="4" /> <line x1="250" y1="20" x2="250" y2="330" stroke="#000" stroke-width="4" /> <path d="M 80 20 Q 320 400 480 20" fill="none" stroke="#0D47A1" stroke-width="5" />
+                                <circle cx="160" cy="150" r="7" fill="#D32F2F" />
+                                <text x="140" y="140" font-size="24" font-weight="bold" fill="#D32F2F">A</text>
+                                <circle cx="410" cy="150" r="7" fill="#D32F2F" />
+                                <text x="420" y="140" font-size="24" font-weight="bold" fill="#D32F2F">B</text>
+                                <circle cx="250" cy="240" r="7" fill="#D32F2F" />
+                                <text x="210" y="240" font-size="24" font-weight="bold" fill="#D32F2F">C</text>
+                                <circle cx="320" cy="270" r="7" fill="#388E3C" />
+                                <text x="335" y="280" font-size="24" font-weight="bold" fill="#388E3C">D</text>
+                              </svg>`,
+                label: "Find the exact coordinates of A, B, C, D, and the line of symmetry.",
+                steps: [
+                    { w: ["(a) At x-axis, y = 0.\nx² - 2x - 8 = 0\n(x + 2)(x - 4) = 0"], a: "Find A and B (x-intercepts)", e: "The graph touches the horizontal x-axis when y is strictly zero. We use our factorisation skills from Section 5.1 to solve the quadratic!" },
+                    { w: ["x = -2   or   x = 4\nA = (-2, 0) and B = (4, 0)"], a: "Assign coordinates", e: "Since A is on the left of the origin, it takes the negative value. B is on the right." },
+                    { w: ["At y-axis, x = 0.\ny = (0)² - 2(0) - 8 = -8\nC = (0, -8)"], a: "Find C (y-intercept)", e: "The graph crosses the vertical y-axis when x is exactly zero. Just plug 0 into the equation." },
+                    { w: ["(b) x of D = (-2 + 4) / 2 = 1\ny of D = (1)² - 2(1) - 8 = -9\nD = (1, -9)"], a: "Find D (minimum point)", e: "The minimum point D sits perfectly in the middle of the two x-intercepts. Find the midpoint of -2 and 4 to get x=1. Substitute x=1 back into the curve equation to find its depth." },
+                    { w: ["(c) Line of symmetry: x = 1"], a: "Equation of line of symmetry", e: "The vertical mirror line passes straight through the turning point D." }
+                ]
+            }
+        ]
+    }
+];
+
+function initApp() {
+    const container = document.getElementById('app-content');
+    
+    weData.forEach((example) => {
+        const header = document.createElement('div');
+        header.className = 'we-header';
+        header.innerHTML = `<span>${example.t}</span> <span>▼</span>`;
+        
+        const content = document.createElement('div');
+        content.className = 'we-content';
+        
+        let currentQsIndex = 0;
+        let currentStepIndex = 0;
+        
+        const buildUI = () => {
+            content.innerHTML = '';
+            const qData = example.qs[currentQsIndex];
+            
+            if (example.qs.length > 1) {
+                const navDiv = document.createElement('div');
+                navDiv.className = 'nav-container';
+                
+                const btnPrev = document.createElement('button');
+                btnPrev.innerHTML = "◀ Prev";
+                if (currentQsIndex === 0) {
+                    applyBtnStyle(btnPrev, 'NAV_DIS');
+                    btnPrev.disabled = true;
+                } else {
+                    applyBtnStyle(btnPrev, 'NAV');
+                    btnPrev.onclick = () => { currentQsIndex--; currentStepIndex = 0; buildUI(); };
+                }
+                
+                const btnNext = document.createElement('button');
+                btnNext.innerHTML = "Next ▶";
+                if (currentQsIndex === example.qs.length - 1) {
+                    applyBtnStyle(btnNext, 'NAV_DIS');
+                    btnNext.disabled = true;
+                } else {
+                    applyBtnStyle(btnNext, 'NAV');
+                    btnNext.onclick = () => { currentQsIndex++; currentStepIndex = 0; buildUI(); };
+                }
+                
+                navDiv.appendChild(btnPrev);
+                navDiv.appendChild(btnNext);
+                content.appendChild(navDiv);
+            }
+            
+            const focusBox = document.createElement('div');
+            focusBox.className = 'focus-box';
+            
+            if (qData.q_text) {
+                const qt = document.createElement('div');
+                qt.className = 'q-text';
+                qt.innerText = qData.q_text;
+                focusBox.appendChild(qt);
+            }
+            
+            if (qData.diagram_svg) {
+                const svgDiv = document.createElement('div');
+                svgDiv.className = 'svg-container';
+                svgDiv.innerHTML = qData.diagram_svg;
+                focusBox.appendChild(svgDiv);
+            }
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.innerText = qData.label;
+            focusBox.appendChild(labelDiv);
+            
+            content.appendChild(focusBox);
+            
+            const stepsDiv = document.createElement('div');
+            for (let i = 0; i < currentStepIndex; i++) {
+                const stepObj = qData.steps[i];
+                const stepWrap = document.createElement('div');
+                stepWrap.className = 'step-container';
+                
+                stepObj.w.forEach(line => {
+                    const wLine = document.createElement('div');
+                    wLine.className = 'working-line';
+                    wLine.innerText = line;
+                    stepWrap.appendChild(wLine);
+                });
+                
+                const aBox = document.createElement('div');
+                aBox.className = 'annotation-box';
+                aBox.innerText = `✏️ ${stepObj.a}`;
+                stepWrap.appendChild(aBox);
+                
+                const eBox = document.createElement('div');
+                eBox.className = 'explanation-box';
+                eBox.innerText = stepObj.e;
+                stepWrap.appendChild(eBox);
+                
+                stepsDiv.appendChild(stepWrap);
+            }
+            content.appendChild(stepsDiv);
+            
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'controls-container';
+            
+            const btnStep = document.createElement('button');
+            const totalSteps = qData.steps.length;
+            
+            if (currentStepIndex < totalSteps) {
+                btnStep.innerHTML = `Show next step (${currentStepIndex + 1}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE');
+                btnStep.onclick = () => {
+                    currentStepIndex++;
+                    buildUI();
+                };
+            } else {
+                btnStep.innerHTML = `All steps shown (${totalSteps}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE_DIS');
+                btnStep.disabled = true;
+            }
+            
+            const btnReset = document.createElement('button');
+            btnReset.innerHTML = "Reset";
+            applyBtnStyle(btnReset, 'GREY');
+            btnReset.onclick = () => {
+                currentStepIndex = 0;
+                buildUI();
+            };
+            
+            controlsDiv.appendChild(btnStep);
+            controlsDiv.appendChild(btnReset);
+            content.appendChild(controlsDiv);
+        };
+        
+        header.addEventListener('click', () => {
+            const isOepn = content.style.display === 'block';
+            document.querySelectorAll('.we-content').forEach(el => el.style.display = 'none');
+            
+            if (!isOepn) {
+                content.style.display = 'block';
+                currentQsIndex = 0;
+                currentStepIndex = 0;
+                buildUI();
+            }
+        });
+        
+        container.appendChild(header);
+        container.appendChild(content);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+</body>
+</html>

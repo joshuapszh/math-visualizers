@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework Debrief Visualizer - Part 2 | Heritage Academy</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+        }
+        .wrap {
+            background-color: #FFFDF5;
+            max-width: 1100px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        #identity-panel {
+            background: #fff;
+            border-left: 8px solid #0D47A1;
+            padding: 20px 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        #identity-panel h3 { margin-top: 0; color: #0D47A1; font-size: 28px; }
+        .rule-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+        .rule-box { background: #f5f8fc; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 20px; flex: 1; min-width: 300px; border: 1px solid #ccc; color:#000; }
+        
+        .we-header {
+            background: #0D47A1;
+            color: white;
+            border: 3px solid #083378;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px;
+        }
+        .we-header:hover { background: #1565C0; }
+        .we-content {
+            display: none;
+            padding: 30px;
+            background: #fff;
+            border: 2px solid #ccc;
+            border-top: none;
+            margin-bottom: 30px;
+            margin-top: -15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .q-text {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        .focus-box {
+            border: 6px solid #B8860B;
+            padding: 40px;
+            text-align: center;
+            font-size: 32px;
+            font-family: monospace;
+            background: #fff;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .svg-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        .step-container { margin-bottom: 30px; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .working-line {
+            background-color: #1E3A5F;
+            color: #FFFFFF;
+            font-size: 28px;
+            font-family: monospace;
+            margin-bottom: 5px;
+            padding: 15px 25px;
+            border-radius: 4px;
+        }
+        .annotation-box {
+            background: #FFF9C4;
+            border-left: 6px solid #FBC02D;
+            padding: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 22px;
+            color: #000;
+        }
+        .explanation-box {
+            background: #E8F5E9;
+            border-left: 6px solid #4CAF50;
+            padding: 15px;
+            font-size: 22px;
+            line-height: 1.6;
+            color: #000;
+        }
+        
+        .nav-container { text-align: center; margin-bottom: 30px; }
+        .controls-container { margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        
+        footer {
+            text-align: center;
+            color: #333;
+            font-size: 18px;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div id="identity-panel">
+        <h3>Reference: Key Algebraic Rules</h3>
+        <div class="rule-grid">
+            <div class="rule-box">
+                <strong>Real-World Application Steps:</strong><br>
+                1. Read carefully & draw diagram.<br>
+                2. Define your variable (e.g., let x = ...).<br>
+                3. Form a quadratic equation.<br>
+                4. Solve and reject impossible answers.
+            </div>
+            <div class="rule-box">
+                <strong>The Substitution Trick:</strong><br>
+                If you solved 2x² - 11x + 12 = 0,<br>
+                you can instantly solve 2(n-1)² - 11(n-1) + 12 = 0<br>
+                by substituting (n-1) in place of x.
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content"></div>
+
+    <footer>
+        Created by Joshua Poon | Heritage Academy, Singapore | SA1 Revision<br>
+        Secondary 2 Mathematics — Chapter 5: Quadratic Equations (Part 2)
+    </footer>
+</div>
+
+<script>
+const btnStyles = {
+    BLUE: "background:#0D47A1; color:#FFFFFF; border:3px solid #083378; padding:12px 24px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px;",
+    BLUE_DIS: "background:#888; color:#fff; border:3px solid #666; padding:12px 24px; font-size:20px; font-weight:bold; cursor:not-allowed; border-radius:6px;",
+    GREY: "background:#fff; color:#000; border:2px solid #333; padding:12px 24px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px;",
+    NAV: "background:#B8860B; color:#fff; border:2px solid #8B6508; padding:10px 20px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px; margin:0 8px;",
+    NAV_DIS: "background:#D4C890; color:#888; border:2px solid #D4C890; padding:10px 20px; font-size:20px; font-weight:bold; cursor:not-allowed; border-radius:6px; margin:0 8px;"
+};
+
+function applyBtnStyle(btnElement, styleKey) {
+    btnElement.setAttribute('style', btnStyles[styleKey]);
+}
+
+const weData = [
+    {
+        t: "Worked Example 4 — The Substitution Trick",
+        qs: [
+            {
+                label: "(a) 2x² - 11x + 12 = 0",
+                steps: [
+                    { w: ["(2x - 3)(x - 4) = 0"], a: "Factorise using Multiplication Frame", e: "Set up the frame to find factors of 2x² and 12 that cross-multiply to give -11x." },
+                    { w: ["2x - 3 = 0   or   x - 4 = 0", "x = 1 1/2   or   x = 4"], a: "Apply Zero Product Principle", e: "Solve for the two values of x. We will use this result as a blueprint for the next part." }
+                ]
+            },
+            {
+                q_text: "Hence, solve the equation 2(n - 1)² - 11(n - 1) + 12 = 0",
+                label: "(b) 2(n - 1)² - 11(n - 1) + 12 = 0",
+                steps: [
+                    { w: ["Let x = (n - 1)"], a: "Identify the pattern", e: "In the Singapore Math syllabus, the word 'Hence' is a massive clue. It means 'use your previous answer'. Notice this equation is identical to part (a), just with '(n - 1)' replacing 'x'." },
+                    { w: ["x = 1 1/2   or   x = 4"], a: "Recall previous solutions", e: "Since the structure is identical, the solutions for the whole bracket (n-1) are identical to the solutions for x." },
+                    { w: ["n - 1 = 1 1/2   or   n - 1 = 4"], a: "Substitute back", e: "Replace 'x' with '(n - 1)' to set up equations for our actual target variable, n." },
+                    { w: ["n = 2 1/2   or   n = 5"], a: "Solve for n", e: "Add 1 to both sides of both equations to find the final answers." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Worked Example 5 — Equations with No Real Roots",
+        qs: [
+            {
+                label: "(a) Solve: 8x² - 18 = 0",
+                steps: [
+                    { w: ["4x² - 9 = 0"], a: "Simplify the equation", e: "Divide the entire equation by 2 to make the numbers easier to factorise." },
+                    { w: ["(2x)² - 3² = 0", "(2x + 3)(2x - 3) = 0"], a: "Apply Difference of Two Squares", e: "Use the algebraic identity: a² - b² = (a + b)(a - b)." },
+                    { w: ["2x + 3 = 0   or   2x - 3 = 0", "x = -1 1/2   or   x = 1 1/2"], a: "Solve for x", e: "Isolate x. Note: you could also solve this by moving 9 and taking the square root: x = ±√(9/4)." }
+                ]
+            },
+            {
+                q_text: "Explain why 8x² + 18 = 0 has no real solutions.",
+                label: "(b) 8x² + 18 = 0",
+                steps: [
+                    { w: ["8x² = -18", "x² = -18/8 = -9/4"], a: "Isolate x²", e: "Move the constant to the right side of the equation." },
+                    { w: ["x = ±√(-9/4)"], a: "Attempt to take the square root", e: "We need to find a number that, when multiplied by itself, gives a negative result." },
+                    { w: ["No real solutions"], a: "Analyze the mathematical logic", e: "Squaring any real number always gives a positive result (or zero). Therefore, x² ≥ 0, which means 8x² can NEVER equal -18. The equation has no real roots!" }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Worked Example 6 — Manipulating Variables",
+        qs: [
+            {
+                q_text: "If 2a² + 7ab - 4b² = 0, where b ≠ 0, find the possible values of a/b.",
+                label: "2a² + 7ab - 4b² = 0",
+                steps: [
+                    { w: ["(2a - b)(a + 4b) = 0"], a: "Factorise the quadratic", e: "Treat this just like an equation with x and y. Use the multiplication frame to factorise." },
+                    { w: ["2a - b = 0   or   a + 4b = 0"], a: "Apply Zero Product Principle", e: "Set each bracket to equal zero." },
+                    { w: ["2a = b   or   a = -4b"], a: "Isolate variables", e: "Move the 'b' terms to the right side of the equals sign." },
+                    { w: ["2a/b = 1   or   a/b = -4", "a/b = 1/2   or   a/b = -4"], a: "Solve for the ratio a/b", e: "Since we are told 'b' is not zero, we can safely divide both sides by 'b' to find the target ratio." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 5.2 Worked Example 1 — Number Problems",
+        qs: [
+            {
+                q_text: "Find two consecutive positive integers such that the sum of their squares is equal to 145.",
+                label: "x² + (x + 1)² = 145",
+                steps: [
+                    { w: ["Let the first integer be x.", "Let the next integer be (x + 1)."], a: "Define the variables", e: "Consecutive integers are one apart. If the first is x, the next is x + 1. We must state this clearly before doing math." },
+                    { w: ["x² + (x² + 2x + 1) = 145", "2x² + 2x + 1 - 145 = 0"], a: "Expand and form quadratic equation", e: "Expand the perfect square using the identity (a+b)² = a² + 2ab + b². Bring 145 to the left side." },
+                    { w: ["2x² + 2x - 144 = 0", "x² + x - 72 = 0"], a: "Simplify", e: "Combine terms and divide the entire equation by 2 to make it easier to factorise." },
+                    { w: ["(x - 8)(x + 9) = 0"], a: "Factorise", e: "Find factors of -72 that add up to +1." },
+                    { w: ["x = 8   or   x = -9 (rejected)"], a: "Solve and filter", e: "The question specifically asks for POSITIVE integers, so we must reject -9." },
+                    { w: ["Integers are 8 and 9."], a: "Answer the original question", e: "If our first integer x is 8, the next consecutive integer x + 1 must be 9." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 5.2 Worked Example 2 — Area Problems",
+        qs: [
+            {
+                q_text: "A rectangular playground is 80 m by 36 m. It is surrounded by a footpath of uniform width x m. The area of the footpath is 732 m². Find x.",
+                diagram_svg: `<svg viewBox="0 0 600 300" width="100%" height="250px" style="background:#FFFDF5;">
+                                <rect x="50" y="20" width="500" height="260" fill="#e0e0e0" stroke="#000" stroke-width="4"/>
+                                <rect x="120" y="70" width="360" height="160" fill="#a0a0a0" stroke="#000" stroke-width="4"/>
+                                <text x="300" y="160" font-size="28" font-weight="bold" text-anchor="middle" fill="#000">Playground</text>
+                                <text x="300" y="55" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">Footpath (Area = 732 m²)</text>
+                                <text x="300" y="105" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">80 m</text>
+                                <text x="440" y="160" font-size="24" font-weight="bold" fill="#000">36 m</text>
+                                <text x="85" y="160" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">x m</text>
+                                <text x="300" y="260" font-size="24" font-weight="bold" text-anchor="middle" fill="#000">x m</text>
+                              </svg>`,
+                label: "Area of footpath = 732 m²",
+                steps: [
+                    { w: ["Total Area = (80 + 2x)(36 + 2x)", "Playground Area = 80 × 36"], a: "Express the areas", e: "The total length includes the playground plus the footpath on BOTH sides (so + 2x). The same logic applies to the width." },
+                    { w: ["(80 + 2x)(36 + 2x) - (80)(36) = 732"], a: "Form the equation", e: "The area of the footpath is simply the Total Area minus the inner Playground Area." },
+                    { w: ["2880 + 160x + 72x + 4x² - 2880 = 732"], a: "Expand", e: "Multiply out the binomials to clear the brackets." },
+                    { w: ["4x² + 232x - 732 = 0", "x² + 58x - 183 = 0"], a: "Simplify and set to zero", e: "The 2880 terms cancel out. Bring 732 to the left. Divide the whole equation by 4 to make factorising easier." },
+                    { w: ["(x - 3)(x + 61) = 0"], a: "Factorise", e: "Use the multiplication frame." },
+                    { w: ["x = 3   or   x = -61 (rejected)"], a: "Solve and filter", e: "A physical length cannot be negative, so we reject -61. The width of the footpath is 3 m." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 5.2 Worked Example 3 — Geometry Problems",
+        qs: [
+            {
+                q_text: "Trapezium ABCD: AD = (5x - 3) cm, BC = 2x cm, Height BE = (x + 2) cm. Area = 75 cm². Find the sum of lengths of parallel sides.",
+                diagram_svg: `<svg viewBox="0 0 600 300" width="100%" height="250px" style="background:#FFFDF5;"> 
+                                <polygon points="100,50 500,50 400,250 200,250" fill="#a0a0a0" stroke="#000" stroke-width="4"/> 
+                                <line x1="200" y1="50" x2="200" y2="250" stroke="#000" stroke-width="3" stroke-dasharray="8,8"/> 
+                                <text x="300" y="40" font-size="26" font-weight="bold" text-anchor="middle" fill="#000">AD = (5x - 3) cm</text> 
+                                <text x="300" y="285" font-size="26" font-weight="bold" text-anchor="middle" fill="#000">BC = 2x cm</text> 
+                                <text x="210" y="160" font-size="24" font-weight="bold" fill="#000">BE = (x + 2) cm</text> 
+                                <text x="75" y="45" font-size="28" font-weight="bold" fill="#000">A</text> 
+                                <text x="515" y="45" font-size="28" font-weight="bold" fill="#000">D</text> 
+                                <text x="175" y="275" font-size="28" font-weight="bold" fill="#000">B</text> 
+                                <text x="415" y="275" font-size="28" font-weight="bold" fill="#000">C</text> 
+                                <text x="195" y="40" font-size="28" font-weight="bold" fill="#000">E</text> 
+                              </svg>`,
+                label: "1/2 × (AD + BC) × BE = 75",
+                steps: [
+                    { w: ["1/2 [ (5x - 3) + 2x ] (x + 2) = 75"], a: "Substitute into Area Formula", e: "The area of a trapezium is half the sum of parallel sides multiplied by the height." },
+                    { w: ["1/2 (7x - 3)(x + 2) = 75", "(7x - 3)(x + 2) = 150"], a: "Simplify and clear fraction", e: "Combine the x terms inside the square bracket. Multiply both sides by 2 to remove the 1/2 fraction." },
+                    { w: ["7x² + 14x - 3x - 6 = 150", "7x² + 11x - 156 = 0"], a: "Expand and set to zero", e: "Expand the binomials and bring 150 to the left side to form the general quadratic." },
+                    { w: ["(7x + 39)(x - 4) = 0"], a: "Factorise", e: "Use the multiplication frame." },
+                    { w: ["x = -5 4/7 (rejected)   or   x = 4"], a: "Solve and filter", e: "Physical lengths must be positive, so we reject the negative result." },
+                    { w: ["AD = 5(4) - 3 = 17", "BC = 2(4) = 8", "Sum = 17 + 8 = 25 cm"], a: "Calculate final answer", e: "The question asks for the SUM of the parallel sides. Plug x = 4 back into the expressions for AD and BC, then add them." }
+                ]
+            }
+        ]
+    }
+];
+
+function initApp() {
+    const container = document.getElementById('app-content');
+    
+    weData.forEach((example) => {
+        const header = document.createElement('div');
+        header.className = 'we-header';
+        header.innerHTML = `<span>${example.t}</span> <span>▼</span>`;
+        
+        const content = document.createElement('div');
+        content.className = 'we-content';
+        
+        let currentQsIndex = 0;
+        let currentStepIndex = 0;
+        
+        const buildUI = () => {
+            content.innerHTML = '';
+            const qData = example.qs[currentQsIndex];
+            
+            if (example.qs.length > 1) {
+                const navDiv = document.createElement('div');
+                navDiv.className = 'nav-container';
+                
+                const btnPrev = document.createElement('button');
+                btnPrev.innerHTML = "◀ Prev";
+                if (currentQsIndex === 0) {
+                    applyBtnStyle(btnPrev, 'NAV_DIS');
+                    btnPrev.disabled = true;
+                } else {
+                    applyBtnStyle(btnPrev, 'NAV');
+                    btnPrev.onclick = () => { currentQsIndex--; currentStepIndex = 0; buildUI(); };
+                }
+                
+                const btnNext = document.createElement('button');
+                btnNext.innerHTML = "Next ▶";
+                if (currentQsIndex === example.qs.length - 1) {
+                    applyBtnStyle(btnNext, 'NAV_DIS');
+                    btnNext.disabled = true;
+                } else {
+                    applyBtnStyle(btnNext, 'NAV');
+                    btnNext.onclick = () => { currentQsIndex++; currentStepIndex = 0; buildUI(); };
+                }
+                
+                navDiv.appendChild(btnPrev);
+                navDiv.appendChild(btnNext);
+                content.appendChild(navDiv);
+            }
+            
+            const focusBox = document.createElement('div');
+            focusBox.className = 'focus-box';
+            
+            if (qData.q_text) {
+                const qt = document.createElement('div');
+                qt.className = 'q-text';
+                qt.innerText = qData.q_text;
+                focusBox.appendChild(qt);
+            }
+            
+            if (qData.diagram_svg) {
+                const svgDiv = document.createElement('div');
+                svgDiv.className = 'svg-container';
+                svgDiv.innerHTML = qData.diagram_svg;
+                focusBox.appendChild(svgDiv);
+            }
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.innerText = qData.label;
+            focusBox.appendChild(labelDiv);
+            
+            content.appendChild(focusBox);
+            
+            const stepsDiv = document.createElement('div');
+            for (let i = 0; i < currentStepIndex; i++) {
+                const stepObj = qData.steps[i];
+                const stepWrap = document.createElement('div');
+                stepWrap.className = 'step-container';
+                
+                stepObj.w.forEach(line => {
+                    const wLine = document.createElement('div');
+                    wLine.className = 'working-line';
+                    wLine.innerText = line;
+                    stepWrap.appendChild(wLine);
+                });
+                
+                const aBox = document.createElement('div');
+                aBox.className = 'annotation-box';
+                aBox.innerText = `✏️ ${stepObj.a}`;
+                stepWrap.appendChild(aBox);
+                
+                const eBox = document.createElement('div');
+                eBox.className = 'explanation-box';
+                eBox.innerText = stepObj.e;
+                stepWrap.appendChild(eBox);
+                
+                stepsDiv.appendChild(stepWrap);
+            }
+            content.appendChild(stepsDiv);
+            
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'controls-container';
+            
+            const btnStep = document.createElement('button');
+            const totalSteps = qData.steps.length;
+            
+            if (currentStepIndex < totalSteps) {
+                btnStep.innerHTML = `Show next step (${currentStepIndex + 1}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE');
+                btnStep.onclick = () => {
+                    currentStepIndex++;
+                    buildUI();
+                };
+            } else {
+                btnStep.innerHTML = `All steps shown (${totalSteps}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE_DIS');
+                btnStep.disabled = true;
+            }
+            
+            const btnReset = document.createElement('button');
+            btnReset.innerHTML = "Reset";
+            applyBtnStyle(btnReset, 'GREY');
+            btnReset.onclick = () => {
+                currentStepIndex = 0;
+                buildUI();
+            };
+            
+            controlsDiv.appendChild(btnStep);
+            controlsDiv.appendChild(btnReset);
+            content.appendChild(controlsDiv);
+        };
+        
+        header.addEventListener('click', () => {
+            const isOepn = content.style.display === 'block';
+            document.querySelectorAll('.we-content').forEach(el => el.style.display = 'none');
+            
+            if (!isOepn) {
+                content.style.display = 'block';
+                currentQsIndex = 0;
+                currentStepIndex = 0;
+                buildUI();
+            }
+        });
+        
+        container.appendChild(header);
+        container.appendChild(content);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+</body>
+</html>

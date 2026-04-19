@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework Debrief Visualizer - Part 1 | Heritage Academy</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+        }
+        .wrap {
+            background-color: #FFFDF5;
+            max-width: 1100px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        #targets-panel {
+            background: #fff;
+            border-left: 8px solid #B8860B;
+            padding: 20px 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        #targets-panel h2 { margin-top: 0; color: #B8860B; font-size: 30px; }
+        #targets-panel ul { font-size: 22px; line-height: 1.5; color: #000; font-weight: bold; }
+        
+        #identity-panel {
+            background: #fff;
+            border-left: 8px solid #0D47A1;
+            padding: 20px 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        #identity-panel h3 { margin-top: 0; color: #0D47A1; font-size: 28px; }
+        .rule-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+        .rule-box { background: #f5f8fc; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 20px; flex: 1; min-width: 300px; border: 1px solid #ccc; color:#000; }
+        
+        .we-header {
+            background: #0D47A1;
+            color: white;
+            border: 3px solid #083378;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px;
+        }
+        .we-header:hover { background: #1565C0; }
+        .we-content {
+            display: none;
+            padding: 30px;
+            background: #fff;
+            border: 2px solid #ccc;
+            border-top: none;
+            margin-bottom: 30px;
+            margin-top: -15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .q-text {
+            font-size: 26px;
+            margin-bottom: 25px;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        .focus-box {
+            border: 6px solid #B8860B;
+            padding: 40px;
+            text-align: center;
+            font-size: 32px;
+            font-family: monospace;
+            background: #fff;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .step-container { margin-bottom: 30px; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .working-line {
+            background-color: #1E3A5F;
+            color: #FFFFFF;
+            font-size: 24px;
+            font-family: monospace;
+            margin-bottom: 5px;
+            padding: 15px 25px;
+            border-radius: 4px;
+        }
+        .annotation-box {
+            background: #FFF9C4;
+            border-left: 6px solid #FBC02D;
+            padding: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 20px;
+            color: #000;
+        }
+        .explanation-box {
+            background: #E8F5E9;
+            border-left: 6px solid #4CAF50;
+            padding: 15px;
+            font-size: 20px;
+            line-height: 1.6;
+            color: #000;
+        }
+        
+        .nav-container { text-align: center; margin-bottom: 30px; }
+        .controls-container { margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        
+        footer {
+            text-align: center;
+            color: #333;
+            font-size: 18px;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    
+    <div id="targets-panel">
+        <h2>Chapter 5 Targets</h2>
+        <ul>
+            <li>Solve quadratic equations in one variable by factorisation.</li>
+            <li>Solve problems involving quadratic equations.</li>
+            <li>Draw quadratic graphs.</li>
+            <li>State the properties of quadratic graphs (positive/negative coefficient, turning points, symmetry).</li>
+            <li>Use quadratic equations and graphs to solve maths problems in real-world contexts.</li>
+        </ul>
+    </div>
+
+    <div id="identity-panel">
+        <h3>Reference: The Zero Product Principle</h3>
+        <div class="rule-grid">
+            <div class="rule-box">
+                <strong>The Principle:</strong><br>
+                If P and Q are factors of an algebraic expression such that PQ = 0, then P = 0 or Q = 0.
+            </div>
+            <div class="rule-box">
+                <strong>Steps to Solve:</strong><br>
+                1. Write in general form (LHS = 0).<br>
+                2. Factorise the LHS.<br>
+                3. Set each factor equal to 0.<br>
+                4. Solve the new equations.
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content"></div>
+
+    <footer>
+        Created by Joshua Poon | Heritage Academy, Singapore | SA1 Revision<br>
+        Secondary 2 Mathematics — Chapter 5: Quadratic Equations and Graphs (Part 1)
+    </footer>
+</div>
+
+<script>
+const btnStyles = {
+    BLUE: "background:#0D47A1; color:#FFFFFF; border:3px solid #083378; padding:12px 24px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px;",
+    BLUE_DIS: "background:#888; color:#fff; border:3px solid #666; padding:12px 24px; font-size:20px; font-weight:bold; cursor:not-allowed; border-radius:6px;",
+    GREY: "background:#fff; color:#000; border:2px solid #333; padding:12px 24px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px;",
+    NAV: "background:#B8860B; color:#fff; border:2px solid #8B6508; padding:10px 20px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px; margin:0 8px;",
+    NAV_DIS: "background:#D4C890; color:#888; border:2px solid #D4C890; padding:10px 20px; font-size:20px; font-weight:bold; cursor:not-allowed; border-radius:6px; margin:0 8px;"
+};
+
+function applyBtnStyle(btnElement, styleKey) {
+    btnElement.setAttribute('style', btnStyles[styleKey]);
+}
+
+const weData = [
+    {
+        t: "Worked Example 1 — Solving Pre-Factorised Equations",
+        qs: [
+            {
+                label: "(a) x(x - 2) = 0",
+                steps: [
+                    { w: ["x = 0   or   x - 2 = 0"], a: "Apply the Zero Product Principle", e: "Since the Left Hand Side (LHS) is already factorised and equals zero, we jump straight to Step 3. We set each factor independently to zero." },
+                    { w: ["x = 0   or   x = 2"], a: "Solve the linear equations", e: "The first factor gives us our first solution immediately. For the second, we add 2 to both sides to find x." }
+                ]
+            },
+            {
+                label: "(b) 3x(2x + 1) = 0",
+                steps: [
+                    { w: ["3x = 0   or   2x + 1 = 0"], a: "Apply the Zero Product Principle", e: "Again, we have two factors multiplying to zero. Set '3x' to zero, and '2x + 1' to zero." },
+                    { w: ["x = 0   or   2x = -1"], a: "Isolate x", e: "Divide the first equation by 3. Subtract 1 from both sides of the second equation." },
+                    { w: ["x = 0   or   x = -1/2"], a: "Final solutions", e: "A quadratic equation will usually have 2 different solutions. Both of these are correct." }
+                ]
+            },
+            {
+                label: "(c) (x + 3)(x - 4) = 0",
+                steps: [
+                    { w: ["x + 3 = 0   or   x - 4 = 0"], a: "Apply the Zero Product Principle", e: "We have two binomial brackets multiplying to zero. Either the first bracket is zero, or the second bracket is zero." },
+                    { w: ["x = -3   or   x = 4"], a: "Solve for x", e: "Solve each simple equation to find the two roots of the quadratic." }
+                ]
+            },
+            {
+                label: "(d) (3x - 1)(5x - 7) = 0",
+                steps: [
+                    { w: ["3x - 1 = 0   or   5x - 7 = 0"], a: "Apply the Zero Product Principle", e: "Set both binomial expressions to zero." },
+                    { w: ["3x = 1   or   5x = 7"], a: "Isolate the x terms", e: "Add 1 to both sides on the left, and add 7 to both sides on the right." },
+                    { w: ["x = 1/3   or   x = 7/5", "x = 1/3   or   x = 1 2/5"], a: "Solve for x", e: "Divide to isolate x, leaving your answers as proper fractions or mixed numbers." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Worked Example 2 — Solving by Factorisation",
+        qs: [
+            {
+                label: "(a) 4x² - 3x = 0",
+                steps: [
+                    { w: ["x(4x - 3) = 0"], a: "Extract the common factor", e: "The equation is already set to zero, but it's not factorised yet. Both terms share an 'x', so we pull that to the front." },
+                    { w: ["x = 0   or   4x - 3 = 0"], a: "Apply the Zero Product Principle", e: "Now that we have factors, set them each to zero." },
+                    { w: ["x = 0   or   4x = 3", "x = 0   or   x = 3/4"], a: "Solve for x", e: "Isolate x to find both solutions." }
+                ]
+            },
+            {
+                label: "(b) x² - 25 = 0",
+                steps: [
+                    { w: ["x² - 5² = 0"], a: "Recognise the Difference of Two Squares", e: "This is a special algebraic identity you learned previously: a² - b² = (a + b)(a - b)." },
+                    { w: ["(x + 5)(x - 5) = 0"], a: "Factorise", e: "Apply the identity to split the expression into two brackets." },
+                    { w: ["x + 5 = 0   or   x - 5 = 0", "x = -5   or   x = 5"], a: "Solve for x", e: "Alternative method: You can also move 25 to the right (x² = 25) and take the square root of both sides. Remember the square root gives both a positive and negative answer!" }
+                ]
+            },
+            {
+                label: "(c) 2x² + 5x - 3 = 0",
+                steps: [
+                    { w: ["(2x - 1)(x + 3) = 0"], a: "Factorise using the Multiplication Frame", e: "In Singapore Math, we use the cross-method. Factors of 2x² (2x, x) and factors of -3 (-1, 3) must cross-multiply to give +5x." },
+                    { w: ["2x - 1 = 0   or   x + 3 = 0"], a: "Apply the Zero Product Principle", e: "Set both binomials to zero." },
+                    { w: ["2x = 1   or   x = -3", "x = 1/2   or   x = -3"], a: "Solve for x", e: "Find the two valid solutions." }
+                ]
+            },
+            {
+                label: "(d) -5x² + 13x - 6 = 0",
+                steps: [
+                    { w: ["5x² - 13x + 6 = 0"], a: "Multiply the whole equation by -1", e: "It is much easier to factorise a quadratic when the leading coefficient (the a in ax²) is positive. Multiplying both sides by -1 flips all the signs." },
+                    { w: ["(5x - 3)(x - 2) = 0"], a: "Factorise using the Multiplication Frame", e: "Find factors that work in the cross-method." },
+                    { w: ["5x - 3 = 0   or   x - 2 = 0", "x = 3/5   or   x = 2"], a: "Solve for x", e: "Apply the Zero Product Principle and isolate x." }
+                ]
+            },
+            {
+                label: "(e) 3x² = x + 2",
+                steps: [
+                    { w: ["3x² - x - 2 = 0"], a: "Write in general form", e: "To use the Zero Product Principle, the equation MUST equal zero. We move all terms to the left-hand side." },
+                    { w: ["(3x + 2)(x - 1) = 0"], a: "Factorise using the Multiplication Frame", e: "Apply the cross-method to factorise the expression." },
+                    { w: ["3x + 2 = 0   or   x - 1 = 0", "3x = -2   or   x = 1", "x = -2/3   or   x = 1"], a: "Solve for x", e: "Set factors to zero and isolate x." }
+                ]
+            },
+            {
+                label: "(f) (x + 2)(3x - 1) = 10",
+                steps: [
+                    { w: ["3x² - x + 6x - 2 = 10"], a: "Expand the brackets", e: "COMMON MISTAKE ALERT! You cannot use the Zero Product Principle if the equation equals 10! You must expand the brackets first." },
+                    { w: ["3x² + 5x - 2 - 10 = 0", "3x² + 5x - 12 = 0"], a: "Write in general form", e: "Move the 10 to the left side so the equation equals zero, then simplify." },
+                    { w: ["(3x - 4)(x + 3) = 0"], a: "Factorise", e: "Now we can factorise the brand new quadratic expression." },
+                    { w: ["3x - 4 = 0   or   x + 3 = 0", "x = 1 1/3   or   x = -3"], a: "Solve for x", e: "Set to zero and solve." }
+                ]
+            },
+            {
+                label: "(g) 4x² = 3(4x - 3)",
+                steps: [
+                    { w: ["4x² = 12x - 9"], a: "Expand the bracket", e: "Distribute the 3 on the right side." },
+                    { w: ["4x² - 12x + 9 = 0"], a: "Write in general form", e: "Move everything to the left side to equal zero." },
+                    { w: ["(2x)² - 2(2x)(3) + 3² = 0"], a: "Recognise the Perfect Square", e: "This fits the special algebraic identity: a² - 2ab + b² = (a - b)²." },
+                    { w: ["(2x - 3)² = 0"], a: "Factorise", e: "Rewrite it as a perfect square." },
+                    { w: ["2x - 3 = 0", "2x = 3", "x = 1 1/2"], a: "Solve for x", e: "Since both brackets are identical, we only have one unique solution (a repeated root)." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Worked Example 3 — Finding an Unknown Coefficient",
+        qs: [
+            {
+                q_text: "Given that 5 is a solution of the equation 3x² + px + 10 = 0, find:\n(a) the value of p\n(b) the other solution of the equation.",
+                label: "3x² + px + 10 = 0",
+                steps: [
+                    { w: ["3(5)² + p(5) + 10 = 0"], a: "Substitute the known solution", e: "(Part a) Since we are told x = 5 is a valid solution, we substitute 5 into every 'x' in the equation to find the missing 'p'." },
+                    { w: ["3(25) + 5p + 10 = 0", "75 + 5p + 10 = 0", "5p + 85 = 0"], a: "Simplify the equation", e: "Calculate the numerical values and combine like terms." },
+                    { w: ["5p = -85", "p = -17"], a: "Solve for p", e: "Isolate p to find your answer for part (a)." },
+                    { w: ["3x² - 17x + 10 = 0"], a: "Rewrite the full equation", e: "(Part b) Now that we know p is -17, we rewrite the original quadratic equation so we can solve it fully." },
+                    { w: ["(3x - 2)(x - 5) = 0"], a: "Factorise using multiplication frame", e: "Find the factors of 3x² and 10 that cross-multiply to give -17x." },
+                    { w: ["3x - 2 = 0   or   x - 5 = 0", "x = 2/3   or   x = 5"], a: "Apply Zero Product Principle", e: "Since we already knew x = 5 was a solution, the OTHER solution is x = 2/3." }
+                ]
+            }
+        ]
+    }
+];
+
+function initApp() {
+    const container = document.getElementById('app-content');
+    
+    weData.forEach((example) => {
+        const header = document.createElement('div');
+        header.className = 'we-header';
+        header.innerHTML = `<span>${example.t}</span> <span>▼</span>`;
+        
+        const content = document.createElement('div');
+        content.className = 'we-content';
+        
+        let currentQsIndex = 0;
+        let currentStepIndex = 0;
+        
+        const buildUI = () => {
+            content.innerHTML = '';
+            const qData = example.qs[currentQsIndex];
+            
+            if (example.qs.length > 1) {
+                const navDiv = document.createElement('div');
+                navDiv.className = 'nav-container';
+                
+                const btnPrev = document.createElement('button');
+                btnPrev.innerHTML = "◀ Prev";
+                if (currentQsIndex === 0) {
+                    applyBtnStyle(btnPrev, 'NAV_DIS');
+                    btnPrev.disabled = true;
+                } else {
+                    applyBtnStyle(btnPrev, 'NAV');
+                    btnPrev.onclick = () => { currentQsIndex--; currentStepIndex = 0; buildUI(); };
+                }
+                
+                const btnNext = document.createElement('button');
+                btnNext.innerHTML = "Next ▶";
+                if (currentQsIndex === example.qs.length - 1) {
+                    applyBtnStyle(btnNext, 'NAV_DIS');
+                    btnNext.disabled = true;
+                } else {
+                    applyBtnStyle(btnNext, 'NAV');
+                    btnNext.onclick = () => { currentQsIndex++; currentStepIndex = 0; buildUI(); };
+                }
+                
+                navDiv.appendChild(btnPrev);
+                navDiv.appendChild(btnNext);
+                content.appendChild(navDiv);
+            }
+            
+            const focusBox = document.createElement('div');
+            focusBox.className = 'focus-box';
+            
+            if (qData.q_text) {
+                const qt = document.createElement('div');
+                qt.className = 'q-text';
+                qt.innerText = qData.q_text;
+                focusBox.appendChild(qt);
+            }
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.innerText = qData.label;
+            focusBox.appendChild(labelDiv);
+            
+            content.appendChild(focusBox);
+            
+            const stepsDiv = document.createElement('div');
+            for (let i = 0; i < currentStepIndex; i++) {
+                const stepObj = qData.steps[i];
+                const stepWrap = document.createElement('div');
+                stepWrap.className = 'step-container';
+                
+                stepObj.w.forEach(line => {
+                    const wLine = document.createElement('div');
+                    wLine.className = 'working-line';
+                    wLine.innerText = line;
+                    stepWrap.appendChild(wLine);
+                });
+                
+                const aBox = document.createElement('div');
+                aBox.className = 'annotation-box';
+                aBox.innerText = `✏️ ${stepObj.a}`;
+                stepWrap.appendChild(aBox);
+                
+                const eBox = document.createElement('div');
+                eBox.className = 'explanation-box';
+                eBox.innerText = stepObj.e;
+                stepWrap.appendChild(eBox);
+                
+                stepsDiv.appendChild(stepWrap);
+            }
+            content.appendChild(stepsDiv);
+            
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'controls-container';
+            
+            const btnStep = document.createElement('button');
+            const totalSteps = qData.steps.length;
+            
+            if (currentStepIndex < totalSteps) {
+                btnStep.innerHTML = `Show next step (${currentStepIndex + 1}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE');
+                btnStep.onclick = () => {
+                    currentStepIndex++;
+                    buildUI();
+                };
+            } else {
+                btnStep.innerHTML = `All steps shown (${totalSteps}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE_DIS');
+                btnStep.disabled = true;
+            }
+            
+            const btnReset = document.createElement('button');
+            btnReset.innerHTML = "Reset";
+            applyBtnStyle(btnReset, 'GREY');
+            btnReset.onclick = () => {
+                currentStepIndex = 0;
+                buildUI();
+            };
+            
+            controlsDiv.appendChild(btnStep);
+            controlsDiv.appendChild(btnReset);
+            content.appendChild(controlsDiv);
+        };
+        
+        header.addEventListener('click', () => {
+            const isOepn = content.style.display === 'block';
+            document.querySelectorAll('.we-content').forEach(el => el.style.display = 'none');
+            if (!isOepn) {
+                content.style.display = 'block';
+                currentQsIndex = 0;
+                currentStepIndex = 0;
+                buildUI();
+            }
+        });
+        
+        container.appendChild(header);
+        container.appendChild(content);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+</body>
+</html>
