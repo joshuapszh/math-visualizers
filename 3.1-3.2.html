@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expansion and Factorisation Visualizer | Heritage Academy</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+        }
+        .wrap {
+            background-color: #FFFDF5;
+            max-width: 900px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #identity-panel {
+            background: #fff;
+            border-left: 6px solid #0D47A1;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        #identity-panel h3 { margin-top: 0; color: #0D47A1; }
+        .rule-grid { display: flex; flex-wrap: wrap; gap: 15px; }
+        .rule-box { background: #f5f8fc; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 16px; flex: 1; min-width: 250px; }
+        
+        .we-header {
+            background: #fff;
+            border: 2px solid #333;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .we-header:hover { background: #f0f0f0; }
+        .we-content {
+            display: none;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-top: none;
+            margin-bottom: 20px;
+            margin-top: -10px;
+        }
+        
+        .focus-box {
+            border: 4px solid #B8860B;
+            padding: 30px;
+            text-align: center;
+            font-size: 26px;
+            font-family: monospace;
+            background: #fff;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .step-container { margin-bottom: 20px; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .working-line {
+            font-size: 19px;
+            font-family: monospace;
+            margin-bottom: 10px;
+            padding-left: 20px;
+        }
+        .annotation-box {
+            background: #FFF9C4;
+            border-left: 4px solid #FBC02D;
+            padding: 12px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .explanation-box {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 12px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .nav-container { text-align: center; margin-bottom: 20px; }
+        .controls-container { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        
+        footer {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div id="identity-panel">
+        <h3>Reference: Key Algebraic Identities</h3>
+        <div class="rule-grid">
+            <div class="rule-box">
+                <strong>Distributive Law:</strong><br>
+                a(x + y) = ax + ay<br>
+                a(x - y) = ax - ay
+            </div>
+            <div class="rule-box">
+                <strong>Quadratic Expression:</strong><br>
+                Highest power is 2.<br>
+                Form: ax² + bx + c
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content"></div>
+
+    <footer>
+        Created by Joshua Poon | Heritage Academy, Singapore<br>
+        Secondary 2 Mathematics — Chapter 3: Expansion and Factorisation
+    </footer>
+</div>
+
+<script>
+const btnStyles = {
+    BLUE: "background:#0D47A1; color:#FFFFFF; border:3px solid #083378; padding:10px 20px; font-size:16px; font-weight:bold; cursor:pointer; border-radius:4px;",
+    BLUE_DIS: "background:#888; color:#fff; border:3px solid #666; padding:10px 20px; font-size:16px; font-weight:bold; cursor:not-allowed; border-radius:4px;",
+    GREY: "background:#fff; color:#000; border:2px solid #333; padding:10px 20px; font-size:16px; font-weight:bold; cursor:pointer; border-radius:4px;",
+    NAV: "background:#B8860B; color:#fff; border:2px solid #8B6508; padding:8px 16px; font-size:16px; font-weight:bold; cursor:pointer; border-radius:4px; margin:0 5px;",
+    NAV_DIS: "background:#D4C890; color:#888; border:2px solid #D4C890; padding:8px 16px; font-size:16px; font-weight:bold; cursor:not-allowed; border-radius:4px; margin:0 5px;"
+};
+
+function applyBtnStyle(btnElement, styleKey) {
+    btnElement.setAttribute('style', btnStyles[styleKey]);
+}
+
+const weData = [
+    {
+        t: "Section 3.1: Worked Example 1 — Simplifying Quadratic Expressions",
+        qs: [
+            {
+                label: "(a) -5x² + 9x - 7 + 6x² - 4x + 3",
+                steps: [
+                    { 
+                        w: ["= -5x² + 6x² + 9x - 4x - 7 + 3"], 
+                        a: "Collect like terms", 
+                        e: "We physically rearrange the expression so that terms with the same variable and power sit next to each other. In ACE, this is known as combining like terms. Here, we carefully line up the squares, single variables, and constants together." 
+                    },
+                    { 
+                        w: ["= x² + 5x - 4"], 
+                        a: "Simplify", 
+                        e: "Now we perform the arithmetic for each group. Negative 5x² plus 6x² is just x². Then, 9x minus 4x gives 5x, and negative 7 plus 3 is negative 4." 
+                    }
+                ]
+            },
+            {
+                label: "(b) 3y² - 11y - 8y² - 2 + 13y",
+                steps: [
+                    { 
+                        w: ["= 3y² - 8y² - 11y + 13y - 2"], 
+                        a: "Collect like terms", 
+                        e: "Rearrange the expression again. Group the y² terms and the y terms. Ensure you keep the sign attached to each term as you move it around." 
+                    },
+                    { 
+                        w: ["= -5y² + 2y - 2"], 
+                        a: "Simplify", 
+                        e: "Simplify by doing the math for each group. 3y² minus 8y² leaves negative 5y². Negative 11y plus 13y leaves positive 2y. The constant negative 2 remains unchanged." 
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 3.1: Worked Example 2 — Addition and Subtraction with Brackets",
+        qs: [
+            {
+                label: "(a) (3x² - 11x) + (-5x² - 7x - 2)",
+                steps: [
+                    { 
+                        w: ["= 3x² - 11x - 5x² - 7x - 2"], 
+                        a: "Remove brackets", 
+                        e: "First, we drop the parentheses. Since we are adding the expressions, the signs of the terms in the second bracket stay exactly the same." 
+                    },
+                    { 
+                        w: ["= 3x² - 5x² - 11x - 7x - 2"], 
+                        a: "Collect like terms", 
+                        e: "Bring matching terms together so they are easier to calculate." 
+                    },
+                    { 
+                        w: ["= -2x² - 18x - 2"], 
+                        a: "Simplify", 
+                        e: "3x² minus 5x² gives us negative 2x². Then, negative 11x minus 7x gives us negative 18x." 
+                    }
+                ]
+            },
+            {
+                label: "(b) (-4x² + 8x - 4) - (-6x² + 9x - 5)",
+                steps: [
+                    { 
+                        w: ["= -4x² + 8x - 4 + 6x² - 9x + 5"], 
+                        a: "Remove brackets & Distribute the negative sign", 
+                        e: "When subtracting an entire expression, we must apply the negative sign to every single term inside the second bracket. This is a crucial concept—always watch the signs! Negative times negative makes positive." 
+                    },
+                    { 
+                        w: ["= -4x² + 6x² + 8x - 9x - 4 + 5"], 
+                        a: "Collect like terms", 
+                        e: "Line up our matching terms so we can simplify them." 
+                    },
+                    { 
+                        w: ["= 2x² - x + 1"], 
+                        a: "Simplify", 
+                        e: "We simplify the grouped terms. Negative 4x² plus 6x² is 2x². 8x minus 9x is negative x. Finally, negative 4 plus 5 equals 1." 
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 3.2: Worked Example 1 — Expansion of a(b+c)",
+        qs: [
+            {
+                label: "(a) 5(x + 2)",
+                steps: [
+                    { 
+                        w: ["= 5(x) + 5(2)"], 
+                        a: "Distribute the 5", 
+                        e: "We multiply the outside term (5) by each term inside the brackets. This uses the Distributive Law you might recall from your earlier studies." 
+                    },
+                    { 
+                        w: ["= 5x + 10"], 
+                        a: "Simplify", 
+                        e: "Calculate the multiplication to get the final expanded expression." 
+                    }
+                ]
+            },
+            {
+                label: "(b) -2(3y - x)",
+                steps: [
+                    { 
+                        w: ["= -2(3y) - 2(-x)"], 
+                        a: "Distribute the -2", 
+                        e: "Be careful to multiply both terms by negative 2. The sign belongs to the number." 
+                    },
+                    { 
+                        w: ["= -6y + 2x"], 
+                        a: "Simplify", 
+                        e: "Negative 2 times 3y is negative 6y. A negative multiplied by a negative gives a positive 2x." 
+                    }
+                ]
+            },
+            {
+                label: "(c) 10 - a(-3x + 2y)",
+                steps: [
+                    { 
+                        w: ["= 10 - a(-3x) - a(2y)"], 
+                        a: "Distribute the -a", 
+                        e: "The 10 sits by itself for now. We distribute the negative 'a' across the terms inside the bracket." 
+                    },
+                    { 
+                        w: ["= 10 + 3ax - 2ay"], 
+                        a: "Simplify", 
+                        e: "Negative 'a' multiplied by negative 3x creates positive 3ax. Negative 'a' multiplied by 2y creates negative 2ay." 
+                    }
+                ]
+            },
+            {
+                label: "(d) -3a(b - 2c) - 2a(-3b + c)",
+                steps: [
+                    { 
+                        w: ["= -3ab + 6ac + 6ab - 2ac"], 
+                        a: "Expand brackets", 
+                        e: "We distribute negative 3a into the first bracket, and negative 2a into the second bracket. Watch the signs closely!" 
+                    },
+                    { 
+                        w: ["= (-3ab + 6ab) + (6ac - 2ac)", "= 3ab + 4ac"], 
+                        a: "Collect like terms", 
+                        e: "Group the 'ab' terms together (negative 3ab plus 6ab is 3ab) and the 'ac' terms together (6ac minus 2ac is 4ac)." 
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 3.2: Worked Example 2 — Expanding Multiple Brackets",
+        qs: [
+            {
+                label: "(a) -2(3x² - 4x + 2) + 3(x² - x + 2)",
+                steps: [
+                    { 
+                        w: ["= -6x² + 8x - 4 + 3x² - 3x + 6"], 
+                        a: "Remove brackets", 
+                        e: "When expanding brackets, multiply each term in the brackets by the term just before the brackets. Take it one term at a time." 
+                    },
+                    { 
+                        w: ["= -6x² + 3x² + 8x - 3x - 4 + 6"], 
+                        a: "Collect like terms", 
+                        e: "Rearrange so that the squared terms, the x terms, and the constants are sitting together." 
+                    },
+                    { 
+                        w: ["= -3x² + 5x + 2"], 
+                        a: "Simplify", 
+                        e: "Do the math for each group. Negative 6x² plus 3x² becomes negative 3x². 8x minus 3x is 5x. Negative 4 plus 6 is 2." 
+                    }
+                ]
+            },
+            {
+                label: "(b) 7(2x² - x - 4) - 2(-4x² - 3x + 1)",
+                steps: [
+                    { 
+                        w: ["= 14x² - 7x - 28 + 8x² + 6x - 2"], 
+                        a: "Remove brackets", 
+                        e: "Distribute the 7 into the first bracket, and distribute the negative 2 into the second bracket." 
+                    },
+                    { 
+                        w: ["= 14x² + 8x² - 7x + 6x - 28 - 2"], 
+                        a: "Collect like terms", 
+                        e: "Line up the matching terms so they can be combined." 
+                    },
+                    { 
+                        w: ["= 22x² - x - 30"], 
+                        a: "Simplify", 
+                        e: "Add the coefficients of matching terms together to get the final simplified expression." 
+                    }
+                ]
+            }
+        ]
+    }
+];
+
+function initApp() {
+    const container = document.getElementById('app-content');
+    
+    weData.forEach((example, weIndex) => {
+        const header = document.createElement('div');
+        header.className = 'we-header';
+        header.innerHTML = `<span>${example.t}</span> <span>▼</span>`;
+        
+        const content = document.createElement('div');
+        content.className = 'we-content';
+        
+        let currentQsIndex = 0;
+        let currentStepIndex = 0;
+        
+        const buildUI = () => {
+            content.innerHTML = '';
+            
+            const qData = example.qs[currentQsIndex];
+            
+            if (example.qs.length > 1) {
+                const navDiv = document.createElement('div');
+                navDiv.className = 'nav-container';
+                
+                const btnPrev = document.createElement('button');
+                btnPrev.innerHTML = "◀ Prev";
+                if (currentQsIndex === 0) {
+                    applyBtnStyle(btnPrev, 'NAV_DIS');
+                    btnPrev.disabled = true;
+                } else {
+                    applyBtnStyle(btnPrev, 'NAV');
+                    btnPrev.onclick = () => { currentQsIndex--; currentStepIndex = 0; buildUI(); };
+                }
+                
+                const btnNext = document.createElement('button');
+                btnNext.innerHTML = "Next ▶";
+                if (currentQsIndex === example.qs.length - 1) {
+                    applyBtnStyle(btnNext, 'NAV_DIS');
+                    btnNext.disabled = true;
+                } else {
+                    applyBtnStyle(btnNext, 'NAV');
+                    btnNext.onclick = () => { currentQsIndex++; currentStepIndex = 0; buildUI(); };
+                }
+                
+                navDiv.appendChild(btnPrev);
+                navDiv.appendChild(btnNext);
+                content.appendChild(navDiv);
+            }
+            
+            const focusBox = document.createElement('div');
+            focusBox.className = 'focus-box';
+            focusBox.innerText = qData.label;
+            content.appendChild(focusBox);
+            
+            const stepsDiv = document.createElement('div');
+            for (let i = 0; i < currentStepIndex; i++) {
+                const stepObj = qData.steps[i];
+                const stepWrap = document.createElement('div');
+                stepWrap.className = 'step-container';
+                
+                stepObj.w.forEach(line => {
+                    const wLine = document.createElement('div');
+                    wLine.className = 'working-line';
+                    wLine.innerText = line;
+                    stepWrap.appendChild(wLine);
+                });
+                
+                const aBox = document.createElement('div');
+                aBox.className = 'annotation-box';
+                aBox.innerText = `✏️ ${stepObj.a}`;
+                stepWrap.appendChild(aBox);
+                
+                const eBox = document.createElement('div');
+                eBox.className = 'explanation-box';
+                eBox.innerText = stepObj.e;
+                stepWrap.appendChild(eBox);
+                
+                stepsDiv.appendChild(stepWrap);
+            }
+            content.appendChild(stepsDiv);
+            
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'controls-container';
+            
+            const btnStep = document.createElement('button');
+            const totalSteps = qData.steps.length;
+            
+            if (currentStepIndex < totalSteps) {
+                btnStep.innerHTML = `Show next step (${currentStepIndex + 1}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE');
+                btnStep.onclick = () => {
+                    currentStepIndex++;
+                    buildUI();
+                };
+            } else {
+                btnStep.innerHTML = `All steps shown (${totalSteps}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE_DIS');
+                btnStep.disabled = true;
+            }
+            
+            const btnReset = document.createElement('button');
+            btnReset.innerHTML = "Reset";
+            applyBtnStyle(btnReset, 'GREY');
+            btnReset.onclick = () => {
+                currentStepIndex = 0;
+                buildUI();
+            };
+            
+            controlsDiv.appendChild(btnStep);
+            controlsDiv.appendChild(btnReset);
+            content.appendChild(controlsDiv);
+        };
+        
+        header.addEventListener('click', () => {
+            const isOepn = content.style.display === 'block';
+            
+            document.querySelectorAll('.we-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.we-header span:last-child').forEach(el => el.innerText = '▼');
+            
+            if (!isOepn) {
+                content.style.display = 'block';
+                header.querySelector('span:last-child').innerText = '▲';
+                currentQsIndex = 0;
+                currentStepIndex = 0;
+                buildUI();
+            }
+        });
+        
+        container.appendChild(header);
+        container.appendChild(content);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+</body>
+</html>

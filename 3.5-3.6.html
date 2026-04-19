@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expansion and Factorisation Visualizer | Heritage Academy</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+        }
+        .wrap {
+            background-color: #FFFDF5;
+            max-width: 900px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #identity-panel {
+            background: #fff;
+            border-left: 6px solid #0D47A1;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        #identity-panel h3 { margin-top: 0; color: #0D47A1; }
+        .rule-grid { display: flex; flex-wrap: wrap; gap: 15px; }
+        .rule-box { background: #f5f8fc; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 16px; flex: 1; min-width: 250px; }
+        
+        .we-header {
+            background: #fff;
+            border: 2px solid #333;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .we-header:hover { background: #f0f0f0; }
+        .we-content {
+            display: none;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-top: none;
+            margin-bottom: 20px;
+            margin-top: -10px;
+        }
+        
+        .focus-box {
+            border: 4px solid #B8860B;
+            padding: 30px;
+            text-align: center;
+            font-size: 26px;
+            font-family: monospace;
+            background: #fff;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .step-container { margin-bottom: 20px; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .working-line {
+            font-size: 19px;
+            font-family: monospace;
+            margin-bottom: 10px;
+            padding-left: 20px;
+        }
+        .annotation-box {
+            background: #FFF9C4;
+            border-left: 4px solid #FBC02D;
+            padding: 12px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .explanation-box {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 12px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .nav-container { text-align: center; margin-bottom: 20px; }
+        .controls-container { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        
+        footer {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div id="identity-panel">
+        <h3>Reference: Key Algebraic Concepts</h3>
+        <div class="rule-grid">
+            <div class="rule-box">
+                <strong>Multiplication Frame:</strong><br>
+                For ax² + bx + c, test factors of ax² and c.<br>
+                Cross-multiply and add to check if it equals bx.
+            </div>
+            <div class="rule-box">
+                <strong>Factorisation by Grouping:</strong><br>
+                ax + ay + bx + by<br>
+                = a(x + y) + b(x + y) = (x + y)(a + b)
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content"></div>
+
+    <footer>
+        Created by Joshua Poon | Heritage Academy, Singapore<br>
+        Secondary 2 Mathematics — Chapter 3: Expansion and Factorisation | SA1 Revision
+    </footer>
+</div>
+
+<script>
+const btnStyles = {
+    BLUE: "background:#0D47A1; color:#FFFFFF; border:3px solid #083378; padding:10px 20px; font-size:16px; font-weight:bold; cursor:pointer; border-radius:4px;",
+    BLUE_DIS: "background:#888; color:#fff; border:3px solid #666; padding:10px 20px; font-size:16px; font-weight:bold; cursor:not-allowed; border-radius:4px;",
+    GREY: "background:#fff; color:#000; border:2px solid #333; padding:10px 20px; font-size:16px; font-weight:bold; cursor:pointer; border-radius:4px;",
+    NAV: "background:#B8860B; color:#fff; border:2px solid #8B6508; padding:8px 16px; font-size:16px; font-weight:bold; cursor:pointer; border-radius:4px; margin:0 5px;",
+    NAV_DIS: "background:#D4C890; color:#888; border:2px solid #D4C890; padding:8px 16px; font-size:16px; font-weight:bold; cursor:not-allowed; border-radius:4px; margin:0 5px;"
+};
+
+function applyBtnStyle(btnElement, styleKey) {
+    btnElement.setAttribute('style', btnStyles[styleKey]);
+}
+
+const weData = [
+    {
+        t: "Section 3.5: Worked Example 1 — Introduction to Multiplication Frame",
+        qs: [
+            {
+                label: "Factorise x² + 5x + 6",
+                steps: [
+                    { 
+                        w: ["Factors of x² : x and x", "Factors of 6 : 1 & 6, or 2 & 3"], 
+                        a: "Identify potential factors", 
+                        e: "We start by writing the factors of the first term (x²) and the constant term (6) in a multiplication frame." 
+                    },
+                    { 
+                        w: ["Test 2 and 3:", "x(3) + x(2) = 3x + 2x = 5x"], 
+                        a: "Test the cross-product", 
+                        e: "We multiply diagonally. 3x plus 2x gives 5x, which exactly matches our middle term!" 
+                    },
+                    { 
+                        w: ["= (x + 2)(x + 3)"], 
+                        a: "Write the final factored form", 
+                        e: "We read the factors straight across horizontally from our frame." 
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 3.5: Worked Example 2 — Multiplication Frame Practice",
+        qs: [
+            {
+                label: "(a) x² - x - 12",
+                steps: [
+                    { w: ["Factors: x, x and -4, 3"], a: "Identify factors", e: "The constant is negative 12, so one factor is positive and one is negative." },
+                    { w: ["Check: x(-4) + x(3) = -4x + 3x = -x"], a: "Test cross-product", e: "This combination matches our middle term." },
+                    { w: ["= (x + 3)(x - 4)"], a: "Write final brackets", e: "Read straight across the frame." }
+                ]
+            },
+            {
+                label: "(b) 2x² - 5x + 3",
+                steps: [
+                    { w: ["Factors of 2x² : 2x and x", "Factors of 3 : -1 and -3"], a: "Identify factors", e: "Because the middle term is negative but the last term is positive, both factors of 3 must be negative." },
+                    { w: ["Check: 2x(-1) + x(-3) = -2x - 3x = -5x"], a: "Test cross-product", e: "Cross-multiplying and adding yields -5x." },
+                    { w: ["= (2x - 3)(x - 1)"], a: "Write final brackets", e: "Read horizontally to get the factored form." }
+                ]
+            },
+            {
+                label: "(c) 6x² - x - 15",
+                steps: [
+                    { w: ["Factors of 6x² : 3x and 2x", "Factors of -15 : -5 and 3"], a: "Identify factors", e: "We have multiple options for 6x², but 3x and 2x is the correct pair to try here." },
+                    { w: ["Check: 3x(3) + 2x(-5) = 9x - 10x = -x"], a: "Test cross-product", e: "This perfectly matches the middle term of -x." },
+                    { w: ["= (3x - 5)(2x + 3)"], a: "Write final brackets", e: "Read horizontally for the final answer." }
+                ]
+            },
+            {
+                label: "(d) -x² - 4x + 21",
+                steps: [
+                    { w: ["Factors of -x² : -x and x", "Factors of 21 : 7 and 3"], a: "Identify factors", e: "One of the x terms must be negative to create -x²." },
+                    { w: ["Check: (-x)(7) + x(3) = -7x + 3x = -4x"], a: "Test cross-product", e: "The combination works." },
+                    { w: ["= (-x + 3)(x + 7)"], a: "Write final brackets", e: "Read horizontally to factor the expression." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 3.5: Worked Example 3 — Pre-Processing Before Frame",
+        qs: [
+            {
+                label: "(a) 1 - 2x - 15x²",
+                steps: [
+                    { w: ["= -15x² - 2x + 1"], a: "Rearrange the terms", e: "Arrange the expression in descending powers of x. This makes setting up the multiplication frame much easier." },
+                    { w: ["Factors: 3x, -5x and 1, 1"], a: "Test frame", e: "3x(1) + (-5x)(1) = 3x - 5x = -2x" },
+                    { w: ["= (3x + 1)(-5x + 1)"], a: "Write final brackets", e: "Factorisation complete." }
+                ]
+            },
+            {
+                label: "(b) x² + xy - 12y²",
+                steps: [
+                    { w: ["Factors of -12y²: 4y and -3y"], a: "Factor with two variables", e: "Treat the y just like a number coefficient. We need terms that sum to +1xy." },
+                    { w: ["Check: x(4y) + x(-3y) = 4xy - 3xy = xy"], a: "Test cross-product", e: "The combination matches perfectly." },
+                    { w: ["= (x - 3y)(x + 4y)"], a: "Write final brackets", e: "The factored expression includes both variables." }
+                ]
+            },
+            {
+                label: "(c) 8a²c - 16abc + 6b²c",
+                steps: [
+                    { w: ["= 2c(4a² - 8ab + 3b²)"], a: "Extract common factor first", e: "Always check for a common factor before using the frame! Here, every term shares 2c." },
+                    { w: ["Factors of 4a²: 2a, 2a", "Factors of 3b²: -b, -3b"], a: "Use frame on the inner bracket", e: "Now factorise the quadratic inside the bracket." },
+                    { w: ["Check: 2a(-3b) + (-b)(2a) = -6ab - 2ab = -8ab"], a: "Test cross-product", e: "The frame works." },
+                    { w: ["= 2c(2a - b)(2a - 3b)"], a: "Write final brackets", e: "Don't forget to keep the 2c on the outside!" }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 3.5: Worked Example 4 & 5 — Substitution Tricks",
+        qs: [
+            {
+                label: "Example 4: Factorise 3x² + 17x + 20, hence find factors of 31,720",
+                steps: [
+                    { w: ["3x² + 17x + 20 = (3x + 5)(x + 4)"], a: "Factorise the quadratic", e: "Using the multiplication frame, we find the factors." },
+                    { w: ["31 720 = 3(100)² + 17(100) + 20"], a: "Express number in quadratic form", e: "Notice that 31,720 fits the exact pattern of our quadratic if we pretend x = 100." },
+                    { w: ["= [3(100) + 5](100 + 4)"], a: "Substitute into factors", e: "Plug 100 into the (3x + 5)(x + 4) format." },
+                    { w: ["= (305)(104)"], a: "Calculate final factors", e: "Therefore, the two factors of 31,720 are 305 and 104." }
+                ]
+            },
+            {
+                label: "Example 5: Factorise 2x² - 9x - 5, hence factorise 2(2y - 1)² - 9(2y - 1) - 5",
+                steps: [
+                    { w: ["2x² - 9x - 5 = (2x + 1)(x - 5)"], a: "Factorise the basic quadratic", e: "We solve the simple version first." },
+                    { w: ["Let x = (2y - 1)"], a: "Substitute the complex bracket", e: "The second expression is exactly the same as the first, just with (2y - 1) plugged in wherever x used to be." },
+                    { w: ["= [2(2y - 1) + 1][(2y - 1) - 5]"], a: "Apply to the factored form", e: "Substitute (2y - 1) directly into our factorised brackets." },
+                    { w: ["= (4y - 2 + 1)(2y - 1 - 5)"], a: "Expand inner brackets", e: "Clean up the math inside the brackets." },
+                    { w: ["= (4y - 1)(2y - 6)", "= 2(4y - 1)(y - 3)"], a: "Simplify and fully factorise", e: "Notice the second bracket (2y - 6) has a common factor of 2. Pull it out to the front for the final answer." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 3.5: Worked Example 6 — Geometry Application",
+        qs: [
+            {
+                label: "Trapezium ABCD: AD = (5x + 4), BC = 3x, Height BE = (2x - 3)",
+                steps: [
+                    { w: ["Area = ½ × (AD + BC) × BE"], a: "Recall the Area Formula", e: "Add parallel sides, multiply by height, multiply by half." },
+                    { w: ["= ½ × (5x + 4 + 3x) × (2x - 3)"], a: "Substitute terms", e: "Replace lengths with expressions." },
+                    { w: ["= ½(8x + 4)(2x - 3)"], a: "Simplify first bracket", e: "Combine 5x + 3x = 8x." },
+                    { w: ["= ½(16x² - 24x + 8x - 12)", "= ½(16x² - 16x - 12)"], a: "Expand and simplify", e: "Multiply binomials and collect like terms." },
+                    { w: ["= (8x² - 8x - 6) cm²"], a: "Multiply by ½", e: "Halve every term to prove the final area." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 3.6: Worked Example 1 — Factorisation by Grouping",
+        qs: [
+            {
+                label: "(a) 5x + 5y + ax + ay",
+                steps: [
+                    { w: ["= 5(x + y) + a(x + y)"], a: "Extract from pairs", e: "Pull 5 from the first pair, and 'a' from the second." },
+                    { w: ["= (x + y)(5 + a)"], a: "Extract common bracket", e: "Pull the matching (x + y) to the front." }
+                ]
+            },
+            {
+                label: "(b) 3px - 9py - 4qx + 12qy",
+                steps: [
+                    { w: ["= 3p(x - 3y) - 4q(x - 3y)"], a: "Extract from pairs", e: "Pull out 3p from the first pair, and -4q from the second." },
+                    { w: ["= (x - 3y)(3p - 4q)"], a: "Extract common bracket", e: "Factor out the matching bracket." }
+                ]
+            },
+            {
+                label: "(c) ax + ay + xy + x²",
+                steps: [
+                    { w: ["= ax + ay + x² + xy"], a: "Rearrange terms", e: "Group terms to reveal common factors." },
+                    { w: ["= a(x + y) + x(x + y)"], a: "Extract from pairs", e: "Pull 'a' from the first, 'x' from the second." },
+                    { w: ["= (x + y)(a + x)"], a: "Extract common bracket", e: "Final factorisation." }
+                ]
+            },
+            {
+                label: "(d) 15mx - 2ny - 3nx + 10my",
+                steps: [
+                    { w: ["= 15mx - 3nx + 10my - 2ny"], a: "Rearrange terms", e: "Group 'x' terms together and 'y' terms together." },
+                    { w: ["= 3x(5m - n) + 2y(5m - n)"], a: "Extract from pairs", e: "Create matching (5m - n) brackets." },
+                    { w: ["= (5m - n)(3x + 2y)"], a: "Extract common bracket", e: "Final factorisation." }
+                ]
+            },
+            {
+                label: "(e) 6rs + 1 - 3r - 2s",
+                steps: [
+                    { w: ["= 6rs - 3r - 2s + 1"], a: "Rearrange terms", e: "Order terms logically." },
+                    { w: ["= 3r(2s - 1) - 1(2s - 1)"], a: "Extract from pairs", e: "Factoring -1 from the second pair flips the signs inside!" },
+                    { w: ["= (2s - 1)(3r - 1)"], a: "Extract common bracket", e: "Final factorisation." }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Section 3.6: Worked Example 2 — Advanced Grouping & Sign Changes",
+        qs: [
+            {
+                label: "(a) 10(2x - y) - p(y - 2x)",
+                steps: [
+                    { w: ["y - 2x = -(2x - y)"], a: "Sign change trick", e: "The brackets are reversed. We can flip the inside if we change the sign on the outside." },
+                    { w: ["= 10(2x - y) + p(2x - y)"], a: "Apply the sign trick", e: "Change '- p' to '+ p' to reverse the bracket." },
+                    { w: ["= (2x - y)(10 + p)"], a: "Extract common bracket", e: "Factor completely." }
+                ]
+            },
+            {
+                label: "(b) 7x³ - x² - 1 + 7x",
+                steps: [
+                    { w: ["= 7x³ - x² + 7x - 1"], a: "Rearrange terms", e: "Group logically." },
+                    { w: ["= x²(7x - 1) + 1(7x - 1)"], a: "Extract from pairs", e: "The second pair is already identical to the required bracket, so we just factor out a 1." },
+                    { w: ["= (7x - 1)(x² + 1)"], a: "Extract common bracket", e: "Final factorisation." }
+                ]
+            },
+            {
+                label: "(c) 3(2 - 5y)² - 8 + 20y",
+                steps: [
+                    { w: ["= 3(2 - 5y)² - 4(2 - 5y)"], a: "Factor loose terms", e: "Extract -4 from the end to create a matching bracket." },
+                    { w: ["= (2 - 5y)[3(2 - 5y) - 4]"], a: "Extract common bracket", e: "Pull one (2 - 5y) out to the front." },
+                    { w: ["= (2 - 5y)(6 - 15y - 4)", "= (2 - 5y)(2 - 15y)"], a: "Expand and simplify inside", e: "Clean up the square brackets to finish." }
+                ]
+            },
+            {
+                label: "(d) (x - 2y)(5x + 3y) - (x - 2y)(x - 5y)",
+                steps: [
+                    { w: ["= (x - 2y) [ (5x + 3y) - (x - 5y) ]"], a: "Extract common bracket", e: "Pull (x - 2y) to the front." },
+                    { w: ["= (x - 2y)(5x + 3y - x + 5y)"], a: "Remove inner brackets", e: "Distribute the negative sign." },
+                    { w: ["= (x - 2y)(4x + 8y)"], a: "Simplify", e: "Combine like terms." },
+                    { w: ["= 4(x - 2y)(x + 2y)"], a: "Fully factorise", e: "Pull out the common factor of 4 from the second bracket." }
+                ]
+            }
+        ]
+    }
+];
+
+function initApp() {
+    const container = document.getElementById('app-content');
+    
+    weData.forEach((example, weIndex) => {
+        const header = document.createElement('div');
+        header.className = 'we-header';
+        header.innerHTML = `<span>${example.t}</span> <span>▼</span>`;
+        
+        const content = document.createElement('div');
+        content.className = 'we-content';
+        
+        let currentQsIndex = 0;
+        let currentStepIndex = 0;
+        
+        const buildUI = () => {
+            content.innerHTML = '';
+            
+            const qData = example.qs[currentQsIndex];
+            
+            if (example.qs.length > 1) {
+                const navDiv = document.createElement('div');
+                navDiv.className = 'nav-container';
+                
+                const btnPrev = document.createElement('button');
+                btnPrev.innerHTML = "◀ Prev";
+                if (currentQsIndex === 0) {
+                    applyBtnStyle(btnPrev, 'NAV_DIS');
+                    btnPrev.disabled = true;
+                } else {
+                    applyBtnStyle(btnPrev, 'NAV');
+                    btnPrev.onclick = () => { currentQsIndex--; currentStepIndex = 0; buildUI(); };
+                }
+                
+                const btnNext = document.createElement('button');
+                btnNext.innerHTML = "Next ▶";
+                if (currentQsIndex === example.qs.length - 1) {
+                    applyBtnStyle(btnNext, 'NAV_DIS');
+                    btnNext.disabled = true;
+                } else {
+                    applyBtnStyle(btnNext, 'NAV');
+                    btnNext.onclick = () => { currentQsIndex++; currentStepIndex = 0; buildUI(); };
+                }
+                
+                navDiv.appendChild(btnPrev);
+                navDiv.appendChild(btnNext);
+                content.appendChild(navDiv);
+            }
+            
+            const focusBox = document.createElement('div');
+            focusBox.className = 'focus-box';
+            focusBox.innerText = qData.label;
+            content.appendChild(focusBox);
+            
+            const stepsDiv = document.createElement('div');
+            for (let i = 0; i < currentStepIndex; i++) {
+                const stepObj = qData.steps[i];
+                const stepWrap = document.createElement('div');
+                stepWrap.className = 'step-container';
+                
+                stepObj.w.forEach(line => {
+                    const wLine = document.createElement('div');
+                    wLine.className = 'working-line';
+                    wLine.innerText = line;
+                    stepWrap.appendChild(wLine);
+                });
+                
+                const aBox = document.createElement('div');
+                aBox.className = 'annotation-box';
+                aBox.innerText = `✏️ ${stepObj.a}`;
+                stepWrap.appendChild(aBox);
+                
+                const eBox = document.createElement('div');
+                eBox.className = 'explanation-box';
+                eBox.innerText = stepObj.e;
+                stepWrap.appendChild(eBox);
+                
+                stepsDiv.appendChild(stepWrap);
+            }
+            content.appendChild(stepsDiv);
+            
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'controls-container';
+            
+            const btnStep = document.createElement('button');
+            const totalSteps = qData.steps.length;
+            
+            if (currentStepIndex < totalSteps) {
+                btnStep.innerHTML = `Show next step (${currentStepIndex + 1}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE');
+                btnStep.onclick = () => {
+                    currentStepIndex++;
+                    buildUI();
+                };
+            } else {
+                btnStep.innerHTML = `All steps shown (${totalSteps}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE_DIS');
+                btnStep.disabled = true;
+            }
+            
+            const btnReset = document.createElement('button');
+            btnReset.innerHTML = "Reset";
+            applyBtnStyle(btnReset, 'GREY');
+            btnReset.onclick = () => {
+                currentStepIndex = 0;
+                buildUI();
+            };
+            
+            controlsDiv.appendChild(btnStep);
+            controlsDiv.appendChild(btnReset);
+            content.appendChild(controlsDiv);
+        };
+        
+        header.addEventListener('click', () => {
+            const isOepn = content.style.display === 'block';
+            
+            document.querySelectorAll('.we-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.we-header span:last-child').forEach(el => el.innerText = '▼');
+            
+            if (!isOepn) {
+                content.style.display = 'block';
+                header.querySelector('span:last-child').innerText = '▲';
+                currentQsIndex = 0;
+                currentStepIndex = 0;
+                buildUI();
+            }
+        });
+        
+        container.appendChild(header);
+        container.appendChild(content);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+</body>
+</html>
