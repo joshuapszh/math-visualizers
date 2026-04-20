@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework Debrief Visualizer - Part 2 | Heritage Academy</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e0e0e0;
+        }
+        .wrap {
+            background-color: #FFFDF5;
+            max-width: 1100px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #identity-panel {
+            background: #fff;
+            border-left: 8px solid #0D47A1;
+            padding: 15px 25px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        #identity-panel h3 { margin-top: 0; color: #0D47A1; font-size: 28px; }
+        .rule-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+        .rule-box { background: #f5f8fc; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 20px; flex: 1; min-width: 300px; border: 1px solid #ccc; color:#000; }
+        
+        .we-header {
+            background: #0D47A1;
+            color: white;
+            border: 3px solid #083378;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 6px;
+        }
+        .we-header:hover { background: #1565C0; }
+        .we-content {
+            display: none;
+            padding: 30px;
+            background: #fff;
+            border: 2px solid #ccc;
+            border-top: none;
+            margin-bottom: 30px;
+            margin-top: -15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .q-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+        }
+        
+        .focus-box {
+            border: 6px solid #B8860B;
+            padding: 40px;
+            text-align: center;
+            font-size: 32px;
+            font-family: monospace;
+            background: #fff;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .svg-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        .step-container { margin-bottom: 30px; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .working-line {
+            background-color: #1E3A5F;
+            color: #FFFFFF;
+            font-size: 28px;
+            font-family: monospace;
+            margin-bottom: 5px;
+            padding: 15px 25px;
+            border-radius: 4px;
+        }
+        .annotation-box {
+            background: #FFF9C4;
+            border-left: 6px solid #FBC02D;
+            padding: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 22px;
+            color: #000;
+        }
+        .explanation-box {
+            background: #E8F5E9;
+            border-left: 6px solid #4CAF50;
+            padding: 15px;
+            font-size: 22px;
+            line-height: 1.6;
+            color: #000;
+        }
+        
+        .nav-container { text-align: center; margin-bottom: 30px; }
+        .controls-container { margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        
+        footer {
+            text-align: center;
+            color: #333;
+            font-size: 18px;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div id="identity-panel">
+        <h3>Reference: Key Algebraic Rules</h3>
+        <div class="rule-grid">
+            <div class="rule-box">
+                <strong>Area of Rectangle:</strong><br>
+                Length × Breadth
+            </div>
+            <div class="rule-box">
+                <strong>Extracting Factors:</strong><br>
+                ax + ay = a(x + y)<br>
+                Find the Highest Common Factor (HCF).
+            </div>
+            <div class="rule-box">
+                <strong>Multiplication Frame:</strong><br>
+                Use cross-multiplication to check middle term when factorising quadratics.
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content"></div>
+
+    <footer>
+        Created by Joshua Poon | Heritage Academy, Singapore | SA1 Revision<br>
+        Secondary 2 Mathematics — Tutorial 3: Expansion and Factorisation (Part 2)
+    </footer>
+</div>
+
+<script>
+const btnStyles = {
+    BLUE: "background:#0D47A1; color:#FFFFFF; border:3px solid #083378; padding:12px 24px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px;",
+    BLUE_DIS: "background:#888; color:#fff; border:3px solid #666; padding:12px 24px; font-size:20px; font-weight:bold; cursor:not-allowed; border-radius:6px;",
+    GREY: "background:#fff; color:#000; border:2px solid #333; padding:12px 24px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px;",
+    NAV: "background:#B8860B; color:#fff; border:2px solid #8B6508; padding:10px 20px; font-size:20px; font-weight:bold; cursor:pointer; border-radius:6px; margin:0 8px;",
+    NAV_DIS: "background:#D4C890; color:#888; border:2px solid #D4C890; padding:10px 20px; font-size:20px; font-weight:bold; cursor:not-allowed; border-radius:6px; margin:0 8px;"
+};
+
+function applyBtnStyle(btnElement, styleKey) {
+    btnElement.setAttribute('style', btnStyles[styleKey]);
+}
+
+const weData = [
+    {
+        t: "Question 8(b) — Expanding Polynomials",
+        qs: [
+            {
+                label: "(x² + x - 2)(x - 1)",
+                steps: [
+                    { 
+                        w: ["= x(x² + x - 2) - 1(x² + x - 2)"], 
+                        a: "Split and distribute the binomial", 
+                        e: "To make sure we multiply every single term correctly, we take the terms from the second bracket (the x and the -1) and distribute them across the entire first trinomial." 
+                    },
+                    { 
+                        w: ["= (x³ + x² - 2x) - (x² + x - 2)"], 
+                        a: "Multiply each part", 
+                        e: "Carefully apply the x to the first group, and a 1 to the second group. Keep the second group in parentheses because we are subtracting the whole thing." 
+                    },
+                    { 
+                        w: ["= x³ + x² - 2x - x² - x + 2"], 
+                        a: "Remove parentheses", 
+                        e: "The negative sign flips every sign inside the second bracket." 
+                    },
+                    { 
+                        w: ["= x³ - 3x + 2"], 
+                        a: "Simplify like terms", 
+                        e: "The positive x² and negative x² cancel each other out entirely! -2x and -x combine to make -3x." 
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Question 9(b) — Geometry Application",
+        qs: [
+            {
+                q_text: "Find the area of Rectangle ABCD in terms of x.",
+                diagram_svg: `<svg viewBox='0 0 500 250' width='100%' height='250px' style='background:#FFFDF5;'>
+                                <rect x='50' y='50' width='400' height='150' fill='#e0e0e0' stroke='#000' stroke-width='4'/>
+                                <text x='250' y='230' font-size='24' font-weight='bold' text-anchor='middle' fill='#000'>(5x + 7) cm</text>
+                                <text x='35' y='130' font-size='24' font-weight='bold' text-anchor='end' fill='#000'>(2x - 3) cm</text>
+                                <text x='45' y='40' font-size='24' font-weight='bold' fill='#000'>A</text>
+                                <text x='445' y='40' font-size='24' font-weight='bold' fill='#000'>D</text>
+                                <text x='45' y='225' font-size='24' font-weight='bold' fill='#000'>B</text>
+                                <text x='445' y='225' font-size='24' font-weight='bold' fill='#000'>C</text>
+                              </svg>`,
+                label: "Area = (2x - 3)(5x + 7)",
+                steps: [
+                    { 
+                        w: ["= 2x(5x) + 2x(7) - 3(5x) - 3(7)"], 
+                        a: "Set up the area formula", 
+                        e: "The area of a rectangle is Length multiplied by Breadth. We set up the binomial multiplication." 
+                    },
+                    { 
+                        w: ["= 10x² + 14x - 15x - 21"], 
+                        a: "Expand the brackets", 
+                        e: "Multiply every term systematically." 
+                    },
+                    { 
+                        w: ["= (10x² - x - 21) cm²"], 
+                        a: "Simplify and add units", 
+                        e: "Combine the middle terms. Don't forget to include the unit of measurement (cm²) in parentheses at the very end to show the whole expression represents the area." 
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Question 10 — Extracting Common Factors",
+        qs: [
+            {
+                label: "(c) x² - 9x",
+                steps: [
+                    { w: ["Common factor: x"], a: "Identify the HCF", e: "Both terms share the variable 'x'. There are no numerical common factors other than 1." },
+                    { w: ["= x(x - 9)"], a: "Extract factor", e: "Pull 'x' to the outside of the bracket. Dividing x² by x leaves x. Dividing -9x by x leaves -9." }
+                ]
+            },
+            {
+                label: "(l) 9a²bc³ - 27abc",
+                steps: [
+                    { w: ["Number HCF: 9", "Variable HCF: a, b, c"], a: "Identify numerical and variable factors", e: "Look at the numbers first: 9 divides into both 9 and 27. Then look at the letters: the lowest power of 'a' present in both is a, they both share a 'b', and the lowest power of 'c' is c. Total factor: 9abc." },
+                    { w: ["= 9abc(ac² - 3)"], a: "Extract the factor", e: "Divide the original terms by 9abc to find the remainders for the inside of the bracket." }
+                ]
+            },
+            {
+                label: "(u) xyz - x²y²z² + x³y³z³",
+                steps: [
+                    { w: ["Common factor: xyz"], a: "Identify HCF across three terms", e: "The smallest power of x, y, and z that appears in every single term is just xyz to the power of 1." },
+                    { w: ["= xyz(1 - xyz + x²y²z²)"], a: "Extract the factor", e: "COMMON MISTAKE ALERT! When you pull xyz out of the first term (which is also xyz), it leaves a '1', not a '0'. If it left 0, expanding the bracket would make the first term disappear entirely!" }
+                ]
+            }
+        ]
+    },
+    {
+        t: "Question 11 — Factorising Quadratics (Multiplication Frame)",
+        qs: [
+            {
+                label: "(a) x² + 3x + 2",
+                steps: [
+                    { w: ["Factors of x² : x, x", "Factors of 2 : 1, 2"], a: "Set up multiplication frame factors", e: "We need two numbers that multiply to positive 2, and add to positive 3." },
+                    { w: ["Check: x(2) + x(1) = 2x + x = 3x"], a: "Verify with cross-multiplication", e: "The cross-multiplication adds up to our middle term, 3x. The combination works." },
+                    { w: ["= (x + 1)(x + 2)"], a: "Write out brackets", e: "Read horizontally across the top and bottom rows of your frame." }
+                ]
+            },
+            {
+                label: "(r) 4x² - 13x + 3",
+                steps: [
+                    { w: ["Factors of 4x² : 4x, x", "Factors of 3 : -1, -3"], a: "Identify possible factors", e: "Since the middle term is negative (-13x) but the constant is positive (+3), both factors of 3 must be negative." },
+                    { w: ["Check: 4x(-3) + x(-1) = -12x - x = -13x"], a: "Verify with cross-multiplication", e: "We test 4x paired with -3 diagonally, which gives -12x. x paired with -1 gives -x. Together they make -13x." },
+                    { w: ["= (4x - 1)(x - 3)"], a: "Write out brackets", e: "Read straight across the frame rows to build the final answer." }
+                ]
+            }
+        ]
+    }
+];
+
+function initApp() {
+    const container = document.getElementById('app-content');
+    
+    weData.forEach((example) => {
+        const header = document.createElement('div');
+        header.className = 'we-header';
+        header.innerHTML = `<span>${example.t}</span> <span>▼</span>`;
+        
+        const content = document.createElement('div');
+        content.className = 'we-content';
+        
+        let currentQsIndex = 0;
+        let currentStepIndex = 0;
+        
+        const buildUI = () => {
+            content.innerHTML = '';
+            const qData = example.qs[currentQsIndex];
+            
+            if (example.qs.length > 1) {
+                const navDiv = document.createElement('div');
+                navDiv.className = 'nav-container';
+                
+                const btnPrev = document.createElement('button');
+                btnPrev.innerHTML = "◀ Prev";
+                if (currentQsIndex === 0) {
+                    applyBtnStyle(btnPrev, 'NAV_DIS');
+                    btnPrev.disabled = true;
+                } else {
+                    applyBtnStyle(btnPrev, 'NAV');
+                    btnPrev.onclick = () => { currentQsIndex--; currentStepIndex = 0; buildUI(); };
+                }
+                
+                const btnNext = document.createElement('button');
+                btnNext.innerHTML = "Next ▶";
+                if (currentQsIndex === example.qs.length - 1) {
+                    applyBtnStyle(btnNext, 'NAV_DIS');
+                    btnNext.disabled = true;
+                } else {
+                    applyBtnStyle(btnNext, 'NAV');
+                    btnNext.onclick = () => { currentQsIndex++; currentStepIndex = 0; buildUI(); };
+                }
+                
+                navDiv.appendChild(btnPrev);
+                navDiv.appendChild(btnNext);
+                content.appendChild(navDiv);
+            }
+            
+            const focusBox = document.createElement('div');
+            focusBox.className = 'focus-box';
+            
+            if (qData.q_text) {
+                const qt = document.createElement('div');
+                qt.className = 'q-text';
+                qt.innerText = qData.q_text;
+                focusBox.appendChild(qt);
+            }
+            if (qData.diagram_svg) {
+                const svgDiv = document.createElement('div');
+                svgDiv.className = 'svg-container';
+                svgDiv.innerHTML = qData.diagram_svg;
+                focusBox.appendChild(svgDiv);
+            }
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.innerText = qData.label;
+            focusBox.appendChild(labelDiv);
+            
+            content.appendChild(focusBox);
+            
+            const stepsDiv = document.createElement('div');
+            for (let i = 0; i < currentStepIndex; i++) {
+                const stepObj = qData.steps[i];
+                const stepWrap = document.createElement('div');
+                stepWrap.className = 'step-container';
+                
+                stepObj.w.forEach(line => {
+                    const wLine = document.createElement('div');
+                    wLine.className = 'working-line';
+                    wLine.innerText = line;
+                    stepWrap.appendChild(wLine);
+                });
+                
+                const aBox = document.createElement('div');
+                aBox.className = 'annotation-box';
+                aBox.innerText = `✏️ ${stepObj.a}`;
+                stepWrap.appendChild(aBox);
+                
+                const eBox = document.createElement('div');
+                eBox.className = 'explanation-box';
+                eBox.innerText = stepObj.e;
+                stepWrap.appendChild(eBox);
+                
+                stepsDiv.appendChild(stepWrap);
+            }
+            content.appendChild(stepsDiv);
+            
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'controls-container';
+            
+            const btnStep = document.createElement('button');
+            const totalSteps = qData.steps.length;
+            
+            if (currentStepIndex < totalSteps) {
+                btnStep.innerHTML = `Show next step (${currentStepIndex + 1}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE');
+                btnStep.onclick = () => {
+                    currentStepIndex++;
+                    buildUI();
+                };
+            } else {
+                btnStep.innerHTML = `All steps shown (${totalSteps}/${totalSteps})`;
+                applyBtnStyle(btnStep, 'BLUE_DIS');
+                btnStep.disabled = true;
+            }
+            
+            const btnReset = document.createElement('button');
+            btnReset.innerHTML = "Reset";
+            applyBtnStyle(btnReset, 'GREY');
+            btnReset.onclick = () => {
+                currentStepIndex = 0;
+                buildUI();
+            };
+            
+            controlsDiv.appendChild(btnStep);
+            controlsDiv.appendChild(btnReset);
+            content.appendChild(controlsDiv);
+        };
+        
+        header.addEventListener('click', () => {
+            const isOepn = content.style.display === 'block';
+            document.querySelectorAll('.we-content').forEach(el => el.style.display = 'none');
+            if (!isOepn) {
+                content.style.display = 'block';
+                currentQsIndex = 0;
+                currentStepIndex = 0;
+                buildUI();
+            }
+        });
+        
+        container.appendChild(header);
+        container.appendChild(content);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+
+</body>
+</html>
