@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 7.1: Direct Proportion Visualizer</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 2vh 3vw;
+            height: 96vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        
+        .main-layout { display: flex; gap: 30px; height: 100%; flex: 1; min-height: 0; }
+        .left-panel { width: 38%; display: flex; flex-direction: column; gap: 20px; }
+        .right-panel { 
+            width: 62%; 
+            background: white; 
+            border-radius: 12px; 
+            padding: 30px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        #controls-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0;}
+        select { font-size: 1.2rem; padding: 12px; border-radius: 8px; border: 2px solid #1d4ed8; width: 100%; cursor: pointer; font-weight: 600;}
+
+        #explanation-box { font-size: 1.4rem; line-height: 1.5; padding: 25px; background: #eff6ff; border-left: 6px solid #1d4ed8; border-radius: 8px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; overflow-y: auto;}
+        .explanation-title { font-weight: bold; color: #1e3a8a; margin-bottom: 10px; font-size: 1.4rem; }
+
+        .button-group { display: flex; gap: 10px; flex-shrink: 0;}
+        button { padding: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; flex: 1; transition: 0.2s; }
+        #next-btn { background: #1d4ed8; color: white; }
+        #next-btn:hover { background: #1e3a8a; }
+        #prev-btn, #reset-btn { background: #e2e8f0; color: #333; }
+
+        #question-area {
+            width: 100%;
+            background: #fffbeb;
+            border-left: 6px solid #fcd34d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        #q-text { font-size: 1.3rem; line-height: 1.5; color: #b45309; margin: 0; font-weight: bold; }
+        .sub-parts { color: #1e293b; font-weight: 500; display: block; margin-top: 8px; font-size: 1.2rem;}
+
+        #math-display { 
+            font-size: clamp(1.1rem, 1.8vw, 2.1rem); 
+            width: 100%; 
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        
+        .keyboard-hint { text-align: center; color: #64748b; font-size: 0.95rem; margin-top: 10px; font-weight: 500; flex-shrink: 0;}
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size: 1.8rem; margin: 0 0 10px 0; color: #0f172a;">Section 7.1: Direct Proportion</h1>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div id="controls-container">
+                <select id="problem-selector">
+                    <option value="0">Concept: Direct Proportion Rules</option>
+                    <option value="1">Worked Example 1: Wages & Hours</option>
+                    <option value="2">Worked Example 2: Finding p & q</option>
+                    <option value="3">Worked Example 3: Identifying Proportions</option>
+                    <option value="4">Worked Example 4: The Algorithm</option>
+                    <option value="5">Worked Example 5: Squares (x²)</option>
+                    <option value="6">Worked Example 6: Cube Roots (³√x)</option>
+                </select>
+            </div>
+
+            <div id="explanation-box">
+                <div class="explanation-title" id="exp-title">Teaching Logic</div>
+                <div id="exp-text">Loading...</div>
+            </div>
+
+            <div class="button-group">
+                <button id="reset-btn">Reset</button>
+                <button id="prev-btn">Prev</button>
+                <button id="next-btn">Next Step</button>
+            </div>
+            <div class="keyboard-hint">💡 Tip: Use Left ⬅️ and Right ➡️ arrow keys to navigate.</div>
+        </div>
+
+        <div class="right-panel">
+            <div id="question-area">
+                <p id="q-text"></p>
+                <div id="q-sub-parts"></div>
+            </div>
+            <div id="math-display"></div>
+        </div>
+    </div>
+
+    <script>
+        const problems = [
+            {
+                // 0: Concept
+                question: "Core Concept: What defines Direct Proportion?",
+                subParts: ["Understanding the rules and mathematical representations."],
+                lines: [
+                    "&\\text{Ratio of two quantities is constant: } \\frac{y}{x} = k \\\\[0.8em]",
+                    "&\\text{Algebraic Rule: } y = kx \\quad \\text{(where } k \\neq 0) \\\\[0.8em]",
+                    "&\\text{Equivalent Ratios: } \\frac{y_1}{x_1} = \\frac{y_2}{x_2} \\\\[0.8em]",
+                    "&\\text{Graph: A straight line passing through } (0,0)"
+                ],
+                texts: [
+                    "When two quantities are in direct proportion, they change at the same rate. Their ratio always remains a constant value.",
+                    "This means we can connect them with an equation using a non-zero constant, known as 'k'.",
+                    "Because the ratio never changes, dividing any pair of variables (like y₁/x₁) will always equal dividing any other pair (like y₂/x₂).",
+                    "If you plot a direct proportion on a coordinate graph, it will always form a perfect straight line going exactly through the origin."
+                ]
+            },
+            {
+                // 1: Worked Example 1
+                question: "Worked Example 1: The table shows hours (t) and wages ($y).",
+                subParts: [
+                    "t: 10, 20, 30, 40, 50 | y: 180, 360, 540, 720, 900", 
+                    "(a) Show they are in direct proportion.", 
+                    "(b) Write equation.", 
+                    "(c) Find (i) y when t=62, (ii) t when y=225.",
+                    "(d) Draw the graph of y against t."
+                ],
+                lines: [
+                    "&\\text{(a) } \\frac{y}{t} = \\frac{180}{10} = \\frac{360}{20} = \\dots = 18 \\\\[0.6em]",
+                    "&\\quad \\ \\ \\text{Since } \\frac{y}{t} = 18 \\text{ is a constant, } y \\propto t \\\\[0.8em]",
+                    "&\\text{(b) } y = 18t \\\\[0.8em]",
+                    "&\\text{(c)(i) When } t = 62, \\ y = 18(62) = 1116 \\\\[0.6em]",
+                    "&\\text{(c)(ii) When } y = 225, \\ 225 = 18t \\implies t = 12.5 \\\\[0.8em]",
+                    "&\\text{(d) The graph of } y = 18t \\text{ is a straight line through } (0,0)."
+                ],
+                texts: [
+                    "First, test if the ratio of y to t is constant. Check all pairs given in the table.",
+                    "Because every single pair simplifies to exactly 18, we have proven they are in direct proportion.",
+                    "Multiply both sides by t to write the general formula connecting the two variables.",
+                    "To find the wages for 62 hours, substitute t = 62 into our new equation and calculate.",
+                    "To find the hours worked for $225, substitute y = 225 and divide by the constant 18.",
+                    "Because they are in direct proportion, the graph must be a straight line passing perfectly through the origin."
+                ]
+            },
+            {
+                // 2: Worked Example 2
+                question: "Worked Example 2: Given y is directly proportional to x, find p and q.",
+                subParts: ["x: 10, 15, q", "y: 6, p, 27"],
+                lines: [
+                    "&\\text{Find ratio } k = \\frac{y}{x} = \\frac{6}{10} = 0.6 \\\\[0.8em]",
+                    "&\\text{Solve for } p: \\frac{p}{15} = \\frac{6}{10} \\\\[0.6em]",
+                    "&p = \\frac{6}{10} \\times 15 = 9 \\\\[0.8em]",
+                    "&\\text{Solve for } q: \\frac{q}{27} = \\frac{10}{6} \\quad \\text{(Using } \\frac{x_1}{y_1} = \\frac{x_2}{y_2}) \\\\[0.6em]",
+                    "&q = \\frac{10}{6} \\times 27 = 45"
+                ],
+                texts: [
+                    "First, find the constant ratio using the one column where both the x and y values are known (6/10).",
+                    "To find p, set up a proportion equating its column to our known ratio.",
+                    "Multiply both sides by 15 to isolate p and solve.",
+                    "To find q, it is easier to flip the ratio to x/y. Set q/27 equal to 10/6.",
+                    "Multiply by 27 to isolate q and solve."
+                ]
+            },
+            {
+                // 3: Worked Example 3
+                question: "Worked Example 3: State which two variables are in direct proportion.",
+                subParts: [
+                    "(a) y = 2x² &nbsp;&nbsp;&nbsp;&nbsp; (b) 3y = 5x &nbsp;&nbsp;&nbsp;&nbsp; (c) y = ³√x",
+                    "(d) y² = ½x &nbsp;&nbsp;&nbsp; (e) y = x + 1 &nbsp;&nbsp;&nbsp; (f) y = 1/x"
+                ],
+                lines: [
+                    "&\\text{(a) } \\frac{y}{x^2} = 2 \\implies y \\text{ is directly proportional to } x^2 \\\\[0.6em]",
+                    "&\\text{(b) } \\frac{y}{x} = \\frac{5}{3} \\implies y \\text{ is directly proportional to } x \\\\[0.6em]",
+                    "&\\text{(c) } \\frac{y}{\\sqrt[3]{x}} = 1 \\implies y \\text{ is directly proportional to } \\sqrt[3]{x} \\\\[0.6em]",
+                    "&\\text{(d) } \\frac{y^2}{x} = \\frac{1}{2} \\implies y^2 \\text{ is directly proportional to } x \\\\[0.6em]",
+                    "&\\text{(e) } y - 1 = x \\implies \\frac{y-1}{x} = 1 \\implies (y-1) \\propto x \\\\[0.6em]",
+                    "&\\text{(f) } \\frac{y}{1/x} = 1 \\implies y \\text{ is directly proportional to } \\frac{1}{x}"
+                ],
+                texts: [
+                    "For (a), rearrange to isolate the constant. Since y/x² equals 2, y is directly proportional to x².",
+                    "For (b), rearranging gives y/x = 5/3. The variables are y and x.",
+                    "For (c), divide by the cube root of x. The constant is 1, so y is proportional to ³√x.",
+                    "For (d), divide by x. The variables in proportion are y² and x.",
+                    "For (e), this is a trick! Subtract 1 from both sides. The constant ratio is (y-1) over x.",
+                    "For (f), divide y by (1/x). The constant is 1, meaning y is directly proportional to the reciprocal of x."
+                ]
+            },
+            {
+                // 4: Worked Example 4
+                question: "Worked Example 4: y is directly proportional to x, and y = 12 when x = 4.",
+                subParts: [
+                    "(a) Find an equation connecting x and y.",
+                    "(b) Find y when x = 3.",
+                    "(c) Find x when y = 24."
+                ],
+                lines: [
+                    "&\\text{(a) } y = kx \\\\[0.4em]",
+                    "&\\quad \\ \\ 12 = k(4) \\implies k = 3 \\\\[0.4em]",
+                    "&\\quad \\ \\ y = 3x \\\\[0.8em]",
+                    "&\\text{(b) } y = 3(3) \\\\[0.4em]",
+                    "&\\quad \\ \\ y = 9 \\\\[0.8em]",
+                    "&\\text{(c) } 24 = 3x \\\\[0.4em]",
+                    "&\\quad \\ \\ x = 8"
+                ],
+                texts: [
+                    "Step 1: Write the general equation format for direct proportion.",
+                    "Substitute the known pair of values (y=12, x=4) to solve for the constant k.",
+                    "Rewrite the equation with the newly found constant k.",
+                    "For part (b), substitute x = 3 into the specific equation.",
+                    "Multiply to find the value of y.",
+                    "For part (c), substitute y = 24 into the equation.",
+                    "Divide by 3 to find the value of x."
+                ]
+            },
+            {
+                // 5: Worked Example 5
+                question: "Worked Example 5: y is directly proportional to x², and y = 32 when x = 2.",
+                subParts: [
+                    "(a)(i) Find equation. (ii) y when x=5. (iii) x when y=72.",
+                    "(b) Sketch the graph of y against x²."
+                ],
+                lines: [
+                    "&\\text{(a)(i) } y = kx^2 \\implies 32 = k(2)^2 \\implies k = \\frac{32}{4} = 8 \\\\[0.4em]",
+                    "&\\quad \\quad \\ y = 8x^2 \\\\[0.6em]",
+                    "&\\text{(a)(ii) } y = 8(5)^2 = 8(25) \\\\[0.4em]",
+                    "&\\quad \\quad \\ y = 200 \\\\[0.6em]",
+                    "&\\text{(a)(iii) } 72 = 8x^2 \\implies x^2 = 9 \\\\[0.4em]",
+                    "&\\quad \\quad \\ \\ x = \\pm \\sqrt{9} \\implies x = \\pm 3 \\\\[0.6em]",
+                    "&\\text{(b) Graph of } y \\text{ against } x^2 \\text{ is a straight line through origin.}"
+                ],
+                texts: [
+                    "Write the general equation (y = kx²), substitute x=2 and y=32, and solve for k.",
+                    "The specific equation connecting the variables is y = 8x².",
+                    "To find y when x=5, remember to square the 5 first (Order of Operations!).",
+                    "Multiply 8 by 25 to get y = 200.",
+                    "To find x when y=72, substitute and divide by 8 to get x² = 9.",
+                    "TRAP WARNING: Taking the square root of 9 yields TWO answers: +3 and -3.",
+                    "Because y is directly proportional to x², plotting y against x² will yield a straight line passing through (0,0)."
+                ]
+            },
+            {
+                // 6: Worked Example 6
+                question: "Worked Example 6: y is directly proportional to ³√x, and y = 6 when x = 27.",
+                subParts: [
+                    "(a) Find an equation connecting x and y.",
+                    "(b) Find y when x = 125.",
+                    "(c) Find x when y = 18."
+                ],
+                lines: [
+                    "&\\text{(a) } y = k\\sqrt[3]{x} \\\\[0.4em]",
+                    "&\\quad \\ \\ 6 = k\\sqrt[3]{27} \\implies 6 = 3k \\implies k = 2 \\\\[0.4em]",
+                    "&\\quad \\ \\ y = 2\\sqrt[3]{x} \\\\[0.8em]",
+                    "&\\text{(b) } y = 2\\sqrt[3]{125} \\\\[0.4em]",
+                    "&\\quad \\ \\ y = 2(5) = 10 \\\\[0.8em]",
+                    "&\\text{(c) } 18 = 2\\sqrt[3]{x} \\implies 9 = \\sqrt[3]{x} \\\\[0.4em]",
+                    "&\\quad \\ \\ x = 9^3 = 729"
+                ],
+                texts: [
+                    "Write the general equation y = k(³√x).",
+                    "Substitute x=27 and y=6. The cube root of 27 is 3, allowing us to solve for k.",
+                    "The specific equation is y = 2(³√x).",
+                    "For part (b), substitute x=125 into the equation.",
+                    "The cube root of 125 is 5. Multiply by 2 to get y = 10.",
+                    "For part (c), substitute y = 18 and divide by 2 to isolate the cube root.",
+                    "To reverse a cube root, cube both sides (9³). The final answer is 729."
+                ]
+            }
+        ];
+
+        let currentProb = 0;
+        let currentStep = 0;
+
+        const mathDisp = document.getElementById('math-display');
+        const qText = document.getElementById('q-text');
+        const qSubParts = document.getElementById('q-sub-parts');
+        const expTitle = document.getElementById('exp-title');
+        const expText = document.getElementById('exp-text');
+        const selector = document.getElementById('problem-selector');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+
+        function renderState() {
+            const p = problems[currentProb];
+            qText.innerText = p.question;
+            qSubParts.innerHTML = p.subParts.map(part => `<span class="sub-parts">${part}</span>`).join('');
+
+            const activeLines = p.lines.slice(0, currentStep + 1);
+            const math = "\\begin{aligned} " + activeLines.join(" ") + " \\end{aligned}";
+            katex.render(math, mathDisp, { displayMode: true });
+            
+            expTitle.innerText = `Step ${currentStep + 1} of ${p.lines.length}`;
+            expText.innerText = p.texts[currentStep];
+
+            prevBtn.disabled = currentStep === 0;
+            if(currentStep === p.lines.length - 1) {
+                nextBtn.innerText = "Finished";
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.innerText = "Next Step";
+                nextBtn.disabled = false;
+            }
+            document.activeElement.blur();
+        }
+
+        selector.addEventListener('change', (e) => {
+            currentProb = parseInt(e.target.value);
+            currentStep = 0;
+            renderState();
+        });
+
+        nextBtn.onclick = () => { if (currentStep < problems[currentProb].lines.length - 1) { currentStep++; renderState(); } };
+        prevBtn.onclick = () => { if (currentStep > 0) { currentStep--; renderState(); } };
+        document.getElementById('reset-btn').onclick = () => { currentStep = 0; renderState(); };
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') document.getElementById('next-btn').click();
+            if(e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
+        });
+
+        window.onload = renderState;
+    </script>
+</body>
+</html>

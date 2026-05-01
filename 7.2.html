@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 7.2: Real-World Direct Proportions</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 2vh 3vw;
+            height: 96vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        
+        .main-layout { display: flex; gap: 30px; height: 100%; flex: 1; min-height: 0; }
+        .left-panel { width: 38%; display: flex; flex-direction: column; gap: 20px; }
+        .right-panel { 
+            width: 62%; 
+            background: white; 
+            border-radius: 12px; 
+            padding: 30px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        #controls-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0;}
+        select { font-size: 1.2rem; padding: 12px; border-radius: 8px; border: 2px solid #1d4ed8; width: 100%; cursor: pointer; font-weight: 600;}
+
+        #explanation-box { font-size: 1.4rem; line-height: 1.5; padding: 25px; background: #eff6ff; border-left: 6px solid #1d4ed8; border-radius: 8px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; overflow-y: auto;}
+        .explanation-title { font-weight: bold; color: #1e3a8a; margin-bottom: 10px; font-size: 1.4rem; }
+
+        .button-group { display: flex; gap: 10px; flex-shrink: 0;}
+        button { padding: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; flex: 1; transition: 0.2s; }
+        #next-btn { background: #1d4ed8; color: white; }
+        #next-btn:hover { background: #1e3a8a; }
+        #prev-btn, #reset-btn { background: #e2e8f0; color: #333; }
+
+        #question-area {
+            width: 100%;
+            background: #fffbeb;
+            border-left: 6px solid #fcd34d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        #q-text { font-size: 1.3rem; line-height: 1.5; color: #b45309; margin: 0; font-weight: bold; }
+        .sub-parts { color: #1e293b; font-weight: 500; display: block; margin-top: 8px; font-size: 1.2rem;}
+
+        #math-display { 
+            font-size: clamp(1.1rem, 1.8vw, 2.1rem); 
+            width: 100%; 
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        #graph-container {
+            width: 100%;
+            flex-grow: 1;
+            position: relative;
+            display: none; /* Hidden by default */
+            margin-top: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        
+        .keyboard-hint { text-align: center; color: #64748b; font-size: 0.95rem; margin-top: 10px; font-weight: 500; flex-shrink: 0;}
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size: 1.8rem; margin: 0 0 10px 0; color: #0f172a;">Section 7.2: Real-World Contexts</h1>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div id="controls-container">
+                <select id="problem-selector">
+                    <option value="0">Concept: Real-World Proportions</option>
+                    <option value="1">Worked Example 1: Spring Extension</option>
+                    <option value="2">Worked Example 2: Mass of a Sphere (r³)</option>
+                    <option value="3">Worked Example 3: Party Cost (Graphing)</option>
+                    <option value="4">Worked Example 4: Mobile Plan (Non-Proportional)</option>
+                </select>
+            </div>
+
+            <div id="explanation-box">
+                <div class="explanation-title" id="exp-title">Teaching Logic</div>
+                <div id="exp-text">Loading...</div>
+            </div>
+
+            <div class="button-group">
+                <button id="reset-btn">Reset</button>
+                <button id="prev-btn">Prev</button>
+                <button id="next-btn">Next Step</button>
+            </div>
+            <div class="keyboard-hint">💡 Tip: Use Left ⬅️ and Right ➡️ arrow keys to navigate.</div>
+        </div>
+
+        <div class="right-panel">
+            <div id="question-area">
+                <p id="q-text"></p>
+                <div id="q-sub-parts"></div>
+            </div>
+            <div id="math-display"></div>
+            <div id="graph-container">
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const problems = [
+            {
+                // 0: Concept
+                question: "Concept: Applying Direct Proportion to the Real World",
+                subParts: ["Translating words into mathematical equations."],
+                lines: [
+                    "&\\text{Instead of abstract } x \\text{ and } y, \\text{ we use physical variables:}\\\\[0.6em]",
+                    "&\\text{Cost } (C), \\text{ Mass } (m), \\text{ Time } (t), \\text{ Length } (l) \\\\[0.8em]",
+                    "&\\text{The core 3-step algorithm remains identical:} \\\\[0.4em]",
+                    "&1. \\text{ Form general equation: } m = kr^3 \\\\[0.4em]",
+                    "&2. \\text{ Substitute knowns to find constant } k \\\\[0.4em]",
+                    "&3. \\text{ Rewrite specific equation and solve}"
+                ],
+                texts: [
+                    "In Section 7.2, we stop using 'x' and 'y' and start using variables that represent real-world quantities, like 'w' for weight or 'C' for cost.",
+                    "Even though the letters change, the mathematical relationship remains exactly the same.",
+                    "To solve these problems, always stick to the standard 3-step algorithm.",
+                    "Step 1: Translate the English sentence into an algebraic equation with a constant 'k'. Note: it might involve squares or cubes!",
+                    "Step 2: Substitute the pair of values the question gives you to solve for 'k'.",
+                    "Step 3: Rewrite the equation using your new 'k' value, and use it to solve for the missing unknown."
+                ],
+                hasGraph: false
+            },
+            {
+                // 1: Worked Example 1
+                question: "Worked Example 1: Spring Extension",
+                subParts: [
+                    "The extension of a spring, e cm, is directly proportional to the weight, w kg, attached.",
+                    "The extension is 3 cm when a weight of 8 kg is attached.",
+                    "(a) Find an equation connecting e and w.",
+                    "(b) Find the extension when a weight of 50 kg is attached."
+                ],
+                lines: [
+                    "&\\text{(a) } e = kw \\\\[0.4em]",
+                    "&\\quad \\ \\ \\text{When } w = 8, e = 3 \\\\[0.4em]",
+                    "&\\quad \\ \\ 3 = k(8) \\implies k = \\frac{3}{8} \\\\[0.6em]",
+                    "&\\quad \\ \\ \\mathbf{e = \\frac{3}{8}w} \\\\[0.8em]",
+                    "&\\text{(b) When } w = 50, \\\\[0.4em]",
+                    "&\\quad \\ \\ e = \\frac{3}{8}(50) \\\\[0.4em]",
+                    "&\\quad \\ \\ \\mathbf{e = 18.75 \\text{ cm}}"
+                ],
+                texts: [
+                    "Step 1: Write down the general equation. Since 'e' is directly proportional to 'w', e = kw.",
+                    "Identify the known pair of values given in the prompt.",
+                    "Step 2: Substitute e = 3 and w = 8 to isolate the constant k. k = 3/8.",
+                    "Step 3: Rewrite the specific formula connecting e and w.",
+                    "For part (b), we need to find the new extension given a weight of 50 kg.",
+                    "Substitute w = 50 into our new formula.",
+                    "Calculate the final value. The spring will extend 18.75 cm."
+                ],
+                hasGraph: false
+            },
+            {
+                // 2: Worked Example 2
+                question: "Worked Example 2: Mass of a Sphere",
+                subParts: [
+                    "The mass of a sphere is directly proportional to the cube of the radius.",
+                    "A sphere with radius 5 cm has a mass of 525 g.",
+                    "Find the mass of a similar sphere with radius 2 cm."
+                ],
+                lines: [
+                    "&\\text{Let mass = } m \\text{ and radius = } r \\\\[0.4em]",
+                    "&\\quad \\ \\ m = kr^3 \\\\[0.6em]",
+                    "&\\text{When } r = 5, m = 525 \\\\[0.4em]",
+                    "&\\quad \\ \\ 525 = k(5)^3 = 125k \\\\[0.4em]",
+                    "&\\quad \\ \\ k = \\frac{525}{125} = 4.2 \\implies \\mathbf{m = 4.2r^3} \\\\[0.8em]",
+                    "&\\text{When } r = 2, \\\\[0.4em]",
+                    "&\\quad \\ \\ m = 4.2(2)^3 = 4.2(8) \\\\[0.4em]",
+                    "&\\quad \\ \\ \\mathbf{m = 33.6 \\text{ g}}"
+                ],
+                texts: [
+                    "First, assign variables to the quantities to make the algebra easier.",
+                    "Write the general equation. TIP: Pay close attention to the word 'cube'. The proportion is to r³, not just r.",
+                    "Identify the known pair of values to find our constant.",
+                    "Substitute r = 5 and m = 525. Don't forget to cube the 5 (5³ = 125).",
+                    "Divide to find k = 4.2, giving us our specific formula.",
+                    "Now, apply this formula to find the mass of the smaller sphere.",
+                    "Substitute r = 2. Remember to cube the 2 first (Order of Operations!).",
+                    "Multiply 4.2 by 8. The mass of the smaller sphere is 33.6 g."
+                ],
+                hasGraph: false
+            },
+            {
+                // 3: Worked Example 3
+                question: "Worked Example 3: Kid's Birthday Party",
+                subParts: [
+                    "The cost, $C, is directly proportional to the number of guests, n.",
+                    "It costs $360 for 20 guests.",
+                    "(a) Form an equation. (b) Cost for 50 guests? (c) Draw graph of C against n."
+                ],
+                lines: [
+                    "&\\text{(a) } C = kn \\\\[0.4em]",
+                    "&\\quad \\ \\ 360 = k(20) \\implies k = \\frac{360}{20} = 18 \\\\[0.4em]",
+                    "&\\quad \\ \\ \\mathbf{C = 18n} \\\\[0.8em]",
+                    "&\\text{(b) When } n = 50, \\\\[0.4em]",
+                    "&\\quad \\ \\ C = 18(50) = \\mathbf{\\$900} \\\\[0.8em]",
+                    "&\\text{(c) Since } C \\propto n, \\text{ graph is a straight line through } (0,0)."
+                ],
+                texts: [
+                    "Part (a): Write the general equation C = kn.",
+                    "Substitute the known values (C=360, n=20) and solve for k.",
+                    "The specific equation is C = 18n. It costs $18 per guest.",
+                    "Part (b): Find the total cost for 50 guests.",
+                    "Substitute n = 50 into the equation. The cost is $900.",
+                    "Part (c): Because C is directly proportional to n, we know definitively that the graph must start at the origin (0 guests = $0)."
+                ],
+                hasGraph: true,
+                graphConfig: {
+                    type: 'line',
+                    data: {
+                        labels: [0, 10, 20, 30, 40, 50],
+                        datasets: [{
+                            label: 'Cost (C) = 18n',
+                            data: [0, 180, 360, 540, 720, 900],
+                            borderColor: '#1d4ed8',
+                            backgroundColor: 'rgba(29, 78, 216, 0.1)',
+                            borderWidth: 4,
+                            fill: true,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#1d4ed8'
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            x: { title: { display: true, text: 'Number of guests (n)', font: {size: 16, weight: 'bold'} }, min: 0, max: 50 },
+                            y: { title: { display: true, text: 'Cost ($C)', font: {size: 16, weight: 'bold'} }, min: 0, max: 1000 }
+                        },
+                        plugins: { legend: { display: true, labels: {font: {size: 16, weight: 'bold'}} } }
+                    }
+                }
+            },
+            {
+                // 4: Worked Example 4
+                question: "Worked Example 4: Mobile Phone Plan",
+                subParts: [
+                    "Total monthly charge ($C) consists of a fixed $15 plus $0.10 per minute (n).",
+                    "(a) Equation? (b) C for 80 mins? (c) n if C is $30?",
+                    "(d) Draw Graph. (e) Is C directly proportional to n?"
+                ],
+                lines: [
+                    "&\\text{(a) } \\mathbf{C = 0.1n + 15} \\\\[0.6em]",
+                    "&\\text{(b) When } n = 80, \\ C = 0.1(80) + 15 = 8 + 15 = \\mathbf{\\$23} \\\\[0.6em]",
+                    "&\\text{(c) When } C = 30, \\ 30 = 0.1n + 15 \\\\[0.4em]",
+                    "&\\quad \\ \\ 15 = 0.1n \\implies n = \\frac{15}{0.1} = \\mathbf{150 \\text{ mins}} \\\\[0.6em]",
+                    "&\\text{(e) C is } \\mathbf{not} \\text{ directly proportional to n.} \\\\[0.4em]",
+                    "&\\quad \\ \\ \\text{The graph } C = 0.1n + 15 \\text{ does } \\mathbf{not} \\text{ pass through } (0,0)."
+                ],
+                texts: [
+                    "Part (a): The formula has two parts. The variable amount (0.1n) and the fixed base amount (15).",
+                    "Part (b): Substitute 80 minutes into the equation. The total bill is $23.",
+                    "Part (c): Substitute $30 for C. Subtract 15 from both sides to isolate the variable term.",
+                    "Divide 15 by 0.1. A $30 bill means 150 minutes were used.",
+                    "Part (e): Look closely at the graph below. Is this a direct proportion?",
+                    "No! Even though it is a straight line, it starts at $15 on the y-axis, not 0. Therefore, the ratio C/n is NOT constant."
+                ],
+                hasGraph: true,
+                graphConfig: {
+                    type: 'line',
+                    data: {
+                        labels: [0, 20, 40, 60, 80, 100, 120, 140, 160],
+                        datasets: [{
+                            label: 'Charge (C) = 0.1n + 15',
+                            data: [15, 17, 19, 21, 23, 25, 27, 29, 31],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 4,
+                            fill: true,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#ef4444'
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: {
+                            x: { title: { display: true, text: 'Usage (n minutes)', font: {size: 16, weight: 'bold'} }, min: 0, max: 160 },
+                            y: { title: { display: true, text: 'Charge ($C)', font: {size: 16, weight: 'bold'} }, min: 0, max: 35 }
+                        },
+                        plugins: { legend: { display: true, labels: {font: {size: 16, weight: 'bold'}} } }
+                    }
+                }
+            }
+        ];
+
+        let currentProb = 0;
+        let currentStep = 0;
+        let activeChart = null;
+
+        const mathDisp = document.getElementById('math-display');
+        const graphContainer = document.getElementById('graph-container');
+        const qText = document.getElementById('q-text');
+        const qSubParts = document.getElementById('q-sub-parts');
+        const expTitle = document.getElementById('exp-title');
+        const expText = document.getElementById('exp-text');
+        const selector = document.getElementById('problem-selector');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+
+        function renderState() {
+            const p = problems[currentProb];
+            qText.innerText = p.question;
+            qSubParts.innerHTML = p.subParts.map(part => `<span class="sub-parts">${part}</span>`).join('');
+
+            const activeLines = p.lines.slice(0, currentStep + 1);
+            const math = "\\begin{aligned} " + activeLines.join(" ") + " \\end{aligned}";
+            katex.render(math, mathDisp, { displayMode: true });
+            
+            expTitle.innerText = `Step ${currentStep + 1} of ${p.lines.length}`;
+            expText.innerText = p.texts[currentStep];
+
+            // Handle Graph Visibility and Rendering
+            if (p.hasGraph) {
+                graphContainer.style.display = 'block';
+                // Adjust Math display size when graph is present
+                mathDisp.style.fontSize = "clamp(1rem, 1.4vw, 1.6rem)";
+                
+                if (activeChart) { activeChart.destroy(); }
+                const ctx = document.getElementById('mainChart').getContext('2d');
+                activeChart = new Chart(ctx, p.graphConfig);
+            } else {
+                graphContainer.style.display = 'none';
+                mathDisp.style.fontSize = "clamp(1.1rem, 1.8vw, 2.1rem)";
+                if (activeChart) { activeChart.destroy(); activeChart = null; }
+            }
+
+            // Button Logic
+            prevBtn.disabled = currentStep === 0;
+            if(currentStep === p.lines.length - 1) {
+                nextBtn.innerText = "Finished";
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.innerText = "Next Step";
+                nextBtn.disabled = false;
+            }
+            document.activeElement.blur();
+        }
+
+        selector.addEventListener('change', (e) => {
+            currentProb = parseInt(e.target.value);
+            currentStep = 0;
+            renderState();
+        });
+
+        nextBtn.onclick = () => { if (currentStep < problems[currentProb].lines.length - 1) { currentStep++; renderState(); } };
+        prevBtn.onclick = () => { if (currentStep > 0) { currentStep--; renderState(); } };
+        document.getElementById('reset-btn').onclick = () => { currentStep = 0; renderState(); };
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') document.getElementById('next-btn').click();
+            if(e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
+        });
+
+        window.onload = renderState;
+    </script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 7.1: Direct Proportion Examples 7-10</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 2vh 3vw;
+            height: 96vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        
+        .main-layout { display: flex; gap: 30px; height: 100%; flex: 1; min-height: 0; }
+        .left-panel { width: 38%; display: flex; flex-direction: column; gap: 20px; }
+        .right-panel { 
+            width: 62%; 
+            background: white; 
+            border-radius: 12px; 
+            padding: 30px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        #controls-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0;}
+        select { font-size: 1.2rem; padding: 12px; border-radius: 8px; border: 2px solid #1d4ed8; width: 100%; cursor: pointer; font-weight: 600;}
+
+        #explanation-box { font-size: 1.4rem; line-height: 1.5; padding: 25px; background: #eff6ff; border-left: 6px solid #1d4ed8; border-radius: 8px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; overflow-y: auto;}
+        .explanation-title { font-weight: bold; color: #1e3a8a; margin-bottom: 10px; font-size: 1.4rem; }
+
+        .button-group { display: flex; gap: 10px; flex-shrink: 0;}
+        button { padding: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; flex: 1; transition: 0.2s; }
+        #next-btn { background: #1d4ed8; color: white; }
+        #next-btn:hover { background: #1e3a8a; }
+        #prev-btn, #reset-btn { background: #e2e8f0; color: #333; }
+
+        #question-area {
+            width: 100%;
+            background: #fffbeb;
+            border-left: 6px solid #fcd34d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        #q-text { font-size: 1.3rem; line-height: 1.5; color: #b45309; margin: 0; font-weight: bold; }
+        .sub-parts { color: #1e293b; font-weight: 500; display: block; margin-top: 8px; font-size: 1.2rem;}
+
+        #math-display { 
+            font-size: clamp(1.1rem, 1.8vw, 2.1rem); 
+            width: 100%; 
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        
+        .keyboard-hint { text-align: center; color: #64748b; font-size: 0.95rem; margin-top: 10px; font-weight: 500; flex-shrink: 0;}
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size: 1.8rem; margin: 0 0 10px 0; color: #0f172a;">Section 7.1: Advanced Algebraic Proportions</h1>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div id="controls-container">
+                <select id="problem-selector">
+                    <option value="0">Worked Example 7: Halving x (x³)</option>
+                    <option value="1">Worked Example 8: Doubling x (x²)</option>
+                    <option value="2">Worked Example 9: Differences (√x)</option>
+                    <option value="3">Worked Example 10: Percentage Increases</option>
+                </select>
+            </div>
+
+            <div id="explanation-box">
+                <div class="explanation-title" id="exp-title">Teaching Logic</div>
+                <div id="exp-text">Loading...</div>
+            </div>
+
+            <div class="button-group">
+                <button id="reset-btn">Reset</button>
+                <button id="prev-btn">Prev</button>
+                <button id="next-btn">Next Step</button>
+            </div>
+            <div class="keyboard-hint">💡 Tip: Use Left ⬅️ and Right ➡️ arrow keys to navigate.</div>
+        </div>
+
+        <div class="right-panel">
+            <div id="question-area">
+                <p id="q-text"></p>
+                <div id="q-sub-parts"></div>
+            </div>
+            <div id="math-display"></div>
+        </div>
+    </div>
+
+    <script>
+        const problems = [
+            {
+                // 0: Worked Example 7
+                question: "Worked Example 7: y is directly proportional to x³.",
+                subParts: [
+                    "It is known that y = 48 for a particular value of x.",
+                    "Find the value of y when this value of x is halved."
+                ],
+                lines: [
+                    "&y = kx^3 \\\\[0.6em]",
+                    "&\\text{For a particular value of } x, \\ 48 = kx^3 \\implies k = \\frac{48}{x^3} \\\\[0.8em]",
+                    "&\\text{When } x \\text{ is halved, new value is } \\frac{1}{2}x \\\\[0.6em]",
+                    "&y_{new} = k\\left(\\frac{1}{2}x\\right)^3 \\\\[0.6em]",
+                    "&y_{new} = \\left(\\frac{48}{x^3}\\right)\\left(\\frac{1}{8}x^3\\right) \\\\[0.6em]",
+                    "&y_{new} = 6"
+                ],
+                texts: [
+                    "Write down the general equation linking y and x³.",
+                    "Even though we don't know the exact value of x, we can still isolate the constant k by substituting y = 48.",
+                    "State the new value of x. Halving x means multiplying it by 1/2.",
+                    "Substitute the new x-value into the general equation. Be careful to cube the ENTIRE term (1/2x).",
+                    "Substitute our expression for k, and expand the cubed term. Notice how (1/2)³ becomes 1/8.",
+                    "The x³ terms perfectly cancel each other out! Multiply 48 by 1/8 to get the final answer."
+                ]
+            },
+            {
+                // 1: Worked Example 8
+                question: "Worked Example 8: y is directly proportional to x².",
+                subParts: [
+                    "It is given that y = 60 for a particular value of x.",
+                    "Find the value of y when this value of x is doubled."
+                ],
+                lines: [
+                    "&y = kx^2 \\\\[0.6em]",
+                    "&\\text{For a particular value of } x, \\ 60 = kx^2 \\implies k = \\frac{60}{x^2} \\\\[0.8em]",
+                    "&\\text{When } x \\text{ is doubled, new value is } 2x \\\\[0.6em]",
+                    "&y_{new} = k(2x)^2 \\\\[0.6em]",
+                    "&y_{new} = \\left(\\frac{60}{x^2}\\right)(4x^2) \\\\[0.6em]",
+                    "&y_{new} = 240"
+                ],
+                texts: [
+                    "Write down the general equation linking y and x².",
+                    "Isolate the constant k by substituting y = 60. Leave x as an unknown variable.",
+                    "State the new value of x. Doubling x means it becomes 2x.",
+                    "Substitute the new x-value into the equation. Remember the square applies to both the 2 and the x.",
+                    "Substitute our expression for k, and expand the squared term. (2x)² becomes 4x².",
+                    "The x² terms divide out. Multiply 60 by 4 to find the new value of y."
+                ]
+            },
+            {
+                // 2: Worked Example 9
+                question: "Worked Example 9: y is directly proportional to √x.",
+                subParts: [
+                    "The difference in the values of y when x = 1 and x = 9 is 6.",
+                    "(a) Find an equation connecting x and y.",
+                    "(b) Find the value of x when y = 12."
+                ],
+                lines: [
+                    "&\\text{(a) } y = k\\sqrt{x} \\\\[0.4em]",
+                    "&\\quad \\ \\ \\text{When } x = 1, \\ y = k\\sqrt{1} = k \\\\[0.4em]",
+                    "&\\quad \\ \\ \\text{When } x = 9, \\ y = k\\sqrt{9} = 3k \\\\[0.6em]",
+                    "&\\quad \\ \\ \\text{Difference } = 6 \\implies 3k - k = 6 \\\\[0.4em]",
+                    "&\\quad \\ \\ 2k = 6 \\implies k = 3 \\implies \\mathbf{y = 3\\sqrt{x}} \\\\[0.8em]",
+                    "&\\text{(b) } 12 = 3\\sqrt{x} \\implies \\sqrt{x} = 4 \\\\[0.4em]",
+                    "&\\quad \\ \\ x = 4^2 = 16"
+                ],
+                texts: [
+                    "Part (a): Write the general equation for direct proportion with a square root.",
+                    "Substitute the first value, x = 1, to generate an expression for y in terms of k.",
+                    "Substitute the second value, x = 9, to generate a second expression for y in terms of k.",
+                    "We are told the difference between these two y-values is 6. Set up an algebraic equation: 3k - k = 6.",
+                    "Solve for k, then rewrite the final, specific equation connecting x and y.",
+                    "Part (b): Substitute y = 12 into our new equation and divide by 3 to isolate the square root.",
+                    "To reverse a square root, square both sides to find the final value of x."
+                ]
+            },
+            {
+                // 3: Worked Example 10
+                question: "Worked Example 10: y is directly proportional to x².",
+                subParts: [
+                    "It is given that y = 196 when x = 7.",
+                    "(a) Express y in terms of x.",
+                    "(b) When x is increased by 200%, find the percentage increase in y."
+                ],
+                lines: [
+                    "&\\text{(a) } y = kx^2 \\implies 196 = k(7)^2 \\\\[0.4em]",
+                    "&\\quad \\ \\ k = \\frac{196}{49} = 4 \\implies \\mathbf{y = 4x^2} \\\\[0.8em]",
+                    "&\\text{(b) } x \\text{ increased by } 200\\%, \\text{ i.e. } \\frac{300}{100}x = 3x \\\\[0.6em]",
+                    "&\\quad \\ \\ y_{new} = 4(3x)^2 = 4(9x^2) = 9(4x^2) = 9y \\\\[0.6em]",
+                    "&\\quad \\ \\ \\text{Percentage increase} = \\frac{9y - y}{y} \\times 100\\% \\\\[0.6em]",
+                    "&\\quad \\ \\ \\phantom{\\text{Percentage increase}} = \\frac{8y}{y} \\times 100\\% = 800\\%"
+                ],
+                texts: [
+                    "Part (a): Write the general equation and substitute the known pair of values to find k.",
+                    "Divide 196 by 49 to get k = 4, giving us our specific equation.",
+                    "Part (b): An increase OF 200% means the new value is 300% of the original. The new x is 3x.",
+                    "Substitute 3x into the equation. Instead of expanding to 36x², notice how we can pull the 9 out to show the new y is exactly 9 times the original y!",
+                    "Calculate percentage increase using the formula: (Change / Original) × 100%. Substitute 9y for the new value and y for the original.",
+                    "The y variables cancel out perfectly, leaving us with a final answer of an 800% increase."
+                ]
+            }
+        ];
+
+        let currentProb = 0;
+        let currentStep = 0;
+
+        const mathDisp = document.getElementById('math-display');
+        const qText = document.getElementById('q-text');
+        const qSubParts = document.getElementById('q-sub-parts');
+        const expTitle = document.getElementById('exp-title');
+        const expText = document.getElementById('exp-text');
+        const selector = document.getElementById('problem-selector');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+
+        function renderState() {
+            const p = problems[currentProb];
+            qText.innerText = p.question;
+            qSubParts.innerHTML = p.subParts.map(part => `<span class="sub-parts">${part}</span>`).join('');
+
+            const activeLines = p.lines.slice(0, currentStep + 1);
+            const math = "\\begin{aligned} " + activeLines.join(" ") + " \\end{aligned}";
+            katex.render(math, mathDisp, { displayMode: true });
+            
+            expTitle.innerText = `Step ${currentStep + 1} of ${p.lines.length}`;
+            expText.innerText = p.texts[currentStep];
+
+            prevBtn.disabled = currentStep === 0;
+            if(currentStep === p.lines.length - 1) {
+                nextBtn.innerText = "Finished";
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.innerText = "Next Step";
+                nextBtn.disabled = false;
+            }
+            document.activeElement.blur();
+        }
+
+        selector.addEventListener('change', (e) => {
+            currentProb = parseInt(e.target.value);
+            currentStep = 0;
+            renderState();
+        });
+
+        nextBtn.onclick = () => { if (currentStep < problems[currentProb].lines.length - 1) { currentStep++; renderState(); } };
+        prevBtn.onclick = () => { if (currentStep > 0) { currentStep--; renderState(); } };
+        document.getElementById('reset-btn').onclick = () => { currentStep = 0; renderState(); };
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') document.getElementById('next-btn').click();
+            if(e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
+        });
+
+        window.onload = renderState;
+    </script>
+</body>
+</html>

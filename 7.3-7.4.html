@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 7.3 & 7.4: Inverse Proportion Visualizer</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 2vh 3vw;
+            height: 96vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            font-size: 22px;
+        }
+        
+        .main-layout { display: flex; gap: 30px; height: 100%; flex: 1; min-height: 0; }
+        .left-panel { width: 38%; display: flex; flex-direction: column; gap: 20px; }
+        .right-panel { 
+            width: 62%; 
+            background: white; 
+            border-radius: 12px; 
+            padding: 30px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        header {
+            padding: 16px 32px;
+            background: #1d4ed8;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+
+        .header-titles h1 { margin: 0; font-size: 2rem; font-weight: 700; }
+        .header-titles .credit { margin: 5px 0 0 0; font-size: 1.2rem; opacity: 0.9; font-weight: 500; }
+
+        .fs-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .fs-btn:hover { background: white; color: #1d4ed8; }
+
+        #controls-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0;}
+        select { font-size: 1.2rem; padding: 12px; border-radius: 8px; border: 2px solid #1d4ed8; width: 100%; cursor: pointer; font-weight: 600;}
+
+        #explanation-box { font-size: 1.4rem; line-height: 1.5; padding: 25px; background: #eff6ff; border-left: 6px solid #1d4ed8; border-radius: 8px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; overflow-y: auto;}
+        .explanation-title { font-weight: bold; color: #1e3a8a; margin-bottom: 10px; font-size: 1.4rem; }
+
+        .button-group { display: flex; gap: 10px; flex-shrink: 0;}
+        button.nav-btn { padding: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; flex: 1; transition: 0.2s; }
+        #next-btn { background: #1d4ed8; color: white; }
+        #next-btn:hover { background: #1e3a8a; }
+        #prev-btn, #reset-btn { background: #e2e8f0; color: #333; }
+
+        #question-area {
+            width: 100%;
+            background: #fffbeb;
+            border-left: 6px solid #fcd34d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        #q-text { font-size: 1.3rem; line-height: 1.5; color: #b45309; margin: 0; font-weight: bold; }
+        .sub-parts { color: #1e293b; font-weight: 500; display: block; margin-top: 8px; font-size: 1.2rem;}
+
+        #math-display { 
+            font-size: clamp(1.1rem, 1.8vw, 2.1rem); 
+            width: 100%; 
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+            flex-shrink: 0;
+        }
+
+        #graph-container {
+            width: 100%;
+            flex-grow: 1;
+            position: relative;
+            display: none;
+            margin-top: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .toggle-container {
+            display: flex;
+            border: 2px solid #1d4ed8;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            width: 100%;
+            display: none; /* hidden by default */
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            background: white;
+            color: #1d4ed8;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .toggle-btn.active {
+            background: #1d4ed8;
+            color: white;
+        }
+        
+        .keyboard-hint { text-align: center; color: #64748b; font-size: 0.95rem; margin-top: 10px; font-weight: 500; flex-shrink: 0;}
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-titles">
+            <h1>Section 7.3 & 7.4: Inverse Proportion</h1>
+            <p class="credit">Interactive Visualizer Designed by Joshua Poon</p>
+        </div>
+        <button class="fs-btn" onclick="toggleFullScreen()">Toggle Fullscreen</button>
+    </header>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div id="controls-container">
+                <select id="problem-selector">
+                    <option value="0">Concept: Inverse Proportion Rules & Graphs</option>
+                    <option value="1">Worked Example 1: Speed vs Time</option>
+                    <option value="2">Worked Example 2: Finding Unknowns r & s</option>
+                    <option value="3">Worked Example 3: Identifying Proportions</option>
+                    <option value="4">Worked Example 4: The Inverse Algorithm</option>
+                    <option value="5">Worked Example 5: Square Roots (√x)</option>
+                    <option value="6">Worked Example 6: Doubling (x²)</option>
+                    <option value="7">Section 7.4: Real-World Inverse Problems</option>
+                </select>
+            </div>
+
+            <div id="explanation-box">
+                <div class="explanation-title" id="exp-title">Teaching Logic</div>
+                <div id="exp-text">Loading...</div>
+            </div>
+
+            <div class="button-group">
+                <button id="reset-btn" class="nav-btn">Reset</button>
+                <button id="prev-btn" class="nav-btn">Prev</button>
+                <button id="next-btn" class="nav-btn">Next Step</button>
+            </div>
+            <div class="keyboard-hint">💡 Tip: Use Left ⬅️ and Right ➡️ arrow keys to navigate.</div>
+        </div>
+
+        <div class="right-panel">
+            <div id="question-area">
+                <p id="q-text"></p>
+                <div id="q-sub-parts"></div>
+            </div>
+            
+            <div class="toggle-container" id="graph-toggle">
+                <button id="btnViewOrig" class="toggle-btn active" onclick="setGraphView('hyperbola')">Graph: y against x</button>
+                <button id="btnViewTrans" class="toggle-btn" onclick="setGraphView('straight')">Graph: y against 1/x</button>
+            </div>
+
+            <div id="math-display"></div>
+            
+            <div id="graph-container">
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => alert(err.message));
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+
+        Chart.defaults.font.size = 18;
+        Chart.defaults.font.weight = 'bold';
+        Chart.defaults.color = '#0f172a';
+
+        const problems = [
+            {
+                // 0: Concept
+                question: "Concept: Inverse Proportion & Graphical Rules",
+                subParts: ["Understanding how inverse variables relate algebraically and graphically."],
+                lines: [
+                    "&\\text{1. Constant Product: } xy = k \\implies y = \\frac{k}{x} \\\\[0.6em]",
+                    "&\\text{2. Graph of } y \\text{ against } x \\text{ is a curve called a } \\mathbf{hyperbola}. \\\\[0.6em]",
+                    "&\\text{3. Graph of } y \\text{ against } \\frac{1}{x} \\text{ is a straight line.} \\\\[0.6em]",
+                    "&\\text{4. NOTE: } \\frac{1}{x} \\text{ is never zero. Draw an } \\mathbf{open \\ circle} \\text{ at } (0,0). \\\\[0.6em]",
+                    "&\\text{5. Equivalent Pairs Rule: } x_1 y_1 = x_2 y_2"
+                ],
+                texts: [
+                    "When one quantity increases, the other decreases. However, the PRODUCT of the two quantities is a constant. We write this as xy = k, or y = k/x.",
+                    "Look at the graph. Plotting y against x forms a hyperbola. Notice how the curve tends to the y-axis when x is small, and to the x-axis when x increases.",
+                    "Now toggle the graph view above! If we plot y against (1/x), we get a straight line. This proves y is directly proportional to 1/x.",
+                    "CRITICAL TRAP: Since 1/x can never equal zero, the point (0,0) is mathematically impossible. We indicate this with a small open circle at the origin.",
+                    "Because the product is always a constant k, any pair of values multiplied together must equal any other pair multiplied together."
+                ],
+                hasGraph: true,
+                showToggle: true,
+                toggleTextOrig: 'Graph: y against x',
+                toggleTextTrans: 'Graph: y against 1/x',
+                toggleStepThreshold: 2,
+                graphConfig: { type: 'line', data: { datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'linear' }, y: {} }, plugins: { legend: { display: false } } } }
+            },
+            {
+                // 1: Worked Example 1
+                question: "Worked Example 1: Speed (v) vs Time (t)",
+                subParts: [
+                    "v: 20, 30, 50, 60, 90 | t: 4.5, 3, 1.8, 1.5, 1", 
+                    "(a) Show they are in inverse proportion.", 
+                    "(b) Find equation. (c) Find t when v = 40.",
+                    "(d) Draw the graphs of (i) t against v, (ii) t against 1/v."
+                ],
+                lines: [
+                    "&\\text{(a) } vt = 20(4.5) = 30(3) = \\dots = 90 \\\\[0.4em]",
+                    "&\\quad \\ \\ \\text{Since } vt = 90 \\text{ (constant), } t \\propto \\frac{1}{v} \\\\[0.6em]",
+                    "&\\text{(b) } \\mathbf{t = \\frac{90}{v}} \\\\[0.6em]",
+                    "&\\text{(c) When } v = 40, \\ t = \\frac{90}{40} = \\mathbf{2.25 \\text{ hours}} \\\\[0.6em]",
+                    "&\\text{(d)(i) Graph of } t \\text{ against } v \\text{ is a } \\mathbf{hyperbola}. \\\\[0.4em]",
+                    "&\\text{(d)(ii) Graph of } t \\text{ against } \\frac{1}{v} \\text{ is a } \\mathbf{straight \\ line}."
+                ],
+                texts: [
+                    "Part (a): Test if the product of v and t is constant for every pair given in the table.",
+                    "Because every single pair multiplies to exactly 90, we have proven they are in inverse proportion.",
+                    "Part (b): Rearrange vt = 90 to isolate t, giving us the general formula.",
+                    "Part (c): To find the time taken at 40 km/h, substitute v = 40 and divide 90 by 40.",
+                    "Part (d)(i): Plotting Time (t) against Speed (v) generates a hyperbola curve.",
+                    "Part (d)(ii): Plotting Time (t) against 1/v straightens the curve into a linear graph. Toggle the view above to see!"
+                ],
+                hasGraph: true,
+                showToggle: true,
+                toggleTextOrig: 'Graph: t against v',
+                toggleTextTrans: 'Graph: t against 1/v',
+                toggleStepThreshold: 5,
+                graphConfig: { type: 'line', data: { datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'linear' }, y: {} }, plugins: { legend: { display: false } } } }
+            },
+            {
+                // 2: Worked Example 2
+                question: "Worked Example 2: Given y is inversely proportional to x, find r and s.",
+                subParts: ["x: 36, 20, s", "y: 5, r, 16"],
+                lines: [
+                    "&\\text{Find constant product: } x_1 y_1 = 36(5) = \\mathbf{180} \\\\[0.8em]",
+                    "&\\text{Solve for } r: \\quad 20(r) = 180 \\\\[0.6em]",
+                    "&\\quad \\quad \\quad \\quad \\quad r = \\frac{180}{20} = \\mathbf{9} \\\\[0.8em]",
+                    "&\\text{Solve for } s: \\quad s(16) = 180 \\\\[0.6em]",
+                    "&\\quad \\quad \\quad \\quad \\quad s = \\frac{180}{16} = \\mathbf{11.25}"
+                ],
+                texts: [
+                    "Because they are inversely proportional, x multiplied by y is constant. Find the constant using the completed column: 36 × 5 = 180.",
+                    "To find r, set up an equation: the product of its column (20 × r) must equal 180.",
+                    "Divide 180 by 20 to find r = 9.",
+                    "To find s, set up a similar equation: the product of its column (s × 16) must equal 180.",
+                    "Divide 180 by 16 to find s = 11.25."
+                ],
+                hasGraph: false,
+                showToggle: false
+            },
+            {
+                // 3: Worked Example 3
+                question: "Worked Example 3: State which two variables are in inverse proportion.",
+                subParts: [
+                    "(a) y = 3/x² &nbsp;&nbsp;&nbsp;&nbsp; (b) y = 5/√x &nbsp;&nbsp;&nbsp;&nbsp; (c) y² = 2/x³",
+                    "(d) y = 6/(x-1) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (e) y = 4x"
+                ],
+                lines: [
+                    "&\\text{(a) } x^2 y = 3 \\implies y \\text{ is inversely proportional to } x^2 \\\\[0.6em]",
+                    "&\\text{(b) } \\sqrt{x} y = 5 \\implies y \\text{ is inversely proportional to } \\sqrt{x} \\\\[0.6em]",
+                    "&\\text{(c) } x^3 y^2 = 2 \\implies y^2 \\text{ is inversely proportional to } x^3 \\\\[0.6em]",
+                    "&\\text{(d) } (x-1) y = 6 \\implies y \\text{ is inversely proportional to } (x-1) \\\\[0.6em]",
+                    "&\\text{(e) } \\frac{y}{x} = 4 \\implies \\text{TRICK! } y \\text{ is DIRECTLY proportional to } x"
+                ],
+                texts: [
+                    "For part (a), multiply both sides by x² to get the product. Since x²y = 3 (a constant), y is inversely proportional to x².",
+                    "For part (b), multiply by √x. The variables multiplying to a constant are y and √x.",
+                    "For part (c), multiply by x³. The two variables that are inversely proportional are y² and x³.",
+                    "For part (d), multiply by the entire denominator (x-1). Therefore, y is inversely proportional to the expression (x-1).",
+                    "For part (e), rearranging yields y/x = 4. Because their RATIO is constant, not their product, this is a DIRECT proportion!"
+                ],
+                hasGraph: false,
+                showToggle: false
+            },
+            {
+                // 4: Worked Example 4
+                question: "Worked Example 4: y is inversely proportional to x, and y = 6 when x = 3.",
+                subParts: [
+                    "(a) Find an equation connecting x and y.",
+                    "(b) Find y when x = 9.",
+                    "(c) Find x when y = 4.5."
+                ],
+                lines: [
+                    "&\\text{(a) } y = \\frac{k}{x} \\\\[0.4em]",
+                    "&\\quad \\ \\ 6 = \\frac{k}{3} \\implies k = 6(3) = 18 \\\\[0.4em]",
+                    "&\\quad \\ \\ \\mathbf{y = \\frac{18}{x}} \\\\[0.8em]",
+                    "&\\text{(b) When } x=9, \\ y = \\frac{18}{9} = \\mathbf{2} \\\\[0.8em]",
+                    "&\\text{(c) When } y=4.5, \\ 4.5 = \\frac{18}{x} \\\\[0.4em]",
+                    "&\\quad \\ \\ x = \\frac{18}{4.5} = \\mathbf{4}"
+                ],
+                texts: [
+                    "Step 1: Write the general equation format for inverse proportion.",
+                    "Substitute the known pair of values (y=6, x=3) and multiply to solve for the constant k.",
+                    "Rewrite the equation with the newly found constant k = 18.",
+                    "For part (b), substitute x = 9 into the specific equation and divide.",
+                    "For part (c), substitute y = 4.5 into the equation.",
+                    "Rearrange to solve for x by dividing 18 by 4.5."
+                ],
+                hasGraph: false,
+                showToggle: false
+            },
+            {
+                // 5: Worked Example 5
+                question: "Worked Example 5: y is inversely proportional to √x, and y = 3 when x = 4.",
+                subParts: [
+                    "(a) Find an equation connecting x and y.",
+                    "(b) Find y when x = 9.",
+                    "(c) Find x when y = 1.5."
+                ],
+                lines: [
+                    "&\\text{(a) } y = \\frac{k}{\\sqrt{x}} \\\\[0.4em]",
+                    "&\\quad \\ \\ 3 = \\frac{k}{\\sqrt{4}} \\implies 3 = \\frac{k}{2} \\implies k = 6 \\\\[0.4em]",
+                    "&\\quad \\ \\ \\mathbf{y = \\frac{6}{\\sqrt{x}}} \\\\[0.8em]",
+                    "&\\text{(b) When } x=9, \\ y = \\frac{6}{\\sqrt{9}} = \\frac{6}{3} = \\mathbf{2} \\\\[0.8em]",
+                    "&\\text{(c) When } y=1.5, \\ 1.5 = \\frac{6}{\\sqrt{x}} \\\\[0.4em]",
+                    "&\\quad \\ \\ \\sqrt{x} = \\frac{6}{1.5} = 4 \\implies x = 4^2 = \\mathbf{16}"
+                ],
+                texts: [
+                    "Write the general equation, remembering to place √x in the denominator.",
+                    "Substitute x=4 and y=3. The square root of 4 is 2. Multiply by 2 to find k = 6.",
+                    "The specific equation connecting the variables is y = 6 / √x.",
+                    "For part (b), substitute x = 9. Take the square root first (3), then divide 6 by 3.",
+                    "For part (c), substitute y = 1.5 into the equation.",
+                    "Rearrange to isolate √x to equal 4. To reverse the square root, square both sides (4²) to get 16."
+                ],
+                hasGraph: false,
+                showToggle: false
+            },
+            {
+                // 6: Worked Example 6
+                question: "Worked Example 6: Doubling in Inverse Proportions",
+                subParts: [
+                    "y is inversely proportional to x².",
+                    "It is given that y = 20 for a particular value of x.",
+                    "Find the value of y when this value of x is doubled."
+                ],
+                lines: [
+                    "&y = \\frac{k}{x^2} \\\\[0.6em]",
+                    "&\\text{For a particular value of } x, \\ 20 = \\frac{k}{x^2} \\implies k = 20x^2 \\\\[0.8em]",
+                    "&\\text{When } x \\text{ is doubled, new value is } 2x \\\\[0.6em]",
+                    "&y_{new} = \\frac{k}{(2x)^2} \\\\[0.6em]",
+                    "&y_{new} = \\frac{20x^2}{4x^2} \\\\[0.6em]",
+                    "&y_{new} = \\mathbf{5}"
+                ],
+                texts: [
+                    "Write down the general equation linking y and x².",
+                    "Even though we don't know x, we can isolate the constant k by substituting y = 20. So, k = 20x².",
+                    "State the new value of x. Doubling x means it becomes 2x.",
+                    "Substitute the new x-value (2x) into the denominator of the general equation.",
+                    "Substitute our expression for k (20x²) into the numerator, and expand the denominator (4x²).",
+                    "The x² terms divide out perfectly! 20 divided by 4 leaves a new y value of 5."
+                ],
+                hasGraph: false,
+                showToggle: false
+            },
+            {
+                // 7: Section 7.4 Worked Example 1
+                question: "Section 7.4 Worked Example 1: Real-World Inverse Proportion",
+                subParts: [
+                    "16 workers take 45 hours to paint a house.",
+                    "How many workers are needed to complete the job 5 hours earlier?"
+                ],
+                lines: [
+                    "&\\text{Let workers } = w \\text{, hours } = t \\\\[0.6em]",
+                    "&wt = k \\implies 16(45) = 720 \\implies \\mathbf{wt = 720} \\\\[0.8em]",
+                    "&\\text{New time } t = 45 - 5 = \\mathbf{40 \\text{ hours}} \\\\[0.6em]",
+                    "&w(40) = 720 \\\\[0.6em]",
+                    "&w = \\frac{720}{40} = \\mathbf{18} \\\\[0.8em]",
+                    "&\\therefore \\mathbf{18 \\text{ workers are needed to complete the job 5 hours earlier.}}"
+                ],
+                texts: [
+                    "First, identify the relationship. More workers mean fewer hours, so this is an inverse proportion.",
+                    "Calculate the constant product (k). 16 workers multiplied by 45 hours gives a constant of 720 worker-hours.",
+                    "Calculate the new target time. To finish 5 hours earlier, the job must be done in 40 hours.",
+                    "Set up the equation with our new time (40) and our constant product (720).",
+                    "Divide 720 by 40 to find the total number of workers (w = 18).",
+                    "Finally, state the concluding answer clearly as required by the question."
+                ],
+                hasGraph: false,
+                showToggle: false
+            }
+        ];
+
+        let currentProb = 0;
+        let currentStep = 0;
+        let activeChart = null;
+
+        const mathDisp = document.getElementById('math-display');
+        const graphContainer = document.getElementById('graph-container');
+        const toggleContainer = document.getElementById('graph-toggle');
+        const qText = document.getElementById('q-text');
+        const qSubParts = document.getElementById('q-sub-parts');
+        const expTitle = document.getElementById('exp-title');
+        const expText = document.getElementById('exp-text');
+        const selector = document.getElementById('problem-selector');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+
+        // Logic for Graph Toggling
+        function setGraphView(mode) {
+            if (!activeChart) return;
+            
+            document.getElementById('btnViewOrig').classList.toggle('active', mode === 'hyperbola');
+            document.getElementById('btnViewTrans').classList.toggle('active', mode === 'straight');
+
+            if (currentProb === 0) {
+                // CONCEPT GRAPH (y vs x)
+                if (mode === 'hyperbola') {
+                    activeChart.data.datasets = [{
+                        label: 'y = 12/x',
+                        data: (() => { let d=[]; for(let x=0.5; x<=12; x+=0.5) d.push({x:x, y:12/x}); return d; })(),
+                        borderColor: '#1d4ed8', borderWidth: 4, fill: false, pointRadius: 0
+                    }];
+                    activeChart.options.scales.x.title.text = 'x axis';
+                    activeChart.options.scales.x.max = 12;
+                    activeChart.options.scales.y.title.text = 'y axis';
+                    activeChart.options.scales.y.max = 24;
+                } else {
+                    activeChart.data.datasets = [
+                        { label: 'y = 12(1/x)', data: (() => { let d=[]; for(let X=0.05; X<=1; X+=0.05) d.push({x:X, y:12*X}); return d; })(), borderColor: '#16a34a', borderWidth: 4, fill: false, pointRadius: 0 },
+                        { label: 'Open Origin', data: [{x: 0, y: 0}], backgroundColor: 'white', borderColor: '#ef4444', borderWidth: 4, pointRadius: 8, pointHoverRadius: 8, showLine: false }
+                    ];
+                    activeChart.options.scales.x.title.text = '1/x axis';
+                    activeChart.options.scales.x.max = 1;
+                    activeChart.options.scales.y.title.text = 'y axis';
+                    activeChart.options.scales.y.max = 24;
+                }
+            } else if (currentProb === 1) {
+                // EX 1 GRAPH (t vs v)
+                if (mode === 'hyperbola') {
+                    activeChart.data.datasets = [{
+                        label: 't = 90/v',
+                        data: (() => { let d=[]; for(let v=5; v<=100; v+=5) d.push({x:v, y:90/v}); return d; })(),
+                        borderColor: '#ef4444', borderWidth: 4, fill: false, pointRadius: 0
+                    }];
+                    activeChart.options.scales.x.title.text = 'Speed (v km/h)';
+                    activeChart.options.scales.x.max = 100;
+                    activeChart.options.scales.y.title.text = 'Time (t hours)';
+                    activeChart.options.scales.y.max = 20;
+                } else {
+                    activeChart.data.datasets = [
+                        { label: 't = 90(1/v)', data: (() => { let d=[]; for(let V=0.01; V<=0.1; V+=0.01) d.push({x:V, y:90*V}); return d; })(), borderColor: '#16a34a', borderWidth: 4, fill: false, pointRadius: 0 },
+                        { label: 'Open Origin', data: [{x: 0, y: 0}], backgroundColor: 'white', borderColor: '#ef4444', borderWidth: 4, pointRadius: 8, pointHoverRadius: 8, showLine: false }
+                    ];
+                    activeChart.options.scales.x.title.text = 'Reciprocal of Speed (1/v)';
+                    activeChart.options.scales.x.max = 0.1;
+                    activeChart.options.scales.y.title.text = 'Time (t hours)';
+                    activeChart.options.scales.y.max = 10;
+                }
+            }
+            activeChart.update();
+        }
+
+        function renderState() {
+            const p = problems[currentProb];
+            qText.innerText = p.question;
+            qSubParts.innerHTML = p.subParts.map(part => `<span class="sub-parts">${part}</span>`).join('');
+
+            const activeLines = p.lines.slice(0, currentStep + 1);
+            const math = "\\begin{aligned} " + activeLines.join(" ") + " \\end{aligned}";
+            katex.render(math, mathDisp, { displayMode: true });
+            
+            expTitle.innerText = `Step ${currentStep + 1} of ${p.lines.length}`;
+            expText.innerText = p.texts[currentStep];
+
+            // Render UI elements based on state
+            toggleContainer.style.display = p.showToggle ? 'flex' : 'none';
+
+            if (p.hasGraph) {
+                graphContainer.style.display = 'block';
+                mathDisp.style.fontSize = "clamp(1rem, 1.4vw, 1.6rem)";
+                if (activeChart) { activeChart.destroy(); }
+                const ctx = document.getElementById('mainChart').getContext('2d');
+                activeChart = new Chart(ctx, p.graphConfig);
+                
+                // Trigger interaction logic if toggle is present
+                if(p.showToggle) {
+                    document.getElementById('btnViewOrig').innerText = p.toggleTextOrig;
+                    document.getElementById('btnViewTrans').innerText = p.toggleTextTrans;
+
+                    if (currentStep >= p.toggleStepThreshold) {
+                        setGraphView('straight');
+                    } else {
+                        setGraphView('hyperbola');
+                    }
+                }
+            } else {
+                graphContainer.style.display = 'none';
+                mathDisp.style.fontSize = "clamp(1.1rem, 1.8vw, 2.1rem)";
+                if (activeChart) { activeChart.destroy(); activeChart = null; }
+            }
+
+            prevBtn.disabled = currentStep === 0;
+            if(currentStep === p.lines.length - 1) {
+                nextBtn.innerText = "Finished";
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.innerText = "Next Step";
+                nextBtn.disabled = false;
+            }
+            document.activeElement.blur();
+        }
+
+        selector.addEventListener('change', (e) => {
+            currentProb = parseInt(e.target.value);
+            currentStep = 0;
+            renderState();
+        });
+
+        nextBtn.onclick = () => { if (currentStep < problems[currentProb].lines.length - 1) { currentStep++; renderState(); } };
+        prevBtn.onclick = () => { if (currentStep > 0) { currentStep--; renderState(); } };
+        document.getElementById('reset-btn').onclick = () => { currentStep = 0; renderState(); };
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') document.getElementById('next-btn').click();
+            if(e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
+        });
+
+        window.onload = renderState;
+    </script>
+</body>
+</html>
