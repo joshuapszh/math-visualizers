@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 6.2: Multiplication & Division Lab</title>
+    
+    <!-- KaTeX Base Library -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    
+    <!-- KaTeX Cancel Extension for strike-throughs -->
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/cancel.min.js"></script>
+    
+    <style>
+        /* 4:3 Projector Optimized CSS */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 2vh 3vw;
+            height: 96vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        
+        h1 { font-size: 2rem; margin: 0 0 10px 0; color: #1a1a1a; }
+
+        .main-layout { display: flex; gap: 30px; height: 100%; flex: 1; }
+
+        /* Left Side: Controls and Explanations */
+        .left-panel { width: 38%; display: flex; flex-direction: column; gap: 15px; }
+        #controls-container { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        select { font-size: 1.3rem; padding: 10px; border-radius: 8px; border: 2px solid #007bff; width: 100%; cursor: pointer; }
+
+        #explanation-box {
+            font-size: 1.5rem;
+            line-height: 1.4;
+            padding: 25px;
+            background: #eef2f5;
+            border-left: 6px solid #007bff;
+            border-radius: 8px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .explanation-title { font-weight: bold; color: #0056b3; margin-bottom: 8px; font-size: 1.3rem; }
+
+        .button-group { display: flex; gap: 10px; }
+        button { padding: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; flex: 1; transition: 0.2s; }
+        #next-btn { background: #007bff; color: white; }
+        #prev-btn, #reset-btn { background: #e0e0e0; color: #333; }
+
+        /* Right Side: Visual Content */
+        .right-panel {
+            width: 62%;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #question-area {
+            width: 100%;
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 1.3rem;
+            line-height: 1.4;
+        }
+
+        #math-display { 
+            font-size: clamp(1.1rem, 2vw, 2.5rem); 
+            width: 100%; 
+            text-align: center; 
+            flex-grow: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .keyboard-hint { text-align: center; color: #888; font-size: 0.9rem; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Section 6.2: Multiplication & Division Lab</h1>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div id="controls-container">
+                <select id="problem-selector">
+                    <option value="0">Introduction: Core Operations</option>
+                    <option value="1">Ex 1(a): Multiplying Basic Terms</option>
+                    <option value="2">Ex 1(b): Multiplication with Factorising</option>
+                    <option value="3">Ex 1(c): Multiplying Quadratics</option>
+                    <option value="4">Ex 2(a): Division Reciprocal Rule</option>
+                    <option value="5">Ex 2(b): Division & Difference of Squares</option>
+                    <option value="6">Ex 2(c): Division & Quadratic Merge</option>
+                </select>
+            </div>
+
+            <div id="explanation-box">
+                <div class="explanation-title" id="exp-title">Logic Reveal</div>
+                <div id="exp-text">Loading...</div>
+            </div>
+
+            <div class="button-group">
+                <button id="reset-btn">Reset</button>
+                <button id="prev-btn">Prev</button>
+                <button id="next-btn">Next Step</button>
+            </div>
+            <div class="keyboard-hint">💡 Tip: Use Left ⬅️ and Right ➡️ arrow keys.</div>
+        </div>
+
+        <div class="right-panel">
+            <div id="question-area" id="q-text"></div>
+            <div id="math-display"></div>
+        </div>
+    </div>
+
+    <script>
+        const problems = [
+            {
+                question: "Operations: Multiplication and division of algebraic fractions follow the same rules as numerical fractions.",
+                lines: [
+                    "&\\textbf{Rule 1 (Multiply):} \\quad \\frac{a}{b} \\times \\frac{c}{d} = \\frac{a \\times c}{b \\times d} \\\\[1.5em]",
+                    "&\\textbf{Rule 2 (Divide):} \\quad \\frac{a}{b} \\div \\frac{c}{d} = \\frac{a}{b} \\times \\frac{d}{c} \\\\[1.5em]",
+                    "&\\textbf{Rule 3:} \\quad \\text{Factorise completely before cancelling.}"
+                ],
+                texts: ["To multiply, simply multiply numerators and denominators. To divide, multiply by the reciprocal of the second fraction."]
+            },
+            {
+                question: "Worked Example 1(a): Simplify (2a²b / 3c³) × (5c² / 6ab)",
+                lines: [
+                    "&\\frac{2a^2b}{3c^3} \\times \\frac{5c^2}{6ab}",
+                    "&= \\frac{5a}{9c}"
+                ],
+                texts: ["Original Problem.", "Divide coefficients (2 and 6) by 2. Subtract variable powers: a²/a = a, b/b cancels, and c³/c² leaves c in denominator."]
+            },
+            {
+                question: "Worked Example 1(b): Simplify (6x² / (3x-2y)) × ((18x²-8y²) / 2xy)",
+                lines: [
+                    "&\\frac{6x^2}{3x-2y} \\times \\frac{18x^2-8y^2}{2xy}",
+                    "&= \\frac{6x^2}{3x-2y} \\times \\frac{2(9x^2-4y^2)}{2xy}",
+                    "&= \\frac{6x^2}{3x-2y} \\times \\frac{2(3x+2y)(3x-2y)}{2xy}",
+                    "&= \\frac{6x\\cancel{x}}{\\cancel{3x-2y}} \\times \\frac{\\cancel{2}(3x+2y)\\cancel{(3x-2y)}}{\\cancel{2}\\cancel{x}y} \\\\[0.5em] &= \\frac{6x(3x+2y)}{y}"
+                ],
+                texts: ["Original Problem.", "Extract the common factor 2 from the numerator.", "Factorise using the identity a² - b² = (a+b)(a-b).", "Cross-cancel common factors: 2, x, and (3x-2y)."]
+            },
+            {
+                question: "Worked Example 1(c): Simplify ((2x+4) / (3x+1)) × ((9x²-1) / (x²+x-2))",
+                lines: [
+                    "&\\frac{2x+4}{3x+1} \\times \\frac{9x^2-1}{x^2+x-2}",
+                    "&= \\frac{2(x+2)}{3x+1} \\times \\frac{(3x+1)(3x-1)}{(x+2)(x-1)}",
+                    "&= \\frac{2\\cancel{(x+2)}}{\\cancel{3x+1}} \\times \\frac{\\cancel{(3x+1)}(3x-1)}{\\cancel{(x+2)}(x-1)} \\\\[0.5em] &= \\frac{2(3x-1)}{x-1}"
+                ],
+                texts: ["Original Problem.", "Factorise all components: extract 2, use difference of squares, and factorise the quadratic.", "Cancel the matching brackets (x+2) and (3x+1)."]
+            },
+            {
+                question: "Worked Example 2(a): Simplify (a²b³ / 9c) ÷ (2a³b⁴ / 3c²)",
+                lines: [
+                    "&\\frac{a^2b^3}{9c} \\div \\frac{2a^3b^4}{3c^2}",
+                    "&= \\frac{a^2b^3}{9c} \\times \\frac{3c^2}{2a^3b^4}",
+                    "&= \\frac{c}{6ab}"
+                ],
+                texts: ["Original Problem.", "Invert the second fraction and change the operation to multiplication.", "Simplify numbers and variables."]
+            },
+            {
+                question: "Worked Example 2(b): Simplify ((3-x)² / 8y³z) ÷ ((9-x²) / 10xyz)",
+                lines: [
+                    "&\\frac{(3-x)^2}{8y^3z} \\div \\frac{9-x^2}{10xyz}",
+                    "&= \\frac{(3-x)^2}{8y^3z} \\times \\frac{10xyz}{9-x^2}",
+                    "&= \\frac{(3-x)(3-x)}{8y^3z} \\times \\frac{10xyz}{(3-x)(3+x)}",
+                    "&= \\frac{\\cancel{(3-x)}(3-x)}{8y^3z} \\times \\frac{10xyz}{\\cancel{(3-x)}(3+x)} \\\\[0.5em] &= \\frac{5x(3-x)}{4y^2(3+x)}"
+                ],
+                texts: ["Original Problem.", "Multiply by the reciprocal.", "Factorise the difference of squares in the denominator.", "Cancel (3-x) and simplify coefficients."]
+            },
+            {
+                question: "Worked Example 2(c): Simplify ((a+2) / (a²-2a+1)) ÷ ((3a+6) / (a-1))",
+                lines: [
+                    "&\\frac{a+2}{a^2-2a+1} \\div \\frac{3a+6}{a-1}",
+                    "&= \\frac{a+2}{(a-1)^2} \\times \\frac{a-1}{3(a+2)}",
+                    "&= \\frac{\\cancel{a+2}}{(a-1)\\cancel{(a-1)}} \\times \\frac{\\cancel{a-1}}{3\\cancel{(a+2)}} \\\\[0.5em] &= \\frac{1}{3(a-1)}"
+                ],
+                texts: ["Original Problem.", "Change to multiplication and factorise: (a-1)² and 3(a+2).", "Cancel matching factors (a+2) and (a-1)."]
+            }
+        ];
+
+        let currentProb = 0; let currentStep = 0;
+        const mathDisp = document.getElementById('math-display');
+        const qArea = document.getElementById('question-area');
+        const expTitle = document.getElementById('exp-title');
+        const expText = document.getElementById('exp-text');
+        const selector = document.getElementById('problem-selector');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+
+        function render() {
+            const p = problems[currentProb];
+            qArea.innerText = p.question;
+            
+            if (currentProb === 0) {
+                const math = "\\begin{aligned} " + p.lines.join(" ") + " \\end{aligned}";
+                katex.render(math, mathDisp, { displayMode: true });
+                expTitle.innerText = "Operation Rules";
+                expText.innerText = p.texts[0];
+                nextBtn.innerText = "Start Examples";
+                nextBtn.disabled = false;
+                prevBtn.disabled = true;
+            } else {
+                const active = p.lines.slice(0, currentStep + 1);
+                const math = "\\begin{aligned} " + active.join(" \\\\[1.2em] ") + " \\end{aligned}";
+                katex.render(math, mathDisp, { displayMode: true });
+                expTitle.innerText = `Step ${currentStep + 1}`;
+                expText.innerText = p.texts[currentStep];
+                prevBtn.disabled = currentStep === 0;
+                nextBtn.innerText = (currentStep === p.lines.length - 1) ? "Finished" : "Next Step";
+                nextBtn.disabled = (currentStep === p.lines.length - 1);
+            }
+            document.activeElement.blur();
+        }
+
+        selector.onchange = (e) => { currentProb = parseInt(e.target.value); currentStep = 0; render(); };
+        nextBtn.onclick = () => { 
+            if (currentProb === 0) { selector.value = "1"; currentProb = 1; currentStep = 0; render(); }
+            else if (currentStep < problems[currentProb].lines.length - 1) { currentStep++; render(); } 
+        };
+        prevBtn.onclick = () => { if (currentStep > 0) { currentStep--; render(); } };
+        document.getElementById('reset-btn').onclick = () => { currentStep = 0; render(); };
+        document.onkeydown = (e) => { if(e.key === 'ArrowRight') nextBtn.click(); if(e.key === 'ArrowLeft') prevBtn.click(); };
+        window.onload = render;
+    </script>
+</body>
+</html>

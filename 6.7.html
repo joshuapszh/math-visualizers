@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 6.7: Formula Evaluator</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 2vh 3vw;
+            height: 96vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        
+        .main-layout { display: flex; gap: 30px; height: 100%; flex: 1; }
+        .left-panel { width: 38%; display: flex; flex-direction: column; gap: 20px; }
+        .right-panel { 
+            width: 62%; 
+            background: white; 
+            border-radius: 12px; 
+            padding: 30px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start;
+        }
+
+        #controls-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        select { font-size: 1.3rem; padding: 12px; border-radius: 8px; border: 2px solid #17a2b8; width: 100%; cursor: pointer; }
+
+        #explanation-box { font-size: 1.5rem; line-height: 1.4; padding: 25px; background: #e0f7fa; border-left: 6px solid #17a2b8; border-radius: 8px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .explanation-title { font-weight: bold; color: #006064; margin-bottom: 10px; font-size: 1.4rem; }
+
+        .button-group { display: flex; gap: 10px; }
+        button { padding: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; flex: 1; transition: 0.2s; }
+        #next-btn { background: #17a2b8; color: white; }
+        #next-btn:hover { background: #138496; }
+        #prev-btn, #reset-btn { background: #e0e0e0; color: #333; }
+
+        #question-area {
+            width: 100%;
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        #q-text { font-size: 1.3rem; line-height: 1.4; color: #333; margin: 0; }
+        .sub-parts { color: #007575; font-weight: bold; display: block; margin-top: 5px; }
+
+        #math-display { 
+            font-size: clamp(1.1rem, 1.8vw, 2.1rem); 
+            width: 100%; 
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .keyboard-hint { text-align: center; color: #888; font-size: 0.9rem; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1 style="font-size: 1.8rem; margin: 0 0 10px 0;">Section 6.7: Evaluating Formulae</h1>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div id="controls-container">
+                <select id="problem-selector">
+                    <option value="0">Worked Example 1: Volume of a Cone</option>
+                    <option value="1">Worked Example 2(a): Solving for q</option>
+                    <option value="2">Worked Example 2(b): Solving for t</option>
+                    <option value="3">Worked Example 2(c): Solving for x</option>
+                </select>
+            </div>
+
+            <div id="explanation-box">
+                <div class="explanation-title" id="exp-title">Teaching Logic</div>
+                <div id="exp-text">Loading...</div>
+            </div>
+
+            <div class="button-group">
+                <button id="reset-btn">Reset</button>
+                <button id="prev-btn">Prev</button>
+                <button id="next-btn">Next Step</button>
+            </div>
+            <div class="keyboard-hint">💡 Tip: Use Left ⬅️ and Right ➡️ arrow keys to navigate.</div>
+        </div>
+
+        <div class="right-panel">
+            <div id="question-area">
+                <p id="q-text"></p>
+                <div id="q-sub-parts"></div>
+            </div>
+            <div id="math-display"></div>
+        </div>
+    </div>
+
+    <script>
+        const problems = [
+            {
+                question: "The volume V of a cone is given by V = 1/3 * π * r² * h.",
+                subParts: ["(a) Calculate V if r=2.1, h=8, π=22/7.", "(b) Express r in terms of V, π and h."],
+                lines: [
+                    "&\\text{(a) } V = \\frac{1}{3} \\times \\frac{22}{7} \\times (2.1)^2 \\times 8 \\\\[0.6em]",
+                    "&\\quad \\ \\ V = 36.96 \\text{ cm}^3 \\\\[0.8em]",
+                    "&\\text{(b) } 3V = \\pi r^2 h \\\\[0.6em]",
+                    "&\\quad \\ \\ r^2 = \\frac{3V}{\\pi h} \\\\[0.6em]",
+                    "&\\quad \\ \\ r = \\pm\\sqrt{\\frac{3V}{\\pi h}}"
+                ],
+                texts: [
+                    "Substitute the given numerical values into the formula.",
+                    "Perform the calculation to find the volume.",
+                    "To rearrange for r, first multiply both sides by 3.",
+                    "Divide by π and h to isolate r².",
+                    "Take the square root of both sides to make r the subject."
+                ]
+            },
+            {
+                question: "Given p = sqrt(27 / (2q + 1)), find the value of q when p = 3.",
+                subParts: [],
+                lines: [
+                    "&3 = \\sqrt{\\frac{27}{2q+1}} \\\\[0.6em]",
+                    "&9 = \\frac{27}{2q+1} \\\\[0.6em]",
+                    "&2q+1 = \\frac{27}{9} \\\\[0.6em]",
+                    "&2q+1 = 3 \\implies 2q = 2 \\\\[0.6em]",
+                    "&q = 1"
+                ],
+                texts: [
+                    "Substitute p = 3 into the original formula.",
+                    "Square both sides to remove the square root.",
+                    "Rearrange the equation (multiply by the denominator and divide by 9).",
+                    "Simplify the fraction and solve for 2q.",
+                    "Divide by 2 to find the final value of q."
+                ]
+            },
+            {
+                question: "Given s = sqrt(11 + t²), find the values of t when s = 6.",
+                subParts: [],
+                lines: [
+                    "&6 = \\sqrt{11+t^2} \\\\[0.6em]",
+                    "&36 = 11 + t^2 \\\\[0.6em]",
+                    "&t^2 = 25 \\\\[0.6em]",
+                    "&t = \\pm\\sqrt{25} \\\\[0.6em]",
+                    "&t = \\pm 5"
+                ],
+                texts: [
+                    "Substitute s = 6 into the formula.",
+                    "Square both sides.",
+                    "Subtract 11 from both sides to isolate t².",
+                    "Take the square root. Remember to include the ± sign.",
+                    "Final values for t can be positive or negative 5."
+                ]
+            },
+            {
+                question: "Given w = cbrt((x + 2y) / (2x - y)), find the value of x when w = 2 and y = 3.",
+                subParts: [],
+                lines: [
+                    "&2 = \\sqrt[3]{\\frac{x+2(3)}{2x-3}} \\\\[0.6em]",
+                    "&8 = \\frac{x+6}{2x-3} \\\\[0.6em]",
+                    "&8(2x-3) = x+6 \\\\[0.6em]",
+                    "&16x - 24 = x+6 \\\\[0.6em]",
+                    "&15x = 30 \\\\[0.6em]",
+                    "&x = 2"
+                ],
+                texts: [
+                    "Substitute w = 2 and y = 3 into the formula.",
+                    "Cube both sides to remove the cube root (2³ = 8).",
+                    "Multiply both sides by (2x - 3) to clear the fraction.",
+                    "Expand the left side.",
+                    "Collect x terms on the left and numbers on the right.",
+                    "Solve for x."
+                ]
+            }
+        ];
+
+        let currentProb = 0;
+        let currentStep = 0;
+
+        const mathDisp = document.getElementById('math-display');
+        const qText = document.getElementById('q-text');
+        const qSubParts = document.getElementById('q-sub-parts');
+        const expTitle = document.getElementById('exp-title');
+        const expText = document.getElementById('exp-text');
+        const selector = document.getElementById('problem-selector');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+
+        function renderState() {
+            const p = problems[currentProb];
+            qText.innerText = p.question;
+            qSubParts.innerHTML = p.subParts.map(part => `<span class="sub-parts">${part}</span>`).join('');
+
+            const activeLines = p.lines.slice(0, currentStep + 1);
+            const math = "\\begin{aligned} " + activeLines.join(" ") + " \\end{aligned}";
+            katex.render(math, mathDisp, { displayMode: true });
+            
+            expTitle.innerText = `Step ${currentStep + 1}`;
+            expText.innerText = p.texts[currentStep];
+
+            prevBtn.disabled = currentStep === 0;
+            if(currentStep === p.lines.length - 1) {
+                nextBtn.innerText = "Finished";
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.innerText = "Next Step";
+                nextBtn.disabled = false;
+            }
+            document.activeElement.blur();
+        }
+
+        selector.addEventListener('change', (e) => {
+            currentProb = parseInt(e.target.value);
+            currentStep = 0;
+            renderState();
+        });
+
+        nextBtn.onclick = () => { if (currentStep < problems[currentProb].lines.length - 1) { currentStep++; renderState(); } };
+        prevBtn.onclick = () => { if (currentStep > 0) { currentStep--; renderState(); } };
+        document.getElementById('reset-btn').onclick = () => { currentStep = 0; renderState(); };
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') document.getElementById('next-btn').click();
+            if(e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
+        });
+
+        window.onload = renderState;
+    </script>
+</body>
+</html>

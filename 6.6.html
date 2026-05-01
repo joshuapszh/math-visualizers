@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 6.6: Subject Transformer</title>
+    
+    <!-- KaTeX for Beautiful Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    
+    <style>
+        /* 4:3 Projector Optimized CSS */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 2vh 3vw;
+            height: 96vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        
+        h1 { font-size: 2rem; margin: 0 0 10px 0; color: #1a1a1a; }
+        .main-layout { display: flex; gap: 30px; height: 100%; flex: 1; }
+
+        /* Left Side: Controls and Explanations */
+        .left-panel { width: 38%; display: flex; flex-direction: column; gap: 15px; }
+        #controls-container { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        select { font-size: 1.3rem; padding: 10px; border-radius: 8px; border: 2px solid #6f42c1; width: 100%; cursor: pointer; }
+
+        #explanation-box {
+            font-size: 1.5rem;
+            line-height: 1.4;
+            padding: 25px;
+            background: #f3f0ff;
+            border-left: 6px solid #6f42c1;
+            border-radius: 8px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .explanation-title { font-weight: bold; color: #4b2354; margin-bottom: 8px; font-size: 1.3rem; }
+
+        .button-group { display: flex; gap: 10px; }
+        button { padding: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; flex: 1; transition: 0.2s; }
+        #next-btn { background: #6f42c1; color: white; }
+        #prev-btn, #reset-btn { background: #e0e0e0; color: #333; }
+
+        /* Right Side: Visual Content */
+        .right-panel {
+            width: 62%;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #question-area {
+            width: 100%;
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 1.3rem;
+            line-height: 1.4;
+        }
+
+        #math-display { 
+            font-size: clamp(1.1rem, 1.8vw, 2.1rem); 
+            width: 100%; 
+            text-align: center; 
+            flex-grow: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        
+        .keyboard-hint { text-align: center; color: #888; font-size: 0.9rem; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>Section 6.6: Changing the Subject</h1>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div id="controls-container">
+                <select id="problem-selector">
+                    <option value="0">Introduction: Definitions</option>
+                    <option value="1">Intro: Rearranging S = D/T</option>
+                    <option value="2">Ex 1(a): 1/2x - 3y = 5 (for x)</option>
+                    <option value="3">Ex 1(b): 3/(x-2) = 1-y (for x)</option>
+                    <option value="4">Ex 2(b): a(x+b)+x = c (for x)</option>
+                    <option value="5">Ex 2(c): y = (1-2x)/(x+3) (for x)</option>
+                    <option value="6">Ex 2(d): 1/u + 1/v = 1/f (for u)</option>
+                    <option value="7">Ex 3(a): a = sqrt((b+2c)/(b-2c)) (for c)</option>
+                    <option value="8">Ex 3(b): y = (px-q)^2 (for x)</option>
+                </select>
+            </div>
+
+            <div id="explanation-box">
+                <div class="explanation-title" id="exp-title">Logic Reveal</div>
+                <div id="exp-text">Loading...</div>
+            </div>
+
+            <div class="button-group">
+                <button id="reset-btn">Reset</button>
+                <button id="prev-btn">Prev</button>
+                <button id="next-btn">Next Step</button>
+            </div>
+            <div class="keyboard-hint">💡 Tip: Use Left ⬅️ and Right ➡️ arrow keys.</div>
+        </div>
+
+        <div class="right-panel">
+            <div id="question-area" id="q-text"></div>
+            <div id="math-display"></div>
+        </div>
+    </div>
+
+    <script>
+        const problems = [
+            {
+                question: "Key Definitions: A formula is an equation relating quantities. The subject is a single term alone on the left side.",
+                lines: [
+                    "&\\textbf{Core Principles:} \\\\[1em]",
+                    "&\\bullet \\text{Appears on the left-hand side (LHS).} \\\\[0.5em]",
+                    "&\\bullet \\text{Is a single term with a coefficient of 1.} \\\\[0.5em]",
+                    "&\\bullet \\text{Appears nowhere else in the formula.}"
+                ],
+                texts: ["Changing the subject involves rearranging the formula to isolate the target variable."]
+            },
+            {
+                question: "Intro Example: Rearrange S = D/T to make D or T the subject.",
+                lines: [
+                    "&S = \\frac{D}{T} \\\\[0.8em]",
+                    "&ST = D \\implies D = ST \\\\[0.8em]",
+                    "&\\frac{D}{S} = T \\implies T = \\frac{D}{S}"
+                ],
+                texts: ["Multiply both sides by T.", "D is now the subject.", "Divide by S to isolate T."]
+            },
+            {
+                question: "Worked Example 1(a): Make x the subject of: 1/2x - 3y = 5",
+                lines: [
+                    "&\\frac{1}{2}x - 3y = 5 \\\\[0.6em]",
+                    "&\\frac{1}{2}x = 5 + 3y \\\\[0.6em]",
+                    "&x = 2(5 + 3y) \\\\[0.6em]",
+                    "&x = 10 + 6y"
+                ],
+                texts: ["Original formula.", "Add 3y to both sides.", "Multiply both sides by 2.", "Expand the bracket."]
+            },
+            {
+                question: "Worked Example 1(b): Make x the subject of: 3/(x - 2) = 1 - y",
+                lines: [
+                    "&\\frac{3}{x-2} = 1 - y \\\\[0.6em]",
+                    "&\\frac{x-2}{3} = \\frac{1}{1-y} \\\\[0.6em]",
+                    "&x - 2 = \\frac{3}{1-y} \\\\[0.6em]",
+                    "&x = \\frac{3}{1-y} + 2"
+                ],
+                texts: ["Original formula.", "Take reciprocals on both sides.", "Multiply by 3.", "Add 2 to isolate x."]
+            },
+            {
+                question: "Worked Example 2(b): Make x the subject of: a(x + b) + x = c",
+                lines: [
+                    "&ax + ab + x = c \\\\[0.6em]",
+                    "&ax + x = c - ab \\\\[0.6em]",
+                    "&x(a + 1) = c - ab \\\\[0.6em]",
+                    "&x = \\frac{c - ab}{a + 1}"
+                ],
+                texts: ["Expand the brackets.", "Move non-x terms to the right.", "Factorise x on the left.", "Divide by (a + 1)."]
+            },
+            {
+                question: "Worked Example 2(c): Make x the subject of: y = (1 - 2x) / (x + 3)",
+                lines: [
+                    "&y(x + 3) = 1 - 2x \\\\[0.6em]",
+                    "&xy + 3y = 1 - 2x \\\\[0.6em]",
+                    "&xy + 2x = 1 - 3y \\\\[0.6em]",
+                    "&x(y + 2) = 1 - 3y \\\\[0.6em]",
+                    "&x = \\frac{1 - 3y}{y + 2}"
+                ],
+                texts: ["Cross-multiply to clear the fraction.", "Expand the left side.", "Group x terms on the left.", "Factorise x.", "Divide to isolate x."]
+            },
+            {
+                question: "Worked Example 2(d): Make u the subject of: 1/u + 1/v = 1/f",
+                lines: [
+                    "&\\frac{1}{u} = \\frac{1}{f} - \\frac{1}{v} \\\\[0.6em]",
+                    "&\\frac{1}{u} = \\frac{v - f}{fv} \\\\[0.6em]",
+                    "&u = \\frac{fv}{v - f}"
+                ],
+                texts: ["Move 1/v to the right.", "Combine the right side using the LCM.", "Take reciprocals to find u."]
+            },
+            {
+                question: "Worked Example 3(a): Make c the subject of: a = sqrt((b+2c)/(b-2c))",
+                lines: [
+                    "&a^2 = \\frac{b + 2c}{b - 2c} \\\\[0.6em]",
+                    "&a^2(b - 2c) = b + 2c \\\\[0.6em]",
+                    "&a^2b - 2a^2c = b + 2c \\\\[0.6em]",
+                    "&2c + 2a^2c = a^2b - b \\\\[0.6em]",
+                    "&c(2 + 2a^2) = a^2b - b \\\\[0.6em]",
+                    "&c = \\frac{a^2b - b}{2a^2 + 2}"
+                ],
+                texts: ["Square both sides.", "Multiply by the denominator.", "Expand the bracket.", "Collect c terms together.", "Factorise out c.", "Isolate c."]
+            },
+            {
+                question: "Worked Example 3(b): Given y = (px - q)², express x in terms of p, q, and y.",
+                lines: [
+                    "&y = (px - q)^2 \\\\[0.8em]",
+                    "&\\pm\\sqrt{y} = px - q \\\\[0.8em]",
+                    "&q \\pm \\sqrt{y} = px \\\\[0.8em]",
+                    "&x = \\frac{q \\pm \\sqrt{y}}{p}"
+                ],
+                texts: ["Original formula.", "Take the square root of both sides (include ±).", "Add q to both sides.", "Divide by p to isolate x."]
+            }
+        ];
+
+        let currentProb = 0; let currentStep = 0;
+        const mathDisp = document.getElementById('math-display');
+        const qArea = document.getElementById('question-area');
+        const expTitle = document.getElementById('exp-title');
+        const expText = document.getElementById('exp-text');
+        const selector = document.getElementById('problem-selector');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+
+        function render() {
+            const p = problems[currentProb];
+            qArea.innerText = p.question;
+            
+            if (currentProb === 0) {
+                const math = "\\begin{aligned} " + p.lines.join(" ") + " \\end{aligned}";
+                katex.render(math, mathDisp, { displayMode: true });
+                expTitle.innerText = "Principles";
+                expText.innerText = p.texts[0];
+                nextBtn.innerText = "Start Examples";
+                nextBtn.disabled = false;
+                prevBtn.disabled = true;
+            } else {
+                const active = p.lines.slice(0, currentStep + 1);
+                const math = "\\begin{aligned} " + active.join(" ") + " \\end{aligned}";
+                katex.render(math, mathDisp, { displayMode: true });
+                expTitle.innerText = `Logic Step ${currentStep + 1}`;
+                expText.innerText = p.texts[currentStep];
+                prevBtn.disabled = currentStep === 0;
+                nextBtn.innerText = (currentStep === p.lines.length - 1) ? "Finished" : "Next Step";
+                nextBtn.disabled = (currentStep === p.lines.length - 1);
+            }
+            document.activeElement.blur();
+        }
+
+        selector.onchange = (e) => { currentProb = parseInt(e.target.value); currentStep = 0; render(); };
+        nextBtn.onclick = () => { 
+            if (currentProb === 0) { selector.value = "1"; currentProb = 1; currentStep = 0; render(); }
+            else if (currentStep < problems[currentProb].lines.length - 1) { currentStep++; render(); } 
+        };
+        prevBtn.onclick = () => { if (currentStep > 0) { currentStep--; render(); } };
+        document.getElementById('reset-btn').onclick = () => { currentStep = 0; render(); };
+        document.onkeydown = (e) => { if(e.key === 'ArrowRight') nextBtn.click(); if(e.key === 'ArrowLeft') prevBtn.click(); };
+        window.onload = render;
+    </script>
+</body>
+</html>
