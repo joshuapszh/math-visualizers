@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Tutor: Anatomy of a Straight Line</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .math-font {
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col font-sans overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md flex justify-between items-center z-10 shrink-0">
+        <div>
+            <h1 class="text-2xl font-bold">Interactive Math Sandbox</h1>
+            <p class="text-indigo-200 text-sm">Module 1: The Anatomy of a Straight Line (<span class="math-font">y = mx + c</span>)</p>
+        </div>
+        <div class="text-sm bg-indigo-700 px-3 py-1 rounded-full border border-indigo-500">
+            Secondary 2 Mathematics
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden flex-col md:flex-row">
+        
+        <!-- Left Panel: The Tutor -->
+        <section class="w-full md:w-1/3 lg:w-2/5 bg-white border-r border-slate-200 flex flex-col h-full shadow-lg z-0">
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-slate-200 bg-slate-50 shrink-0 overflow-x-auto">
+                <button onclick="loadContent('intro')" id="tab-intro" class="flex-1 py-3 px-4 text-sm font-semibold text-indigo-600 border-b-2 border-indigo-600 hover:bg-slate-100 transition-colors whitespace-nowrap">Introduction</button>
+                <button onclick="loadContent('we1')" id="tab-we1" class="flex-1 py-3 px-4 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:bg-slate-100 transition-colors whitespace-nowrap">Worked Ex 1</button>
+                <button onclick="loadContent('we2')" id="tab-we2" class="flex-1 py-3 px-4 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:bg-slate-100 transition-colors whitespace-nowrap">Worked Ex 2</button>
+                <button onclick="loadContent('we3')" id="tab-we3" class="flex-1 py-3 px-4 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:bg-slate-100 transition-colors whitespace-nowrap">Worked Ex 3</button>
+            </div>
+
+            <!-- Content Area -->
+            <div id="tutor-content" class="p-6 overflow-y-auto flex-1 text-slate-700 leading-relaxed">
+                <!-- Content injected via JS -->
+            </div>
+        </section>
+
+        <!-- Right Panel: The Sandbox -->
+        <section class="w-full md:w-2/3 lg:w-3/5 bg-slate-100 flex flex-col h-full relative">
+            
+            <!-- Dynamic Equation Display -->
+            <div class="absolute top-4 left-0 right-0 flex justify-center z-10 pointer-events-none">
+                <div class="bg-white/90 backdrop-blur px-6 py-3 rounded-2xl shadow-lg border border-indigo-100 text-center pointer-events-auto">
+                    <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider mb-1">Current Equation</p>
+                    <p class="text-3xl text-indigo-700 font-bold math-font" id="equation-display">y = 1x + 0</p>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="flex-1 p-4 pt-24 pb-0 flex items-center justify-center relative">
+                <div class="w-full h-full max-h-[60vh] bg-white rounded-xl shadow-inner border border-slate-200 p-2 relative">
+                    <canvas id="mathChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="bg-white border-t border-slate-200 p-6 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Sliders -->
+                    <div class="space-y-6">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Line Controls</h3>
+                        
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <label for="m-slider" class="text-sm font-medium text-slate-700">Gradient (<span class="math-font">m</span>)</label>
+                                <span id="m-value" class="text-sm font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">1.0</span>
+                            </div>
+                            <input type="range" id="m-slider" min="-5" max="5" step="0.5" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                            <p class="text-xs text-slate-400 mt-1">Controls steepness and direction.</p>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <label for="c-slider" class="text-sm font-medium text-slate-700">y-intercept (<span class="math-font">c</span>)</label>
+                                <span id="c-value" class="text-sm font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">0.0</span>
+                            </div>
+                            <input type="range" id="c-slider" min="-10" max="10" step="1" value="0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                            <p class="text-xs text-slate-400 mt-1">Where the line crosses the vertical y-axis.</p>
+                        </div>
+                    </div>
+
+                    <!-- Point Checker -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Point Checker</h3>
+                        <p class="text-sm text-slate-600 mb-3">Does a point lie on your current line?</p>
+                        
+                        <div class="flex items-center space-x-2 mb-3">
+                            <span class="text-xl font-light text-slate-400">(</span>
+                            <input type="number" id="point-x" placeholder="x" class="w-16 text-center border border-slate-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            <span class="text-xl font-light text-slate-400">,</span>
+                            <input type="number" id="point-y" placeholder="y" class="w-16 text-center border border-slate-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            <span class="text-xl font-light text-slate-400">)</span>
+                            
+                            <button onclick="checkPoint()" class="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-1.5 px-4 rounded transition-colors shadow-sm">
+                                Check
+                            </button>
+                        </div>
+                        
+                        <div id="point-result" class="text-sm hidden p-2 rounded border">
+                            <!-- Result injected via JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- Tutor Content Data ---
+        const tutorData = {
+            intro: `
+                <h2 class="text-2xl font-bold text-indigo-900 mb-4">The Anatomy of a Straight Line</h2>
+                <p class="mb-4">Graphs of linear equations are straight lines. The most common way to write the equation of a straight line is:</p>
+                
+                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6 rounded-r-lg">
+                    <p class="text-2xl font-bold text-center text-indigo-800 math-font">y = mx + c</p>
+                </div>
+
+                <ul class="space-y-4 mb-6">
+                    <li class="flex items-start">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 font-bold text-sm mr-3 shrink-0">m</span>
+                        <div>
+                            <strong>The Gradient (Steepness & Direction)</strong><br>
+                            If <span class="math-font text-indigo-600">m</span> is positive, the line slopes up to the right. If <span class="math-font text-indigo-600">m</span> is negative, it slopes down to the right. The larger the number, the steeper the slope!
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-pink-100 text-pink-600 font-bold text-sm mr-3 shrink-0">c</span>
+                        <div>
+                            <strong>The y-intercept (Starting Point)</strong><br>
+                            This is exactly where the line cuts across the vertical y-axis. The coordinates are always <span class="math-font">(0, c)</span>.
+                        </div>
+                    </li>
+                </ul>
+
+                <p class="text-slate-600 italic">👉 <strong>Try it out!</strong> Move the sliders in the Sandbox to the right. Watch how changing <span class="math-font">m</span> tilts the line, and changing <span class="math-font">c</span> shifts it up and down.</p>
+            `,
+            we1: `
+                <h2 class="text-xl font-bold text-indigo-900 mb-4">Worked Example 1</h2>
+                <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider mb-2">Target</p>
+                <p class="mb-6 border-b pb-4">Write down the gradient (<span class="math-font">m</span>) and y-intercept (<span class="math-font">c</span>) of the following lines.</p>
+
+                <div class="space-y-6">
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <p class="font-bold mb-2">(a) <span class="math-font text-lg text-indigo-700">y = 4x + 1</span></p>
+                        <p>Comparing to <span class="math-font">y = mx + c</span>:</p>
+                        <p>Gradient (<span class="math-font">m</span>) = <strong>4</strong></p>
+                        <p>y-intercept (<span class="math-font">c</span>) = <strong>1</strong></p>
+                        <button onclick="setSandbox(4, 1)" class="mt-3 text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-200 transition">Graph this</button>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <p class="font-bold mb-2">(b) <span class="math-font text-lg text-indigo-700">y = 5 - 0.5x</span></p>
+                        <p class="text-sm text-slate-500 mb-2"><em>Tip: Rewrite it so the x term is first: <span class="math-font">y = -0.5x + 5</span></em></p>
+                        <p>Gradient (<span class="math-font">m</span>) = <strong>-0.5</strong></p>
+                        <p>y-intercept (<span class="math-font">c</span>) = <strong>5</strong></p>
+                        <button onclick="setSandbox(-0.5, 5)" class="mt-3 text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-200 transition">Graph this</button>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <p class="font-bold mb-2">(c) <span class="math-font text-lg text-indigo-700">y = 3x</span></p>
+                        <p class="text-sm text-slate-500 mb-2"><em>Tip: There is no constant term, so it's <span class="math-font">y = 3x + 0</span></em></p>
+                        <p>Gradient (<span class="math-font">m</span>) = <strong>3</strong></p>
+                        <p>y-intercept (<span class="math-font">c</span>) = <strong>0</strong> (It passes through the origin!)</p>
+                        <button onclick="setSandbox(3, 0)" class="mt-3 text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-200 transition">Graph this</button>
+                    </div>
+                </div>
+            `,
+            we2: `
+                <h2 class="text-xl font-bold text-indigo-900 mb-4">Worked Example 2</h2>
+                <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider mb-2">Target</p>
+                <p class="mb-6 border-b pb-4">State whether points lie on given lines, and find missing coordinates.</p>
+
+                <div class="space-y-6">
+                    <div>
+                        <p class="font-bold text-lg text-indigo-700 mb-2">(a) Does (4, 5) lie on <span class="math-font">y = 2x - 3</span>?</p>
+                        <p class="mb-2">To check, substitute the x-value of the point (<span class="math-font">x = 4</span>) into the equation. If the calculated y matches the point's y-value (<span class="math-font">5</span>), it lies on the line!</p>
+                        <div class="bg-slate-800 text-green-400 font-mono p-3 rounded text-sm mb-3">
+                            y = 2(4) - 3<br>
+                            y = 8 - 3<br>
+                            y = 5
+                        </div>
+                        <p><strong>Result:</strong> Since the calculated y is 5, the point (4, 5) <strong>lies on the line</strong>.</p>
+                        <div class="flex space-x-2 mt-3">
+                            <button onclick="setSandbox(2, -3); setChecker(4, 5);" class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-200 transition">Graph line & test point</button>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div>
+                        <p class="font-bold text-lg text-indigo-700 mb-2">(b) Does (2, 7) lie on <span class="math-font">y = 9 - 0.5x</span>?</p>
+                        <p class="mb-2">Substitute <span class="math-font">x = 2</span> into the equation:</p>
+                        <div class="bg-slate-800 text-red-400 font-mono p-3 rounded text-sm mb-3">
+                            y = 9 - 0.5(2)<br>
+                            y = 9 - 1<br>
+                            y = 8
+                        </div>
+                        <p><strong>Result:</strong> 8 does not equal 7. The point (2, 7) <strong>does not lie</strong> on the line.</p>
+                        <button onclick="setSandbox(-0.5, 9); setChecker(2, 7);" class="mt-3 text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-200 transition">Graph line & test point</button>
+                    </div>
+                </div>
+            `,
+            we3: `
+                <h2 class="text-xl font-bold text-indigo-900 mb-4">Worked Example 3</h2>
+                <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider mb-2">Target</p>
+                <p class="mb-6 border-b pb-4">Working with equations that aren't quite in <span class="math-font">y = mx + c</span> format.</p>
+
+                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100 mb-6">
+                    <p class="font-bold text-indigo-900 mb-2">The Equation: <span class="math-font text-xl text-indigo-700">x + 2y = 5</span></p>
+                    <p class="text-sm">Before we find gradients and intercepts, let's rewrite this into <span class="math-font">y = mx + c</span> form:</p>
+                    <div class="bg-white p-3 rounded mt-2 font-mono text-sm border">
+                        2y = -x + 5<br>
+                        y = -0.5x + 2.5
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <p class="font-bold">(a) Find y when x = -1</p>
+                        <p class="text-sm ml-4 border-l-2 pl-2 border-indigo-200">Substitute x = -1 into original equation:<br>
+                        (-1) + 2y = 5<br>
+                        2y = 6<br>
+                        <strong>y = 3</strong></p>
+                    </div>
+                    
+                    <div>
+                        <p class="font-bold">(b) Find x when y = 4</p>
+                        <p class="text-sm ml-4 border-l-2 pl-2 border-indigo-200">Substitute y = 4 into original equation:<br>
+                        x + 2(4) = 5<br>
+                        x + 8 = 5<br>
+                        <strong>x = -3</strong></p>
+                    </div>
+
+                    <div>
+                        <p class="font-bold">(c) What is the gradient?</p>
+                        <p class="text-sm ml-4 border-l-2 pl-2 border-indigo-200">Look at our rewritten equation: <span class="math-font">y = -0.5x + 2.5</span>.<br>
+                        The number attached to x is the gradient.<br>
+                        <strong>Gradient = -0.5</strong></p>
+                    </div>
+                </div>
+
+                <button onclick="setSandbox(-0.5, 2.5); setChecker(-1, 3);" class="mt-6 w-full py-2 bg-indigo-600 text-white rounded font-medium hover:bg-indigo-700 transition shadow">
+                    Graph this line and test point (-1, 3)
+                </button>
+            `
+        };
+
+        // --- Chart Initialization ---
+        const ctx = document.getElementById('mathChart').getContext('2d');
+        
+        let chartInstance = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Line Graph',
+                        data: [],
+                        borderColor: '#4f46e5', // indigo-600
+                        backgroundColor: '#4f46e5',
+                        borderWidth: 2,
+                        showLine: true,
+                        tension: 0,
+                        pointRadius: 0 // Hide points on the line itself
+                    },
+                    {
+                        label: 'Test Point',
+                        data: [],
+                        backgroundColor: '#ef4444', // red-500
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    },
+                    {
+                        label: 'y-intercept',
+                        data: [],
+                        backgroundColor: '#ec4899', // pink-500
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `(${context.parsed.x}, ${context.parsed.y})`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        min: -10,
+                        max: 10,
+                        grid: {
+                            color: (context) => context.tick.value === 0 ? '#1e293b' : '#f1f5f9',
+                            lineWidth: (context) => context.tick.value === 0 ? 2 : 1
+                        },
+                        ticks: { stepSize: 2 }
+                    },
+                    y: {
+                        min: -10,
+                        max: 10,
+                        grid: {
+                            color: (context) => context.tick.value === 0 ? '#1e293b' : '#f1f5f9',
+                            lineWidth: (context) => context.tick.value === 0 ? 2 : 1
+                        },
+                        ticks: { stepSize: 2 }
+                    }
+                }
+            }
+        });
+
+        // --- UI Logic ---
+        
+        const mSlider = document.getElementById('m-slider');
+        const cSlider = document.getElementById('c-slider');
+        const mValue = document.getElementById('m-value');
+        const cValue = document.getElementById('c-value');
+        const equationDisplay = document.getElementById('equation-display');
+        const pointX = document.getElementById('point-x');
+        const pointY = document.getElementById('point-y');
+        const pointResult = document.getElementById('point-result');
+
+        // Update graph when sliders move
+        function updateGraph() {
+            const m = parseFloat(mSlider.value);
+            const c = parseFloat(cSlider.value);
+            
+            // Update labels
+            mValue.textContent = m;
+            cValue.textContent = c;
+            
+            // Update equation text
+            let equationText = `y = ${m}x`;
+            if (c > 0) equationText += ` + ${c}`;
+            if (c < 0) equationText += ` - ${Math.abs(c)}`;
+            if (c === 0) equationText += ` + 0`;
+            equationDisplay.textContent = equationText;
+
+            // Generate points for the line
+            // We just need two points far apart to draw the straight line
+            const lineData = [
+                { x: -15, y: (m * -15) + c },
+                { x: 15, y: (m * 15) + c }
+            ];
+
+            // Update y-intercept dot
+            const interceptData = [{ x: 0, y: c }];
+
+            chartInstance.data.datasets[0].data = lineData;
+            chartInstance.data.datasets[2].data = interceptData;
+            chartInstance.update();
+
+            // Clear point checker result if sliders move
+            pointResult.classList.add('hidden');
+        }
+
+        // Handle Point Checker
+        function checkPoint() {
+            const px = parseFloat(pointX.value);
+            const py = parseFloat(pointY.value);
+            
+            if (isNaN(px) || isNaN(py)) {
+                alert("Please enter valid numbers for x and y.");
+                return;
+            }
+
+            // Draw point on graph
+            chartInstance.data.datasets[1].data = [{ x: px, y: py }];
+            chartInstance.update();
+
+            // Math check
+            const m = parseFloat(mSlider.value);
+            const c = parseFloat(cSlider.value);
+            
+            // Calculate what Y *should* be for the given X
+            const expectedY = (m * px) + c;
+            
+            // Allow tiny float inaccuracies
+            const isOnLine = Math.abs(expectedY - py) < 0.001;
+
+            pointResult.classList.remove('hidden', 'bg-green-50', 'text-green-700', 'border-green-200', 'bg-red-50', 'text-red-700', 'border-red-200');
+            
+            if (isOnLine) {
+                pointResult.classList.add('bg-green-50', 'text-green-700', 'border-green-200');
+                pointResult.innerHTML = `<strong>Correct!</strong> When x = ${px}, y = ${py}. It lies on the line.`;
+            } else {
+                pointResult.classList.add('bg-red-50', 'text-red-700', 'border-red-200');
+                pointResult.innerHTML = `<strong>Nope.</strong> When x = ${px}, the line is actually at y = ${expectedY}.`;
+            }
+        }
+
+        // Functions called by the Tutor Panel to interact with Sandbox
+        function setSandbox(m, c) {
+            mSlider.value = m;
+            cSlider.value = c;
+            updateGraph();
+            // Clear test point
+            chartInstance.data.datasets[1].data = [];
+            chartInstance.update();
+            pointX.value = '';
+            pointY.value = '';
+        }
+
+        function setChecker(x, y) {
+            pointX.value = x;
+            pointY.value = y;
+            // Delay check slightly to let graph draw first
+            setTimeout(checkPoint, 100);
+        }
+
+        // Navigation Logic
+        function loadContent(tabId) {
+            // Update Tab Styles
+            const tabs = ['intro', 'we1', 'we2', 'we3'];
+            tabs.forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                if (t === tabId) {
+                    el.classList.remove('text-slate-500', 'border-transparent');
+                    el.classList.add('text-indigo-600', 'border-indigo-600');
+                } else {
+                    el.classList.add('text-slate-500', 'border-transparent');
+                    el.classList.remove('text-indigo-600', 'border-indigo-600');
+                }
+            });
+
+            // Inject Content
+            document.getElementById('tutor-content').innerHTML = tutorData[tabId];
+            
+            // Reset sandbox to default state when changing tabs
+            if(tabId === 'intro') {
+                setSandbox(1, 0);
+            }
+        }
+
+        // Event Listeners for sliders
+        mSlider.addEventListener('input', updateGraph);
+        cSlider.addEventListener('input', updateGraph);
+
+        // Initialize App
+        loadContent('intro');
+        updateGraph();
+
+    </script>
+</body>
+</html>

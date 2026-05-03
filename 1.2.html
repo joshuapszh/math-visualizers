@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Tutor: Horizontal and Vertical Lines</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .math-font {
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            font-style: italic;
+        }
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #4f46e5;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col font-sans overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white p-4 shadow-md flex justify-between items-center z-10 shrink-0">
+        <div>
+            <h1 class="text-2xl font-bold">Interactive Math Sandbox</h1>
+            <p class="text-indigo-200 text-sm">Module 2: Horizontal & Vertical Lines (<span class="math-font">y = c</span> and <span class="math-font">x = a</span>)</p>
+        </div>
+        <div class="text-sm bg-indigo-700 px-3 py-1 rounded-full border border-indigo-500">
+            Secondary 2 Mathematics
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden flex-col md:flex-row">
+        
+        <!-- Left Panel: The Tutor -->
+        <section class="w-full md:w-1/3 lg:w-2/5 bg-white border-r border-slate-200 flex flex-col h-full shadow-lg z-0">
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-slate-200 bg-slate-50 shrink-0 overflow-x-auto">
+                <button onclick="loadContent('intro')" id="tab-intro" class="flex-1 py-3 px-4 text-sm font-semibold text-indigo-600 border-b-2 border-indigo-600 hover:bg-slate-100 transition-colors whitespace-nowrap">Introduction</button>
+                <button onclick="loadContent('we4')" id="tab-we4" class="flex-1 py-3 px-4 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:bg-slate-100 transition-colors whitespace-nowrap">Worked Ex 4</button>
+                <button onclick="loadContent('we5')" id="tab-we5" class="flex-1 py-3 px-4 text-sm font-semibold text-slate-500 border-b-2 border-transparent hover:bg-slate-100 transition-colors whitespace-nowrap">Worked Ex 5</button>
+            </div>
+
+            <!-- Content Area -->
+            <div id="tutor-content" class="p-6 overflow-y-auto flex-1 text-slate-700 leading-relaxed">
+                <!-- Content injected via JS -->
+            </div>
+        </section>
+
+        <!-- Right Panel: The Sandbox -->
+        <section class="w-full md:w-2/3 lg:w-3/5 bg-slate-100 flex flex-col h-full relative">
+            
+            <!-- Dynamic Equation Display -->
+            <div class="absolute top-4 left-0 right-0 flex justify-center z-10 pointer-events-none">
+                <div class="bg-white/90 backdrop-blur px-8 py-3 rounded-2xl shadow-lg border border-indigo-100 text-center pointer-events-auto min-w-[200px]">
+                    <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider mb-1">Current Equation</p>
+                    <p class="text-3xl text-indigo-700 font-bold math-font" id="equation-display">y = 0</p>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="flex-1 p-4 pt-24 pb-0 flex items-center justify-center relative">
+                <div class="w-full h-full max-h-[60vh] bg-white rounded-xl shadow-inner border border-slate-200 p-2 relative">
+                    <canvas id="mathChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="bg-white border-t border-slate-200 p-6 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+                
+                <div class="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8">
+                    
+                    <!-- Line Type Toggle -->
+                    <div class="flex flex-col space-y-3 w-full md:w-1/3">
+                        <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider text-center md:text-left">Line Orientation</h3>
+                        
+                        <div class="flex items-center justify-center md:justify-start">
+                            <span class="mr-3 text-sm font-medium text-slate-700 w-20 text-right">Horizontal<br><span class="text-xs text-slate-400">(y = c)</span></span>
+                            
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="line-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-slate-300 appearance-none cursor-pointer transition-all duration-300 z-10"/>
+                                <label for="line-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer transition-colors duration-300"></label>
+                            </div>
+                            
+                            <span class="ml-1 text-sm font-medium text-slate-700 w-20">Vertical<br><span class="text-xs text-slate-400">(x = a)</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Value Slider -->
+                    <div class="flex flex-col w-full md:w-2/3 border-t md:border-t-0 md:border-l border-slate-200 pt-4 md:pt-0 md:pl-8">
+                        <div class="flex justify-between mb-2">
+                            <label id="slider-label" for="val-slider" class="text-sm font-bold text-indigo-700 uppercase tracking-wider">Adjust Intercept</label>
+                            <span id="slider-value" class="text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md border border-indigo-100">0.0</span>
+                        </div>
+                        <input type="range" id="val-slider" min="-5" max="5" step="0.5" value="0" class="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                        <p id="slider-description" class="text-xs text-slate-500 mt-2 text-center md:text-left">Slide to move the line along the y-axis.</p>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- Tutor Content Data ---
+        const tutorData = {
+            intro: `
+                <h2 class="text-2xl font-bold text-indigo-900 mb-4">Horizontal & Vertical Lines</h2>
+                <p class="mb-4">Not all straight lines have slanted gradients. What happens when a line is perfectly flat or perfectly upright?</p>
+                
+                <hr class="my-6 border-slate-200">
+
+                <h3 class="text-lg font-bold text-indigo-800 mb-2">1. Horizontal Lines (<span class="math-font text-indigo-600">y = c</span>)</h3>
+                <p class="mb-3 text-sm">A horizontal line runs parallel to the x-axis. Because it is completely flat, its <strong>gradient is zero</strong> (<span class="math-font">m = 0</span>).</p>
+                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-3 mb-6 rounded-r">
+                    <p class="text-sm">Since <span class="math-font">y = mx + c</span>, substituting <span class="math-font">m = 0</span> leaves us with simply:<br> 
+                    <span class="text-xl font-bold math-font text-indigo-800 mt-1 block">y = c</span></p>
+                    <p class="text-xs mt-2 text-indigo-700">Every single point on this line has the exact same y-coordinate.</p>
+                </div>
+
+                <h3 class="text-lg font-bold text-emerald-800 mb-2">2. Vertical Lines (<span class="math-font text-emerald-600">x = a</span>)</h3>
+                <p class="mb-3 text-sm">A vertical line runs parallel to the y-axis. It is so steep that its <strong>gradient is undefined</strong>.</p>
+                <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 mb-6 rounded-r">
+                    <p class="text-sm">The equation takes the form:<br> 
+                    <span class="text-xl font-bold math-font text-emerald-800 mt-1 block">x = a</span></p>
+                    <p class="text-xs mt-2 text-emerald-700">Every point on this line shares the same x-coordinate. <br><em>Note: This is technically not a linear function because one x-value has infinite y-values!</em></p>
+                </div>
+
+                <p class="text-slate-600 italic text-sm">👉 <strong>Try it out!</strong> Use the toggle switch in the Sandbox to flip between Horizontal and Vertical lines, then slide to change the intercept.</p>
+            `,
+            we4: `
+                <h2 class="text-xl font-bold text-indigo-900 mb-4">Worked Example 4</h2>
+                <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider mb-2">Target</p>
+                <p class="mb-6 border-b pb-4">Identifying and drawing horizontal equations.</p>
+
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-bold text-indigo-800 border-b border-indigo-100 pb-1 mb-2">(a) Identifying line equations</h4>
+                        <p class="text-sm mb-2">If you see a perfectly flat line crossing the y-axis at 3, its equation is simply <span class="math-font">y = 3</span>.</p>
+                        <button onclick="setSandbox('horizontal', 3)" class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-200 transition font-medium">Graph y = 3</button>
+                        
+                        <p class="text-sm mt-4 mb-2">If a flat line crosses halfway between -1 and -2 on the y-axis, its equation is <span class="math-font">y = -1.5</span>.</p>
+                        <button onclick="setSandbox('horizontal', -1.5)" class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded hover:bg-indigo-200 transition font-medium">Graph y = -1.5</button>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h4 class="font-bold text-indigo-800 mb-2">(b) Draw the following lines:</h4>
+                        
+                        <div class="mb-4">
+                            <p class="font-semibold text-sm mb-1">(i) <span class="math-font">y = 0</span></p>
+                            <p class="text-xs text-slate-500 mb-2">This line crosses the y-axis exactly at zero. Notice that this line is completely identical to the x-axis itself!</p>
+                            <button onclick="setSandbox('horizontal', 0)" class="w-full text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded shadow-sm hover:bg-indigo-50 transition font-medium">Draw y = 0</button>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-sm mb-1">(ii) <span class="math-font">y = -3</span></p>
+                            <p class="text-xs text-slate-500 mb-2">A flat line situated 3 units beneath the x-axis.</p>
+                            <button onclick="setSandbox('horizontal', -3)" class="w-full text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded shadow-sm hover:bg-indigo-50 transition font-medium">Draw y = -3</button>
+                        </div>
+                    </div>
+                </div>
+            `,
+            we5: `
+                <h2 class="text-xl font-bold text-indigo-900 mb-4">Worked Example 5</h2>
+                <p class="text-sm text-slate-500 font-semibold uppercase tracking-wider mb-2">Target</p>
+                <p class="mb-6 border-b pb-4">Identifying and drawing vertical equations.</p>
+
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-bold text-emerald-800 border-b border-emerald-100 pb-1 mb-2">(a) Identifying line equations</h4>
+                        <p class="text-sm mb-2">If you see an upright line crossing the horizontal x-axis at 4, its equation is <span class="math-font">x = 4</span>.</p>
+                        <button onclick="setSandbox('vertical', 4)" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded hover:bg-emerald-200 transition font-medium">Graph x = 4</button>
+                        
+                        <p class="text-sm mt-4 mb-2">If it crosses the x-axis at -3, the equation is <span class="math-font">x = -3</span>.</p>
+                        <button onclick="setSandbox('vertical', -3)" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded hover:bg-emerald-200 transition font-medium">Graph x = -3</button>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h4 class="font-bold text-emerald-800 mb-2">(b) Draw the following lines:</h4>
+                        
+                        <div class="mb-4">
+                            <p class="font-semibold text-sm mb-1">(i) <span class="math-font">x = 0</span></p>
+                            <p class="text-xs text-slate-500 mb-2">This vertical line crosses the x-axis at zero. This means the line sits perfectly on top of the y-axis.</p>
+                            <button onclick="setSandbox('vertical', 0)" class="w-full text-xs bg-white border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded shadow-sm hover:bg-emerald-50 transition font-medium">Draw x = 0</button>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-sm mb-1">(ii) <span class="math-font">x = 2.5</span></p>
+                            <p class="text-xs text-slate-500 mb-2">An upright line sitting exactly halfway between 2 and 3 on the x-axis.</p>
+                            <button onclick="setSandbox('vertical', 2.5)" class="w-full text-xs bg-white border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded shadow-sm hover:bg-emerald-50 transition font-medium">Draw x = 2.5</button>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+
+        // --- Chart Initialization ---
+        const ctx = document.getElementById('mathChart').getContext('2d');
+        
+        let chartInstance = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Line Graph',
+                        data: [],
+                        borderColor: '#4f46e5', // indigo-600 default
+                        backgroundColor: '#4f46e5',
+                        borderWidth: 3,
+                        showLine: true,
+                        tension: 0,
+                        pointRadius: 0 // Hide points
+                    },
+                    {
+                        label: 'Intercept Point',
+                        data: [],
+                        backgroundColor: '#ef4444', // red-500
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 400,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Intercept: (${context.parsed.x}, ${context.parsed.y})`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        min: -5,
+                        max: 5,
+                        grid: {
+                            color: (context) => context.tick.value === 0 ? '#1e293b' : '#e2e8f0',
+                            lineWidth: (context) => context.tick.value === 0 ? 2 : 1
+                        },
+                        ticks: { stepSize: 1 }
+                    },
+                    y: {
+                        min: -5,
+                        max: 5,
+                        grid: {
+                            color: (context) => context.tick.value === 0 ? '#1e293b' : '#e2e8f0',
+                            lineWidth: (context) => context.tick.value === 0 ? 2 : 1
+                        },
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+
+        // --- UI Logic ---
+        const typeToggle = document.getElementById('line-toggle');
+        const valSlider = document.getElementById('val-slider');
+        const sliderValueDisplay = document.getElementById('slider-value');
+        const equationDisplay = document.getElementById('equation-display');
+        const sliderLabel = document.getElementById('slider-label');
+        const sliderDescription = document.getElementById('slider-description');
+
+        function updateGraph() {
+            const isVertical = typeToggle.checked;
+            const val = parseFloat(valSlider.value);
+            
+            // Update UI Labels
+            sliderValueDisplay.textContent = val.toFixed(1);
+            
+            if (isVertical) {
+                // Vertical (x = a) Styling
+                equationDisplay.innerHTML = `x = ${val}`;
+                equationDisplay.className = "text-3xl text-emerald-600 font-bold math-font";
+                sliderLabel.textContent = "Adjust x-intercept (a)";
+                sliderLabel.className = "text-sm font-bold text-emerald-700 uppercase tracking-wider";
+                sliderValueDisplay.className = "text-sm font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-100";
+                sliderDescription.textContent = "Slide to move the vertical line along the x-axis.";
+                valSlider.className = "w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600";
+                
+                // Chart Data update
+                chartInstance.data.datasets[0].data = [
+                    { x: val, y: -10 },
+                    { x: val, y: 10 }
+                ];
+                chartInstance.data.datasets[0].borderColor = '#059669'; // emerald-600
+                chartInstance.data.datasets[1].data = [{ x: val, y: 0 }]; // x-intercept dot
+                
+            } else {
+                // Horizontal (y = c) Styling
+                equationDisplay.innerHTML = `y = ${val}`;
+                equationDisplay.className = "text-3xl text-indigo-700 font-bold math-font";
+                sliderLabel.textContent = "Adjust y-intercept (c)";
+                sliderLabel.className = "text-sm font-bold text-indigo-700 uppercase tracking-wider";
+                sliderValueDisplay.className = "text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md border border-indigo-100";
+                sliderDescription.textContent = "Slide to move the horizontal line up and down the y-axis.";
+                valSlider.className = "w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600";
+                
+                // Chart Data update
+                chartInstance.data.datasets[0].data = [
+                    { x: -10, y: val },
+                    { x: 10, y: val }
+                ];
+                chartInstance.data.datasets[0].borderColor = '#4f46e5'; // indigo-600
+                chartInstance.data.datasets[1].data = [{ x: 0, y: val }]; // y-intercept dot
+            }
+
+            chartInstance.update();
+        }
+
+        // External control for buttons in Tutor panel
+        function setSandbox(type, value) {
+            typeToggle.checked = (type === 'vertical');
+            valSlider.value = value;
+            updateGraph();
+        }
+
+        // Navigation Logic
+        function loadContent(tabId) {
+            const tabs = ['intro', 'we4', 'we5'];
+            tabs.forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                if (t === tabId) {
+                    el.classList.remove('text-slate-500', 'border-transparent');
+                    el.classList.add('text-indigo-600', 'border-indigo-600');
+                } else {
+                    el.classList.add('text-slate-500', 'border-transparent');
+                    el.classList.remove('text-indigo-600', 'border-indigo-600');
+                }
+            });
+
+            document.getElementById('tutor-content').innerHTML = tutorData[tabId];
+            
+            // Reset sandbox to contextual default
+            if(tabId === 'intro') setSandbox('horizontal', 0);
+            if(tabId === 'we4') setSandbox('horizontal', 3);
+            if(tabId === 'we5') setSandbox('vertical', 4);
+        }
+
+        // Event Listeners
+        typeToggle.addEventListener('change', updateGraph);
+        valSlider.addEventListener('input', updateGraph);
+
+        // Initialize
+        loadContent('intro');
+
+    </script>
+</body>
+</html>

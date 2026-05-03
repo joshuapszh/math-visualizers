@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The AC Method Factorisation Visualizer</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 2vh 3vw;
+            height: 96vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            font-size: 22px;
+        }
+        
+        .main-layout { display: flex; gap: 30px; height: 100%; flex: 1; min-height: 0; }
+        .left-panel { width: 40%; display: flex; flex-direction: column; gap: 20px; }
+        .right-panel { 
+            width: 60%; 
+            background: white; 
+            border-radius: 12px; 
+            padding: 30px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        header {
+            padding: 16px 32px;
+            background: #1d4ed8;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+
+        .header-titles h1 { margin: 0; font-size: 2rem; font-weight: 700; }
+        .header-titles .credit { margin: 5px 0 0 0; font-size: 1.2rem; opacity: 0.9; font-weight: 500; }
+
+        .fs-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .fs-btn:hover { background: white; color: #1d4ed8; }
+
+        #controls-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0;}
+        select { font-size: 1.3rem; padding: 12px; border-radius: 8px; border: 2px solid #1d4ed8; width: 100%; cursor: pointer; font-weight: 600;}
+
+        /* Instructions Styling */
+        #instructions-view {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .instruction-step {
+            background: #eff6ff;
+            border-left: 6px solid #1d4ed8;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 1.3rem;
+            line-height: 1.5;
+        }
+        .instruction-step h3 { margin: 0 0 8px 0; color: #1e3a8a; font-size: 1.4rem;}
+
+        /* Puzzle Styling */
+        #puzzle-view { display: none; flex-direction: column; flex-grow: 1; gap: 20px; }
+        
+        .puzzle-box { 
+            padding: 25px; 
+            background: #fffbeb; 
+            border-left: 6px solid #fcd34d; 
+            border-radius: 8px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; 
+        }
+        
+        .puzzle-title { font-weight: bold; color: #b45309; margin-bottom: 15px; font-size: 1.5rem; }
+
+        .target-stats {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #cbd5e1;
+            font-size: 1.4rem;
+            line-height: 1.6;
+        }
+
+        .target-val { font-weight: bold; font-size: 1.6rem; }
+        .prod-color { color: #0284c7; } /* Blue for product */
+        .sum-color { color: #b45309; }  /* Orange for sum */
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-col { flex: 1; display: flex; flex-direction: column; }
+        .input-col label { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; color: #475569; }
+        
+        input[type="number"] {
+            font-size: 2rem;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #94a3b8;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .feedback-box {
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid #cbd5e1;
+            background: white;
+        }
+
+        .feedback-success {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #166534;
+        }
+
+        .button-group { display: flex; gap: 10px; flex-shrink: 0;}
+        button.nav-btn { padding: 15px; font-size: 1.3rem; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; flex: 1; transition: 0.2s; }
+        #next-btn { background: #1d4ed8; color: white; }
+        #next-btn:hover { background: #1e3a8a; }
+        #next-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+        #reset-btn { background: #e2e8f0; color: #333; }
+
+        #question-area {
+            width: 100%;
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            flex-shrink: 0;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1e293b;
+            display: none;
+        }
+
+        #math-display { 
+            font-size: clamp(1.4rem, 2vw, 2.6rem); 
+            width: 100%; 
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+            flex-grow: 1;
+        }
+        
+        .pre-factor-alert {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            border: 2px solid #ef4444;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-titles">
+            <h1>The AC Method: Splitting the Middle Term</h1>
+            <p class="credit">Interactive Visualizer Designed by Joshua Poon</p>
+        </div>
+        <button class="fs-btn" onclick="toggleFullScreen()">Toggle Fullscreen</button>
+    </header>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div id="controls-container">
+                <select id="problem-selector">
+                    <option value="intro">Instructions: How to use the AC Method</option>
+                    <option value="0">Worked Example 1: x² + 5x + 6</option>
+                    <option value="1">Worked Example 2a: x² - x - 12</option>
+                    <option value="2">Worked Example 2b: 2x² - 5x + 3</option>
+                    <option value="3">Worked Example 2c: 6x² - x - 15</option>
+                    <option value="4">Worked Example 2d: -x² - 4x + 21</option>
+                </select>
+            </div>
+
+            <!-- Puzzle View (Hidden by default) -->
+            <div id="puzzle-view">
+                <div id="pre-factor-notice" class="pre-factor-alert" style="display: none;"></div>
+                
+                <div class="puzzle-box">
+                    <div class="puzzle-title">Step 2: The Magic Number Puzzle</div>
+                    
+                    <div class="target-stats">
+                        <strong>Find Target Product (a × c):</strong><br>
+                        <span id="stat-a"></span> × <span id="stat-c"></span> = <span id="target-prod" class="target-val prod-color"></span><br><br>
+                        <strong>Find Target Sum (b):</strong><br>
+                        Target Sum = <span id="target-sum" class="target-val sum-color"></span>
+                    </div>
+
+                    <div style="font-weight: bold; margin-bottom: 10px; color:#1e293b;">Enter two numbers that satisfy both:</div>
+                    <div class="input-row">
+                        <div class="input-col">
+                            <label>Number 1</label>
+                            <input type="number" id="num1" placeholder="?">
+                        </div>
+                        <div class="input-col">
+                            <label>Number 2</label>
+                            <input type="number" id="num2" placeholder="?">
+                        </div>
+                    </div>
+
+                    <div id="feedback" class="feedback-box">
+                        Current Product: <span id="curr-prod" class="prod-color">0</span><br>
+                        Current Sum: <span id="curr-sum" class="sum-color">0</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="reset-btn" class="nav-btn">Reset Puzzle</button>
+                    <button id="next-btn" class="nav-btn" disabled>Reveal Next Step</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <!-- Instructions View -->
+            <div id="instructions-view">
+                <h2 style="margin-top:0; color:#0f172a;">Algorithm: The AC Method</h2>
+                <div class="instruction-step">
+                    <h3>Step 1: Check for Common Factors</h3>
+                    Extract any common numbers or variables shared by ALL terms first. Set them outside a bracket.
+                </div>
+                <div class="instruction-step">
+                    <h3>Step 2: The Magic Number Puzzle</h3>
+                    Look at the inner quadratic <strong>ax² + bx + c</strong>. You must find two numbers that:<br>
+                    • <strong>Multiply</strong> to equal the Target Product <strong>(a × c)</strong><br>
+                    • <strong>Add</strong> to equal the Target Sum <strong>(b)</strong>
+                </div>
+                <div class="instruction-step">
+                    <h3>Step 3: Split the Middle Term</h3>
+                    Rewrite the expression, replacing the middle 'bx' term with your two new magic numbers attached to the variable.
+                </div>
+                <div class="instruction-step">
+                    <h3>Step 4: Factor by Grouping</h3>
+                    Group the four terms into two pairs (the first two, and the last two). Extract the common factor from each pair.
+                </div>
+                <div class="instruction-step">
+                    <h3>Step 5: Final Extraction</h3>
+                    You will be left with identical brackets. Extract this matching bracket to get your final factorised answer!
+                </div>
+                <p style="text-align: center; color: #64748b; font-weight: bold; margin-top: 20px;">Select an example from the dropdown to begin.</p>
+            </div>
+
+            <!-- Math Working View -->
+            <div id="question-area">
+                Factorise: <span id="q-math"></span>
+            </div>
+            
+            <div id="math-display"></div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => alert(err.message));
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+
+        const problems = [
+            {
+                qMath: "x^2 + 5x + 6",
+                a: 1, b: 5, c: 6,
+                preFactor: null,
+                lines: [
+                    "&x^2 \\; \\mathbf{\\textcolor{#b45309}{+ \\; 5x}} \\; + 6 \\\\[0.8em]",
+                    "&\\text{Step 3: Split the middle term} \\\\[0.4em]",
+                    "&= x^2 \\; \\mathbf{\\textcolor{#1d4ed8}{+ \\; 2x \\; + \\; 3x}} \\; + 6 \\\\[0.8em]",
+                    "&\\text{Step 4: Factor by grouping (first two, last two)} \\\\[0.4em]",
+                    "&= x(x + 2) + 3(x + 2) \\\\[0.8em]",
+                    "&\\text{Step 5: Extract the common bracket} \\\\[0.4em]",
+                    "&= \\mathbf{(x + 2)(x + 3)}"
+                ]
+            },
+            {
+                qMath: "x^2 - x - 12",
+                a: 1, b: -1, c: -12,
+                preFactor: null,
+                lines: [
+                    "&x^2 \\; \\mathbf{\\textcolor{#b45309}{- \\; x}} \\; - 12 \\\\[0.8em]",
+                    "&\\text{Step 3: Split the middle term} \\\\[0.4em]",
+                    "&= x^2 \\; \\mathbf{\\textcolor{#1d4ed8}{- \\; 4x \\; + \\; 3x}} \\; - 12 \\\\[0.8em]",
+                    "&\\text{Step 4: Factor by grouping} \\\\[0.4em]",
+                    "&= x(x - 4) + 3(x - 4) \\\\[0.8em]",
+                    "&\\text{Step 5: Extract the common bracket} \\\\[0.4em]",
+                    "&= \\mathbf{(x + 3)(x - 4)}"
+                ]
+            },
+            {
+                qMath: "2x^2 - 5x + 3",
+                a: 2, b: -5, c: 3,
+                preFactor: null,
+                lines: [
+                    "&2x^2 \\; \\mathbf{\\textcolor{#b45309}{- \\; 5x}} \\; + 3 \\\\[0.8em]",
+                    "&\\text{Step 3: Split the middle term} \\\\[0.4em]",
+                    "&= 2x^2 \\; \\mathbf{\\textcolor{#1d4ed8}{- \\; 2x \\; - \\; 3x}} \\; + 3 \\\\[0.8em]",
+                    "&\\text{Step 4: Factor by grouping} \\\\[0.4em]",
+                    "&= 2x(x - 1) - 3(x - 1) \\\\[0.8em]",
+                    "&\\text{Step 5: Extract the common bracket} \\\\[0.4em]",
+                    "&= \\mathbf{(2x - 3)(x - 1)}"
+                ]
+            },
+            {
+                qMath: "6x^2 - x - 15",
+                a: 6, b: -1, c: -15,
+                preFactor: null,
+                lines: [
+                    "&6x^2 \\; \\mathbf{\\textcolor{#b45309}{- \\; x}} \\; - 15 \\\\[0.8em]",
+                    "&\\text{Step 3: Split the middle term} \\\\[0.4em]",
+                    "&= 6x^2 \\; \\mathbf{\\textcolor{#1d4ed8}{- \\; 10x \\; + \\; 9x}} \\; - 15 \\\\[0.8em]",
+                    "&\\text{Step 4: Factor by grouping} \\\\[0.4em]",
+                    "&= 2x(3x - 5) + 3(3x - 5) \\\\[0.8em]",
+                    "&\\text{Step 5: Extract the common bracket} \\\\[0.4em]",
+                    "&= \\mathbf{(2x + 3)(3x - 5)}"
+                ]
+            },
+            {
+                qMath: "-x^2 - 4x + 21",
+                a: -1, b: -4, c: 21,
+                preFactor: null,
+                lines: [
+                    "&-x^2 \\; \\mathbf{\\textcolor{#b45309}{- \\; 4x}} \\; + 21 \\\\[0.8em]",
+                    "&\\text{Step 3: Split the middle term} \\\\[0.4em]",
+                    "&= -x^2 \\; \\mathbf{\\textcolor{#1d4ed8}{- \\; 7x \\; + \\; 3x}} \\; + 21 \\\\[0.8em]",
+                    "&\\text{Step 4: Factor by grouping (pull out -x from first group)} \\\\[0.4em]",
+                    "&= -x(x + 7) + 3(x + 7) \\\\[0.8em]",
+                    "&\\text{Step 5: Extract the common bracket} \\\\[0.4em]",
+                    "&= \\mathbf{(-x + 3)(x + 7)}"
+                ]
+            }
+        ];
+
+        let currentProb = "intro";
+        let puzzleSolved = false;
+        let showStep = 0; 
+
+        const instView = document.getElementById('instructions-view');
+        const puzzView = document.getElementById('puzzle-view');
+        const questArea = document.getElementById('question-area');
+        
+        const in1 = document.getElementById('num1');
+        const in2 = document.getElementById('num2');
+        const feedBox = document.getElementById('feedback');
+        const currProd = document.getElementById('curr-prod');
+        const currSum = document.getElementById('curr-sum');
+        const nextBtn = document.getElementById('next-btn');
+        const mathDisp = document.getElementById('math-display');
+        const preFactAlert = document.getElementById('pre-factor-notice');
+
+        function loadProblem() {
+            const selectorVal = document.getElementById('problem-selector').value;
+            
+            if (selectorVal === "intro") {
+                instView.style.display = "flex";
+                puzzView.style.display = "none";
+                questArea.style.display = "none";
+                mathDisp.innerHTML = '';
+                return;
+            }
+
+            instView.style.display = "none";
+            puzzView.style.display = "flex";
+            questArea.style.display = "block";
+
+            currentProb = parseInt(selectorVal);
+            const p = problems[currentProb];
+            
+            // Render Math Header
+            katex.render(p.qMath, document.getElementById('q-math'), { displayMode: false });
+            
+            // Handle Pre-Factor Warning
+            if (p.preFactor) {
+                preFactAlert.innerText = p.preFactor;
+                preFactAlert.style.display = "block";
+            } else {
+                preFactAlert.style.display = "none";
+            }
+
+            // Set Target Stats
+            document.getElementById('stat-a').innerText = p.a;
+            document.getElementById('stat-c').innerText = p.c;
+            document.getElementById('target-prod').innerText = (p.a * p.c);
+            document.getElementById('target-sum').innerText = p.b;
+
+            resetPuzzle();
+        }
+
+        function resetPuzzle() {
+            in1.value = '';
+            in2.value = '';
+            puzzleSolved = false;
+            showStep = 0;
+            nextBtn.disabled = true;
+            nextBtn.innerText = "Reveal Next Step";
+            feedBox.className = 'feedback-box';
+            currProd.innerText = "0";
+            currSum.innerText = "0";
+            mathDisp.innerHTML = '';
+        }
+
+        function checkPuzzle() {
+            if(currentProb === "intro") return;
+            
+            const p = problems[currentProb];
+            const targetProd = p.a * p.c;
+            const targetSum = p.b;
+            
+            const v1 = parseInt(in1.value);
+            const v2 = parseInt(in2.value);
+
+            if (isNaN(v1) || isNaN(v2)) {
+                feedBox.className = 'feedback-box';
+                currProd.innerText = "?";
+                currSum.innerText = "?";
+                puzzleSolved = false;
+                nextBtn.disabled = true;
+                return;
+            }
+
+            const prod = v1 * v2;
+            const sum = v1 + v2;
+
+            currProd.innerText = prod;
+            currSum.innerText = sum;
+
+            if (prod === targetProd && sum === targetSum) {
+                feedBox.className = 'feedback-box feedback-success';
+                currProd.innerHTML = `${prod} &#10004;`;
+                currSum.innerHTML = `${sum} &#10004;`;
+                puzzleSolved = true;
+                if(showStep === 0) {
+                    nextBtn.disabled = false;
+                    nextBtn.innerText = "Step 3: Split the Middle Term";
+                }
+            } else {
+                feedBox.className = 'feedback-box';
+                puzzleSolved = false;
+                nextBtn.disabled = true;
+            }
+        }
+
+        function renderMathSteps() {
+            if(currentProb === "intro") return;
+            
+            const p = problems[currentProb];
+            let activeLines = [];
+
+            if (showStep >= 1) activeLines = p.lines.slice(0, 3); // Show split
+            if (showStep >= 2) activeLines = p.lines.slice(0, 5); // Show grouping
+            if (showStep >= 3) activeLines = p.lines; // Show final answer
+
+            if (activeLines.length > 0) {
+                const mathStr = "\\begin{aligned} " + activeLines.join(" ") + " \\end{aligned}";
+                katex.render(mathStr, mathDisp, { displayMode: true, strict: false });
+            }
+
+            // Update button text based on state
+            if (showStep === 1) nextBtn.innerText = "Step 4: Factor by Grouping";
+            else if (showStep === 2) nextBtn.innerText = "Step 5: Final Extraction";
+            else if (showStep === 3) {
+                nextBtn.innerText = "Finished";
+                nextBtn.disabled = true;
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('problem-selector').addEventListener('change', loadProblem);
+        in1.addEventListener('input', checkPuzzle);
+        in2.addEventListener('input', checkPuzzle);
+        document.getElementById('reset-btn').addEventListener('click', resetPuzzle);
+
+        nextBtn.addEventListener('click', () => {
+            if (puzzleSolved && showStep < 3) {
+                showStep++;
+                renderMathSteps();
+            }
+        });
+
+        // Initialize
+        window.onload = loadProblem;
+    </script>
+</body>
+</html>

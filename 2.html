@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 2.1 & 2.2: Linear Inequalities</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 2vh 3vw;
+            height: 96vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            font-size: 22px;
+        }
+        
+        .main-layout { display: flex; gap: 30px; height: 100%; flex: 1; min-height: 0; }
+        .left-panel { width: 38%; display: flex; flex-direction: column; gap: 20px; }
+        .right-panel { 
+            width: 62%; 
+            background: white; 
+            border-radius: 12px; 
+            padding: 30px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+
+        header {
+            padding: 16px 32px;
+            background: #1d4ed8;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+
+        .header-titles h1 { margin: 0; font-size: 2rem; font-weight: 700; }
+        .header-titles .credit { margin: 5px 0 0 0; font-size: 1.2rem; opacity: 0.9; font-weight: 500; }
+
+        .fs-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .fs-btn:hover { background: white; color: #1d4ed8; }
+
+        #controls-container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-shrink: 0;}
+        select { font-size: 1.2rem; padding: 12px; border-radius: 8px; border: 2px solid #1d4ed8; width: 100%; cursor: pointer; font-weight: 600;}
+
+        #explanation-box { font-size: 1.4rem; line-height: 1.5; padding: 25px; background: #eff6ff; border-left: 6px solid #1d4ed8; border-radius: 8px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; overflow-y: auto;}
+        .explanation-title { font-weight: bold; color: #1e3a8a; margin-bottom: 10px; font-size: 1.4rem; }
+
+        .button-group { display: flex; gap: 10px; flex-shrink: 0;}
+        button.nav-btn { padding: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 8px; border: none; flex: 1; transition: 0.2s; }
+        #next-btn { background: #1d4ed8; color: white; }
+        #next-btn:hover { background: #1e3a8a; }
+        #prev-btn, #reset-btn { background: #e2e8f0; color: #333; }
+
+        #question-area {
+            width: 100%;
+            background: #fffbeb;
+            border-left: 6px solid #fcd34d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        #q-text { font-size: 1.3rem; line-height: 1.5; color: #b45309; margin: 0; font-weight: bold; }
+        .sub-parts { color: #1e293b; font-weight: 500; display: block; margin-top: 8px; font-size: 1.2rem;}
+
+        #math-display { 
+            font-size: clamp(1.2rem, 1.8vw, 2.2rem); 
+            width: 100%; 
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+            flex-grow: 1;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 180px;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+            flex-shrink: 0;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .keyboard-hint { text-align: center; color: #64748b; font-size: 0.95rem; margin-top: 10px; font-weight: 500; flex-shrink: 0;}
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-titles">
+            <h1>Ch 2: Linear Inequalities</h1>
+            <p class="credit">Interactive Visualizer Designed by Joshua Poon</p>
+        </div>
+        <button class="fs-btn" onclick="toggleFullScreen()">Toggle Fullscreen</button>
+    </header>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div id="controls-container">
+                <select id="problem-selector">
+                    <option value="0">2.1 Concept: Inequality Rules</option>
+                    <option value="1">2.1 Worked Ex 1a: Standard Solve</option>
+                    <option value="2">2.1 Worked Ex 1c: The Negative Flip</option>
+                    <option value="3">2.1 Worked Ex 4b: Fractions</option>
+                    <option value="4">2.2 Worked Ex 1: Budget Maximums</option>
+                    <option value="5">2.2 Worked Ex 5: Value Constraints</option>
+                </select>
+            </div>
+
+            <div id="explanation-box">
+                <div class="explanation-title" id="exp-title">Teaching Logic</div>
+                <div id="exp-text">Loading...</div>
+            </div>
+
+            <div class="button-group">
+                <button id="reset-btn" class="nav-btn">Reset</button>
+                <button id="prev-btn" class="nav-btn">Prev</button>
+                <button id="next-btn" class="nav-btn">Next Step</button>
+            </div>
+            <div class="keyboard-hint">💡 Tip: Use Left ⬅️ and Right ➡️ arrow keys to navigate.</div>
+        </div>
+
+        <div class="right-panel">
+            <div id="question-area">
+                <p id="q-text"></p>
+                <div id="q-sub-parts"></div>
+            </div>
+            
+            <div id="math-display"></div>
+
+            <div class="canvas-container" id="nl-container">
+                <canvas id="numberLineCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => alert(err.message));
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+
+        const problems = [
+            {
+                // 0: Concept
+                question: "Section 2.1: Simple Linear Inequalities",
+                subParts: ["Understanding inequality signs, negative flips, and number lines."],
+                lines: [
+                    "&< \\quad \\text{less than (hollow circle)} \\\\[0.6em]",
+                    "&\\le \\quad \\text{less than or equal to (solid circle)} \\\\[1.2em]",
+                    "&\\textbf{The Golden Rule of Inequalities:} \\\\[0.4em]",
+                    "&\\text{When you multiply or divide both sides by a} \\\\[0.4em]",
+                    "&\\mathbf{NEGATIVE} \\text{ number, the inequality sign } \\mathbf{is \\ reversed}."
+                ],
+                texts: [
+                    "Inequalities are solved exactly like normal equations, but instead of one answer, they represent a range of solutions.",
+                    "On a number line, we use a hollow circle for < and > to show the number is NOT included. We use a solid circle for ≤ and ≥.",
+                    "There is only one major difference between equations and inequalities, known as the Golden Rule.",
+                    "If you ever multiply or divide by a negative number across the inequality...",
+                    "...you MUST flip the direction of the sign! (e.g., > becomes <). Let's see this in action."
+                ],
+                hasNumberLine: false
+            },
+            {
+                // 1: Worked Example 1a
+                question: "Worked Example 1a: Standard Solve",
+                subParts: ["Solve and illustrate on a number line: 3x ≤ 24"],
+                lines: [
+                    "&3x \\le 24 \\\\[0.8em]",
+                    "&\\frac{3x}{3} \\le \\frac{24}{3} \\\\[0.8em]",
+                    "&x \\le 8"
+                ],
+                texts: [
+                    "Write out the inequality.",
+                    "Divide both sides by positive 3. Since it is a positive number, the sign stays exactly the same.",
+                    "The solution is x is less than or equal to 8. Because of the 'or equal to', we graph this with a solid circle and an arrow pointing left."
+                ],
+                hasNumberLine: true,
+                nlTriggerStep: 2,
+                nlConfig: { val: 8, op: "<=", min: 3, max: 13, step: 1 }
+            },
+            {
+                // 2: Worked Example 1c
+                question: "Worked Example 1c: The Negative Flip",
+                subParts: ["Solve and illustrate on a number line: -5x ≤ 30"],
+                lines: [
+                    "&-5x \\le 30 \\\\[0.8em]",
+                    "&\\frac{-5x}{-5} \\ge \\frac{30}{-5} \\quad \\leftarrow \\text{\\textcolor{#ef4444}{SIGN REVERSED!}} \\\\[0.8em]",
+                    "&x \\ge -6"
+                ],
+                texts: [
+                    "Write out the inequality.",
+                    "WARNING: To isolate x, we must divide both sides by NEGATIVE 5. This triggers the Golden Rule. The ≤ sign flips to ≥.",
+                    "The solution is x ≥ -6. We plot this with a solid circle at -6, with an arrow pointing to the right."
+                ],
+                hasNumberLine: true,
+                nlTriggerStep: 2,
+                nlConfig: { val: -6, op: ">=", min: -10, max: -2, step: 1 }
+            },
+            {
+                // 3: Worked Example 4b
+                question: "Worked Example 4b: Fractional Inequalities",
+                subParts: ["Solve the inequality: x/3 - x/2 ≥ 1¼"],
+                lines: [
+                    "&\\frac{x}{3} - \\frac{x}{2} \\ge 1\\frac{1}{4} \\implies \\frac{x}{3} - \\frac{x}{2} \\ge \\frac{5}{4} \\\\[0.8em]",
+                    "&\\frac{2x - 3x}{6} \\ge \\frac{5}{4} \\implies \\frac{-x}{6} \\ge \\frac{5}{4} \\\\[0.8em]",
+                    "&-6\\left(\\frac{-x}{6}\\right) \\le -6\\left(\\frac{5}{4}\\right) \\quad \\leftarrow \\text{\\textcolor{#ef4444}{SIGN REVERSED!}} \\\\[0.8em]",
+                    "&x \\le -\\frac{30}{4} \\implies x \\le -7\\frac{1}{2}"
+                ],
+                texts: [
+                    "First, convert the mixed number (1¼) into an improper fraction (5/4) to make calculations easier.",
+                    "Find the common denominator for the left side (6) and combine the fractions. 2x - 3x simplifies to -x.",
+                    "To isolate x, multiply both sides by -6. Because we multiplied by a negative, we FLIP the sign from ≥ to ≤!",
+                    "Simplify the resulting fraction to get the final answer. The solution is plotted below."
+                ],
+                hasNumberLine: true,
+                nlTriggerStep: 3,
+                nlConfig: { val: -7.5, op: "<=", min: -10, max: -4, step: 1 }
+            },
+            {
+                // 4: Sec 2.2 Worked Example 1
+                question: "Section 2.2 Worked Example 1: Budget Maximums",
+                subParts: ["A paper file costs 40 cents.", "Find the maximum number of paper files that can be bought with $3."],
+                lines: [
+                    "&\\text{Let number of files = } x \\\\[0.6em]",
+                    "&40x \\le 300 \\quad \\text{(Convert } \\$3 \\text{ to } 300 \\text{ cents)} \\\\[0.6em]",
+                    "&x \\le \\frac{300}{40} \\implies x \\le 7.5 \\\\[0.8em]",
+                    "&\\therefore \\text{The maximum number of files is } \\mathbf{7}."
+                ],
+                texts: [
+                    "Step 1: Define the unknown variable x as the number of files we want to buy.",
+                    "Step 2: Form the inequality. You cannot spend MORE than your budget, so we use the ≤ sign. Convert $3 to 300 cents so the units match.",
+                    "Step 3: Solve the inequality by dividing by 40. We find that x must be less than or equal to 7.5.",
+                    "Step 4: Real-world logic! You cannot buy half a file. Looking at the number line, the largest whole number in our valid range is 7."
+                ],
+                hasNumberLine: true,
+                nlTriggerStep: 2,
+                nlConfig: { val: 7.5, op: "<=", min: 5, max: 10, step: 1 }
+            },
+            {
+                // 5: Sec 2.2 Worked Example 5
+                question: "Section 2.2 Worked Example 5: Value Constraints",
+                subParts: ["Isabella has 15 pieces of $5 and $2 notes.", "The total value is strictly less than $57.", "Find the maximum number of $5 notes she has."],
+                lines: [
+                    "&\\text{Let number of } \\$5 \\text{ notes} = x \\\\[0.4em]",
+                    "&\\text{Number of } \\$2 \\text{ notes} = 15 - x \\\\[0.6em]",
+                    "&5x + 2(15 - x) < 57 \\\\[0.6em]",
+                    "&5x + 30 - 2x < 57 \\implies 3x < 27 \\\\[0.6em]",
+                    "&x < 9 \\\\[0.6em]",
+                    "&\\therefore \\text{Isabella has at most } \\mathbf{8} \\text{ pieces of } \\$5 \\text{ notes.}"
+                ],
+                texts: [
+                    "Define x as the quantity we want to find (the number of $5 notes).",
+                    "If there are 15 notes in total, the remaining notes must be $2 notes. We write this as (15 - x).",
+                    "Write the inequality for the total value. The prompt says 'less than', so we use the strict < sign.",
+                    "Expand the brackets and combine the x terms (5x - 2x = 3x). Subtract 30 from 57.",
+                    "Divide by 3. The math tells us x must be strictly less than 9.",
+                    "Real-world logic: Because x must be LESS than 9 (hollow circle), the largest possible whole number in the range is 8."
+                ],
+                hasNumberLine: true,
+                nlTriggerStep: 4,
+                nlConfig: { val: 9, op: "<", min: 4, max: 12, step: 1 }
+            }
+        ];
+
+        let currentProb = 0;
+        let currentStep = 0;
+
+        const mathDisp = document.getElementById('math-display');
+        const qText = document.getElementById('q-text');
+        const qSubParts = document.getElementById('q-sub-parts');
+        const expTitle = document.getElementById('exp-title');
+        const expText = document.getElementById('exp-text');
+        const selector = document.getElementById('problem-selector');
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const canvasContainer = document.getElementById('nl-container');
+        const canvas = document.getElementById('numberLineCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Custom Vanilla Canvas Number Line Drawer
+        function drawNumberLine(config) {
+            // Setup canvas resolution for crispness
+            const rect = canvasContainer.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = rect.height * 2;
+            ctx.scale(2, 2);
+            
+            const w = rect.width;
+            const h = rect.height;
+            const padX = 40;
+            const lineY = h / 2 + 10;
+            
+            ctx.clearRect(0, 0, w, h);
+
+            // Draw main axis line
+            ctx.beginPath();
+            ctx.moveTo(padX, lineY);
+            ctx.lineTo(w - padX, lineY);
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Calculate scale
+            const range = config.max - config.min;
+            const pixelsPerUnit = (w - 2*padX) / range;
+
+            // Draw Ticks and Labels
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            for(let i = config.min; i <= config.max; i += config.step) {
+                let x = padX + (i - config.min) * pixelsPerUnit;
+                
+                // Tick
+                ctx.beginPath();
+                ctx.moveTo(x, lineY - 8);
+                ctx.lineTo(x, lineY + 8);
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Label
+                ctx.fillText(i.toString(), x, lineY + 15);
+            }
+
+            // Calculate marker position
+            const valX = padX + (config.val - config.min) * pixelsPerUnit;
+
+            // Draw Inequality Arrow
+            ctx.beginPath();
+            const arrowY = lineY - 35;
+            ctx.moveTo(valX, arrowY);
+            
+            const isLeft = config.op === '<=' || config.op === '<';
+            const endX = isLeft ? padX - 10 : w - padX + 10;
+            
+            ctx.lineTo(endX, arrowY);
+            ctx.strokeStyle = '#1d4ed8'; // Primary Blue
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+            // Draw Arrowhead
+            ctx.beginPath();
+            ctx.moveTo(endX, arrowY);
+            if(isLeft) {
+                ctx.lineTo(endX + 15, arrowY - 10);
+                ctx.lineTo(endX + 15, arrowY + 10);
+            } else {
+                ctx.lineTo(endX - 15, arrowY - 10);
+                ctx.lineTo(endX - 15, arrowY + 10);
+            }
+            ctx.fillStyle = '#1d4ed8';
+            ctx.fill();
+
+            // Connect marker to arrow
+            ctx.beginPath();
+            ctx.moveTo(valX, lineY);
+            ctx.lineTo(valX, arrowY);
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Draw Circle Marker (Solid vs Hollow)
+            ctx.beginPath();
+            ctx.arc(valX, lineY, 8, 0, 2 * Math.PI);
+            
+            if (config.op === '<=' || config.op === '>=') {
+                ctx.fillStyle = '#1d4ed8'; // Solid
+                ctx.fill();
+            } else {
+                ctx.fillStyle = '#ffffff'; // Hollow
+                ctx.fill();
+                ctx.strokeStyle = '#1d4ed8';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            }
+        }
+
+        function renderState() {
+            const p = problems[currentProb];
+            qText.innerText = p.question;
+            qSubParts.innerHTML = p.subParts.map(part => `<span class="sub-parts">${part}</span>`).join('');
+
+            // Render equations progressively
+            const activeLines = p.lines.slice(0, currentStep + 1);
+            const math = "\\begin{aligned} " + activeLines.join(" ") + " \\end{aligned}";
+            
+            katex.render(math, mathDisp, { 
+                displayMode: true,
+                strict: false 
+            });
+            
+            expTitle.innerText = `Step ${currentStep + 1} of ${p.lines.length}`;
+            expText.innerText = p.texts[currentStep];
+
+            // Render Number Line Logic
+            if (p.hasNumberLine && currentStep >= p.nlTriggerStep) {
+                canvasContainer.style.display = 'block';
+                drawNumberLine(p.nlConfig);
+            } else {
+                canvasContainer.style.display = 'none';
+            }
+
+            // Button Logic
+            prevBtn.disabled = currentStep === 0;
+            if(currentStep === p.lines.length - 1) {
+                nextBtn.innerText = "Finished";
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.innerText = "Next Step";
+                nextBtn.disabled = false;
+            }
+            document.activeElement.blur();
+        }
+
+        selector.addEventListener('change', (e) => {
+            currentProb = parseInt(e.target.value);
+            currentStep = 0;
+            renderState();
+        });
+
+        nextBtn.onclick = () => { if (currentStep < problems[currentProb].lines.length - 1) { currentStep++; renderState(); } };
+        prevBtn.onclick = () => { if (currentStep > 0) { currentStep--; renderState(); } };
+        document.getElementById('reset-btn').onclick = () => { currentStep = 0; renderState(); };
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') document.getElementById('next-btn').click();
+            if(e.key === 'ArrowLeft') document.getElementById('prev-btn').click();
+        });
+
+        // Handle window resize for canvas redrawing
+        window.addEventListener('resize', () => {
+            const p = problems[currentProb];
+            if (p.hasNumberLine && currentStep >= p.nlTriggerStep) {
+                drawNumberLine(p.nlConfig);
+            }
+        });
+
+        window.onload = renderState;
+    </script>
+</body>
+</html>
