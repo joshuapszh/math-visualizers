@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Mathematics Tutorial: Proportions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #faf8f5; color: #292524; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 4px; }
+        .step-hidden { opacity: 0; transform: translateY(10px); transition: all 0.3s ease-out; height: 0; overflow: hidden; }
+        .step-visible { opacity: 1; transform: translateY(0); height: auto; margin-top: 1rem; margin-bottom: 1rem; padding: 1rem; border-left: 4px solid #d97706; background-color: #fffbeb; }
+        .inverse-step { border-left-color: #0d9488; background-color: #f0fdfa; }
+        .math-font { font-family: 'Cambria Math', 'Times New Roman', serif; letter-spacing: 0.05em; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Chosen Palette: Warm Neutrals (Stone) with Amber (Direct) and Teal (Inverse) accents for clear visual distinction and calm learning environment. -->
+    <!-- Application Structure Plan: A split-pane dashboard. The left sidebar acts as a curriculum navigator, grouping topics by Direct vs. Inverse proportion. The right main area is the interactive workspace. This structure is chosen to allow students to non-linearly explore specific problem types (concepts, equations, graphs) while maintaining the contextual split between the two core mathematical principles. Interactive step-by-step revealers prevent cognitive overload and encourage active learning. -->
+    <!-- Visualization & Content Choices: 
+         - Data/Tables -> Interactive validation -> Goal: Inform/Organize -> Method: HTML Grid with JS calculation injection -> Justification: Shows the user *how* to test for k, rather than just telling them.
+         - Algebraic Equations -> Step-by-Step Reveal -> Goal: Change/Process -> Method: HTML/CSS transitions with JS state -> Justification: Prevents students from being overwhelmed by a wall of math; mimics a tutor writing on a board.
+         - Graphing Questions (Q36, Q70) -> Dynamic Chart.js -> Goal: Relationships -> Method: Chart.js Canvas -> Justification: Allows students to see the curve (or line) form dynamically from the data points they just learned about. NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <header class="bg-white shadow-sm border-b border-stone-200 z-10 sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl font-bold text-stone-800">&#8733;</span>
+                <h1 class="text-xl font-bold text-stone-800 tracking-tight">Proportions Explorer</h1>
+            </div>
+            <div class="flex gap-2 bg-stone-100 p-1 rounded-lg border border-stone-200">
+                <button id="btn-direct" class="px-4 py-2 rounded-md text-sm font-semibold transition-colors bg-white shadow-sm text-amber-700" onclick="switchMode('direct')">Direct Proportion</button>
+                <button id="btn-inverse" class="px-4 py-2 rounded-md text-sm font-semibold transition-colors text-stone-500 hover:text-stone-700 hover:bg-stone-200" onclick="switchMode('inverse')">Inverse Proportion</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 max-w-7xl mx-auto w-full flex flex-col md:flex-row overflow-hidden">
+        <nav class="w-full md:w-64 flex-shrink-0 bg-stone-50 border-r border-stone-200 overflow-y-auto p-4 flex flex-col gap-2" id="sidebar">
+        </nav>
+
+        <main class="flex-1 bg-white overflow-y-auto p-6 md:p-10" id="main-content">
+        </main>
+    </div>
+
+    <script>
+        const appData = {
+            direct: {
+                themeColor: 'amber',
+                introTitle: "Direct Proportion",
+                introText: "When two variables are in direct proportion, their ratio is constant (y / x = k). Graphically, this relationship always forms a perfectly straight line that passes exactly through the origin (0, 0). Explore the concepts, equations, and graphs below.",
+                questions: [
+                    {
+                        id: 'd-concept',
+                        title: 'Concepts: Q1 & Q2',
+                        type: 'concept',
+                        description: 'Identify direct proportions from tables and graphs by checking for a constant ratio and linear origin.',
+                        tables: [
+                            { name: 'Table A', x: [4, 8, 10, 15], y: [50, 100, 125, 180], isCorrect: false },
+                            { name: 'Table B', x: [2, 4, 6, 8], y: [32, 64, 96, 128], isCorrect: true }
+                        ],
+                        formula: 'y / x = k'
+                    },
+                    {
+                        id: 'd-q4',
+                        title: 'Solving Q4: Basic Equation',
+                        type: 'step',
+                        problem: 'y is directly proportional to x. If y = 20 when x = 12, find y when x = 30.',
+                        steps: [
+                            'Write the base equation for direct proportion: <span class="math-font font-bold text-lg">y = kx</span>',
+                            'Substitute the known values (y=20, x=12) to find k: <span class="math-font font-bold text-lg">20 = k(12)</span>',
+                            'Solve for k: <span class="math-font font-bold text-lg">k = 20 / 12 = 5/3</span>',
+                            'Write the specific equation: <span class="math-font font-bold text-lg">y = (5/3)x</span>',
+                            'Substitute x = 30 into the new equation: <span class="math-font font-bold text-lg">y = (5/3)(30)</span>',
+                            'Calculate the final answer: <span class="math-font font-bold text-lg">y = 50</span>'
+                        ]
+                    },
+                    {
+                        id: 'd-q10',
+                        title: 'Solving Q10: Expression (x\u00B3 + 3)',
+                        type: 'step',
+                        problem: 'y is directly proportional to (x\u00B3 + 3). Given y = 22 when x = 2, find x when y = 6.25',
+                        steps: [
+                            'Write the base equation: <span class="math-font font-bold text-lg">y = k(x\u00B3 + 3)</span>',
+                            'Substitute knowns (y=22, x=2): <span class="math-font font-bold text-lg">22 = k(2\u00B3 + 3)</span>',
+                            'Simplify to find k: <span class="math-font font-bold text-lg">22 = k(8 + 3) &#8594; 22 = 11k &#8594; k = 2</span>',
+                            'Specific equation: <span class="math-font font-bold text-lg">y = 2(x\u00B3 + 3)</span>',
+                            'Substitute y = 6.25 (or 25/4): <span class="math-font font-bold text-lg">25/4 = 2(x\u00B3 + 3)</span>',
+                            'Divide by 2: <span class="math-font font-bold text-lg">25/8 = x\u00B3 + 3</span>',
+                            'Subtract 3 (24/8): <span class="math-font font-bold text-lg">x\u00B3 = 1/8</span>',
+                            'Cube root both sides: <span class="math-font font-bold text-lg">x = 1/2</span>'
+                        ]
+                    },
+                    {
+                        id: 'd-q35',
+                        title: 'Solving Q35: Dual Expressions',
+                        type: 'step',
+                        problem: '(y + 1) is directly proportional to \u221Ax. If y = 47 when x = 16, find y when x = 25.',
+                        steps: [
+                            'Write the base equation: <span class="math-font font-bold text-lg">y + 1 = k\u221Ax</span>',
+                            'Substitute knowns: <span class="math-font font-bold text-lg">47 + 1 = k\u221A16</span>',
+                            'Simplify to find k: <span class="math-font font-bold text-lg">48 = k(4) &#8594; k = 12</span>',
+                            'Specific equation: <span class="math-font font-bold text-lg">y + 1 = 12\u221Ax</span>',
+                            'Substitute x = 25: <span class="math-font font-bold text-lg">y + 1 = 12\u221A25</span>',
+                            'Calculate: <span class="math-font font-bold text-lg">y + 1 = 12(5) = 60</span>',
+                            'Final answer: <span class="math-font font-bold text-lg">y = 59</span>'
+                        ]
+                    },
+                    {
+                        id: 'd-q36',
+                        title: 'Graphing Q36: y \u221D x\u00B2',
+                        type: 'chart',
+                        problem: 'y varies directly as x\u00B2. Complete the table and sketch the graph. Given pair: x=1, y=2.',
+                        equation: 'y = 2x\u00B2',
+                        xAxisLabel: 'x\u00B2',
+                        labels: [1, 4, 9, 25],
+                        data: [2, 8, 18, 50],
+                        rawX: [1, 2, 3, 5]
+                    }
+                ]
+            },
+            inverse: {
+                themeColor: 'teal',
+                introTitle: "Inverse Proportion",
+                introText: "When two variables are in inverse proportion, their product is constant (x * y = k). Graphically, plotting y against x forms a hyperbola (a curve approaching the axes), while plotting y against 1/x forms a straight line passing through the origin.",
+                questions: [
+                    {
+                        id: 'i-concept',
+                        title: 'Concepts: Q47 & Q48',
+                        type: 'concept',
+                        description: 'Identify inverse proportions by checking if the product of x and y is a constant (xy = k).',
+                        tables: [
+                            { name: 'Table A', x: [3, 5, 6, 9], y: [30, 18, 15, 10], isCorrect: true },
+                            { name: 'Table B', x: [4, 6, 12, 17], y: [27, 18, 9, 5], isCorrect: false }
+                        ],
+                        formula: 'x * y = k'
+                    },
+                    {
+                        id: 'i-q50',
+                        title: 'Solving Q50: Basic Equation',
+                        type: 'step',
+                        problem: 'y is inversely proportional to x. If y = 18 when x = 4, find x when y = 50.',
+                        steps: [
+                            'Write the base equation for inverse proportion: <span class="math-font font-bold text-lg">y = k / x</span>',
+                            'Substitute knowns (y=18, x=4): <span class="math-font font-bold text-lg">18 = k / 4</span>',
+                            'Solve for k: <span class="math-font font-bold text-lg">k = 18 * 4 = 72</span>',
+                            'Specific equation: <span class="math-font font-bold text-lg">y = 72 / x</span>',
+                            'Substitute y = 50: <span class="math-font font-bold text-lg">50 = 72 / x</span>',
+                            'Rearrange and solve: <span class="math-font font-bold text-lg">x = 72 / 50 = 1.44</span>'
+                        ]
+                    },
+                    {
+                        id: 'i-q68',
+                        title: 'Solving Q68: Complex Expression',
+                        type: 'step',
+                        problem: 'y varies inversely as (3x-2)\u00B2. When x = 4, y = 1/200. Find x if y = 2/25 (given x < 0).',
+                        steps: [
+                            'Base equation: <span class="math-font font-bold text-lg">y = k / (3x-2)\u00B2</span>',
+                            'Substitute knowns: <span class="math-font font-bold text-lg">1/200 = k / (3(4)-2)\u00B2</span>',
+                            'Simplify denominator: <span class="math-font font-bold text-lg">1/200 = k / (10)\u00B2 = k / 100</span>',
+                            'Solve for k: <span class="math-font font-bold text-lg">k = 100 / 200 = 1/2</span>',
+                            'Specific equation: <span class="math-font font-bold text-lg">y = 1 / (2(3x-2)\u00B2)</span>',
+                            'Substitute y = 2/25: <span class="math-font font-bold text-lg">2/25 = 1 / (2(3x-2)\u00B2)</span>',
+                            'Cross-multiply: <span class="math-font font-bold text-lg">4(3x-2)\u00B2 = 25 &#8594; (3x-2)\u00B2 = 25/4</span>',
+                            'Square root (remember \u00B1): <span class="math-font font-bold text-lg">3x - 2 = \u00B12.5</span>',
+                            'Solve negative case (since x < 0): <span class="math-font font-bold text-lg">3x = -0.5 &#8594; x = -1/6</span>'
+                        ]
+                    },
+                    {
+                        id: 'i-q69',
+                        title: 'Solving Q69: Dual Expressions',
+                        type: 'step',
+                        problem: '(y-2) is inversely proportional to (x+1). Table shows x=4, y=3. Find y when x=9.',
+                        steps: [
+                            'Base equation: <span class="math-font font-bold text-lg">y - 2 = k / (x + 1)</span>',
+                            'Substitute known pair (x=4, y=3): <span class="math-font font-bold text-lg">3 - 2 = k / (4 + 1)</span>',
+                            'Solve for k: <span class="math-font font-bold text-lg">1 = k / 5 &#8594; k = 5</span>',
+                            'Specific equation: <span class="math-font font-bold text-lg">y - 2 = 5 / (x + 1)</span>',
+                            'Substitute x = 9: <span class="math-font font-bold text-lg">y - 2 = 5 / (9 + 1)</span>',
+                            'Simplify: <span class="math-font font-bold text-lg">y - 2 = 5 / 10 = 0.5</span>',
+                            ' <span class="math-font font-bold text-lg">y = 2.5</span>'
+                        ]
+                    },
+                    {
+                        id: 'i-q70',
+                        title: 'Graphing Q70: y \u221D 1/x',
+                        type: 'chart',
+                        problem: 'y is inversely proportional to x. Given pair: x=1, y=20. Plot y against 1/x.',
+                        equation: 'y = 20(1/x)',
+                        xAxisLabel: '1 / x',
+                        labels: [1, 0.5, 0.4, 0.2],
+                        data: [20, 10, 8, 4],
+                        rawX: [1, 2, 2.5, 5]
+                    }
+                ]
+            }
+        };
+
+        let currentMode = 'direct';
+        let currentChart = null;
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            const btnDirect = document.getElementById('btn-direct');
+            const btnInverse = document.getElementById('btn-inverse');
+            
+            if (mode === 'direct') {
+                btnDirect.className = 'px-4 py-2 rounded-md text-sm font-semibold transition-colors bg-white shadow-sm text-amber-700';
+                btnInverse.className = 'px-4 py-2 rounded-md text-sm font-semibold transition-colors text-stone-500 hover:text-stone-700 hover:bg-stone-200';
+            } else {
+                btnInverse.className = 'px-4 py-2 rounded-md text-sm font-semibold transition-colors bg-white shadow-sm text-teal-700';
+                btnDirect.className = 'px-4 py-2 rounded-md text-sm font-semibold transition-colors text-stone-500 hover:text-stone-700 hover:bg-stone-200';
+            }
+
+            renderSidebar();
+            renderMainContent(appData[mode].questions[0]);
+        }
+
+        function renderSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.innerHTML = '';
+            
+            const data = appData[currentMode];
+            const colorClass = currentMode === 'direct' ? 'bg-amber-100 text-amber-900' : 'bg-teal-100 text-teal-900';
+            const hoverClass = currentMode === 'direct' ? 'hover:bg-amber-50' : 'hover:bg-teal-50';
+
+            data.questions.forEach((q, index) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors border border-transparent ${hoverClass} text-stone-700`;
+                btn.innerHTML = `<span class="opacity-50 mr-2">0${index + 1}</span> ${q.title}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('#sidebar button').forEach(b => {
+                        b.classList.remove('bg-amber-100', 'text-amber-900', 'bg-teal-100', 'text-teal-900', 'border-amber-200', 'border-teal-200');
+                        b.classList.add('text-stone-700');
+                    });
+                    btn.classList.remove('text-stone-700');
+                    btn.classList.add(...colorClass.split(' '), currentMode === 'direct' ? 'border-amber-200' : 'border-teal-200');
+                    renderMainContent(q);
+                };
+                sidebar.appendChild(btn);
+            });
+
+            sidebar.firstChild.click();
+        }
+
+        function renderMainContent(question) {
+            const main = document.getElementById('main-content');
+            const theme = currentMode === 'direct' ? 'amber' : 'teal';
+            const bgClass = currentMode === 'direct' ? 'bg-amber-50' : 'bg-teal-50';
+            const textClass = currentMode === 'direct' ? 'text-amber-800' : 'text-teal-800';
+
+            let html = `
+                <div class="mb-8 ${bgClass} p-6 rounded-xl border border-${theme}-100">
+                    <h2 class="text-2xl font-bold ${textClass} mb-2">${appData[currentMode].introTitle}</h2>
+                    <p class="text-stone-600 leading-relaxed">${appData[currentMode].introText}</p>
+                </div>
+                <div class="mb-6 flex items-center justify-between border-b border-stone-200 pb-4">
+                    <h3 class="text-2xl font-bold text-stone-800">${question.title}</h3>
+                </div>
+            `;
+
+            if (question.type === 'concept') {
+                html += renderConceptView(question, theme);
+            } else if (question.type === 'step') {
+                html += renderStepView(question, theme);
+            } else if (question.type === 'chart') {
+                html += renderChartView(question, theme);
+            }
+
+            main.innerHTML = html;
+
+            if (question.type === 'chart') {
+                initChart(question, theme);
+            }
+        }
+
+        function renderConceptView(question, theme) {
+            let tablesHtml = question.tables.map((t, idx) => `
+                <div class="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="bg-stone-100 px-4 py-2 font-semibold text-stone-700 border-b border-stone-200 flex justify-between items-center">
+                        <span>${t.name}</span>
+                        <span id="res-${question.id}-${idx}" class="text-sm hidden font-bold"></span>
+                    </div>
+                    <div class="grid grid-cols-5 divide-x divide-stone-200 text-center">
+                        <div class="p-3 bg-stone-50 font-bold text-stone-500 math-font">x</div>
+                        ${t.x.map(val => `<div class="p-3">${val}</div>`).join('')}
+                    </div>
+                    <div class="grid grid-cols-5 divide-x divide-stone-200 text-center border-t border-stone-200">
+                        <div class="p-3 bg-stone-50 font-bold text-stone-500 math-font">y</div>
+                        ${t.y.map(val => `<div class="p-3">${val}</div>`).join('')}
+                    </div>
+                    <div id="calc-${question.id}-${idx}" class="hidden grid grid-cols-5 divide-x divide-stone-200 text-center border-t border-stone-200 bg-${theme}-50">
+                        <div class="p-3 font-bold text-${theme}-700 math-font">${currentMode === 'direct' ? 'y/x' : 'x*y'}</div>
+                        ${t.x.map((xVal, i) => {
+                            const res = currentMode === 'direct' ? (t.y[i] / xVal).toFixed(2).replace('.00', '') : (xVal * t.y[i]);
+                            return `<div class="p-3 font-semibold text-${theme}-800">${res}</div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <p class="text-lg text-stone-600 mb-6">${question.description}</p>
+                <div class="flex flex-col gap-6 mb-6">
+                    ${tablesHtml}
+                </div>
+                <button onclick="evaluateConcept('${question.id}')" class="bg-${theme}-600 hover:bg-${theme}-700 text-white px-6 py-3 rounded-lg font-semibold shadow-sm transition-colors flex items-center justify-center w-full md:w-auto">
+                    Evaluate Tables (${question.formula})
+                </button>
+            `;
+        }
+
+        window.evaluateConcept = function(qId) {
+            const q = appData[currentMode].questions.find(x => x.id === qId);
+            const isDirect = currentMode === 'direct';
+            
+            q.tables.forEach((t, idx) => {
+                document.getElementById(`calc-${qId}-${idx}`).classList.remove('hidden');
+                const resEl = document.getElementById(`res-${qId}-${idx}`);
+                resEl.classList.remove('hidden');
+                
+                if (t.isCorrect) {
+                    resEl.innerHTML = `&#10003; Constant k`;
+                    resEl.className = "text-sm font-bold text-green-600";
+                } else {
+                    resEl.innerHTML = `&#10007; Not Constant`;
+                    resEl.className = "text-sm font-bold text-red-600";
+                }
+            });
+        };
+
+        function renderStepView(question, theme) {
+            let html = `
+                <div class="bg-stone-50 border border-stone-200 p-6 rounded-xl mb-6">
+                    <h4 class="font-bold text-stone-700 mb-2 uppercase tracking-wider text-sm">The Problem</h4>
+                    <p class="text-lg text-stone-800 math-font">${question.problem}</p>
+                </div>
+                <div id="steps-container-${question.id}" class="mb-6">
+            `;
+            
+            question.steps.forEach((step, idx) => {
+                const stepThemeClass = currentMode === 'direct' ? 'step-visible' : 'step-visible inverse-step';
+                html += `
+                    <div id="step-${question.id}-${idx}" class="step-hidden border border-stone-200 rounded-lg p-0 m-0">
+                        <div class="text-sm font-bold text-stone-400 mb-1 uppercase">Step ${idx + 1}</div>
+                        <div class="text-stone-800">${step}</div>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+                <button id="btn-next-${question.id}" onclick="revealNextStep('${question.id}', ${question.steps.length})" class="bg-${theme}-600 hover:bg-${theme}-700 text-white px-6 py-3 rounded-lg font-semibold shadow-sm transition-colors w-full md:w-auto">
+                    Reveal Next Step &#8594;
+                </button>
+            `;
+            
+            window[`stepState_${question.id}`] = 0;
+            return html;
+        }
+
+        window.revealNextStep = function(qId, maxSteps) {
+            const currentStep = window[`stepState_${qId}`];
+            if (currentStep < maxSteps) {
+                const el = document.getElementById(`step-${qId}-${currentStep}`);
+                const themeClass = currentMode === 'direct' ? '' : 'inverse-step';
+                el.className = `step-visible ${themeClass} shadow-sm`;
+                window[`stepState_${qId}`]++;
+                
+                if (window[`stepState_${qId}`] === maxSteps) {
+                    document.getElementById(`btn-next-${qId}`).style.display = 'none';
+                }
+            }
+        };
+
+        function renderChartView(question, theme) {
+            return `
+                <div class="bg-stone-50 border border-stone-200 p-4 rounded-xl mb-6 flex flex-col md:flex-row gap-6 items-center">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-stone-700 mb-2 uppercase tracking-wider text-sm">The Problem</h4>
+                        <p class="text-lg text-stone-800 math-font mb-4">${question.problem}</p>
+                        <div class="inline-block bg-white px-4 py-2 border border-stone-200 rounded text-${theme}-700 font-bold math-font text-xl shadow-sm">
+                            ${question.equation}
+                        </div>
+                    </div>
+                    <div class="w-full md:w-auto bg-white p-4 border border-stone-200 rounded-lg shadow-sm text-center">
+                        <div class="grid grid-cols-5 divide-x divide-stone-200 text-sm border-b border-stone-200">
+                            <div class="p-2 bg-stone-50 font-bold text-stone-500 math-font">x</div>
+                            ${question.rawX.map(val => `<div class="p-2">${val}</div>`).join('')}
+                        </div>
+                        <div class="grid grid-cols-5 divide-x divide-stone-200 text-sm">
+                            <div class="p-2 bg-stone-50 font-bold text-stone-500 math-font">y</div>
+                            ${question.data.map(val => `<div class="p-2 font-semibold">${val}</div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full flex justify-center bg-white p-4 border border-stone-200 rounded-xl shadow-sm mb-6">
+                    <div class="chart-container">
+                        <canvas id="myChart"></canvas>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initChart(question, theme) {
+            const ctx = document.getElementById('myChart');
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const isDirect = currentMode === 'direct';
+            const colorPrimary = isDirect ? '#d97706' : '#0d9488';
+            const colorBg = isDirect ? 'rgba(217, 119, 6, 0.1)' : 'rgba(13, 148, 136, 0.1)';
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: question.labels,
+                    datasets: [{
+                        label: `Graph of ${question.equation}`,
+                        data: question.data,
+                        borderColor: colorPrimary,
+                        backgroundColor: colorBg,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: colorPrimary,
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { font: { family: "system-ui", size: 14 } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(41, 37, 36, 0.9)',
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 14, family: "'Cambria Math', serif" },
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                title: function(context) {
+                                    return `${question.xAxisLabel} = ${context[0].label}`;
+                                },
+                                label: function(context) {
+                                    return `y = ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: question.xAxisLabel,
+                                font: { size: 16, weight: 'bold', family: "'Cambria Math', serif" }
+                            },
+                            grid: { color: '#e7e5e4' }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'y',
+                                font: { size: 16, weight: 'bold', family: "'Cambria Math', serif" }
+                            },
+                            beginAtZero: true,
+                            grid: { color: '#e7e5e4' }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        switchMode('direct');
+    </script>
+</body>
+</html>
