@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sec 2 Math Mock Exam</title>
+  
+  <!-- Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React and ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel for parsing JSX directly in the browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // --- Inline SVG Icons (Replacing lucide-react imports for pure HTML) ---
+    const CheckCircle2 = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+    );
+    const XCircle = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+    );
+    const Lightbulb = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>
+    );
+    const RefreshCcw = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21v-5h5"></path></svg>
+    );
+    const Play = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+    );
+    const ChevronLeft = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"></path></svg>
+    );
+    const ChevronRight = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"></path></svg>
+    );
+
+
+    // --- Custom component to render inline math enclosed in $ $ ---
+    const FormattedText = ({ text }) => {
+      if (!text) return null;
+      const parts = text.split(/\$(.*?)\$/g);
+      return (
+        <span>
+          {parts.map((part, index) => {
+            if (index % 2 === 1) {
+              // Parse basic LaTeX into clean, textbook-style HTML
+              let html = part
+                .replace(/\\times/g, ' &times; ')
+                .replace(/\\div/g, ' &divide; ')
+                .replace(/\\Rightarrow/g, ' &rArr; ')
+                .replace(/\\le/g, ' &le; ')
+                .replace(/\\ge/g, ' &ge; ')
+                .replace(/\\pm/g, ' &plusmn; ')
+                .replace(/\\pi/g, '&pi;')
+                .replace(/\^\\circ/g, '&deg;')
+                .replace(/\\text\{([^}]+)\}/g, '<span class="font-sans text-[0.9em]">$1</span>')
+                .replace(/\\sqrt\{([^}]+)\}/g, '<span class="whitespace-nowrap">&radic;<span class="border-t border-slate-700 ml-[1px] pt-[1px]">$1</span></span>')
+                .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '<span class="inline-flex flex-col align-middle text-center mx-1" style="font-size: 0.85em; line-height: 1.2;"><span class="border-b border-slate-700 px-0.5">$1</span><span class="px-0.5">$2</span></span>')
+                .replace(/\^\{([^}]+)\}/g, '<sup class="text-[0.75em]">$1</sup>')
+                .replace(/\^([a-zA-Z0-9])/g, '<sup class="text-[0.75em]">$1</sup>');
+
+              return (
+                <span
+                  key={index}
+                  className="font-serif text-[1.1em] text-slate-800 tracking-wide mx-0.5"
+                  dangerouslySetInnerHTML={{ __html: html }}
+                />
+              );
+            }
+            
+            // Regular text
+            return <span key={index}>{part}</span>;
+          })}
+        </span>
+      );
+    };
+
+    // --- Main App Component ---
+    function App() {
+      const [view, setView] = useState('start'); // 'start', 'quiz', 'results'
+      const [currentIndex, setCurrentIndex] = useState(0);
+      const [answers, setAnswers] = useState({});
+      const [showFeedback, setShowFeedback] = useState({});
+      const [showHint, setShowHint] = useState({});
+
+      const question = quizData[currentIndex];
+      const totalQuestions = quizData.length;
+
+      const handleSelectOption = (optionIndex) => {
+        if (showFeedback[currentIndex]) return; // prevent changing answer after checking
+        setAnswers({ ...answers, [currentIndex]: optionIndex });
+      };
+
+      const handleCheckAnswer = () => {
+        if (answers[currentIndex] !== undefined) {
+          setShowFeedback({ ...showFeedback, [currentIndex]: true });
+        }
+      };
+
+      const handleNext = () => {
+        if (currentIndex < totalQuestions - 1) setCurrentIndex(currentIndex + 1);
+      };
+
+      const handlePrev = () => {
+        if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+      };
+
+      const toggleHint = () => {
+        setShowHint({ ...showHint, [currentIndex]: !showHint[currentIndex] });
+      };
+
+      const calculateScore = () => {
+        let score = 0;
+        Object.keys(showFeedback).forEach((key) => {
+          const qIndex = parseInt(key, 10);
+          const selectedOption = answers[qIndex];
+          if (selectedOption !== undefined && quizData[qIndex].answerOptions[selectedOption].isCorrect) {
+            score++;
+          }
+        });
+        return score;
+      };
+
+      const restartQuiz = () => {
+        setAnswers({});
+        setShowFeedback({});
+        setShowHint({});
+        setCurrentIndex(0);
+        setView('start');
+      };
+
+      const getQuestionStatusColor = (index) => {
+        if (!showFeedback[index]) return 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200';
+        const isCorrect = quizData[index].answerOptions[answers[index]].isCorrect;
+        return isCorrect 
+          ? 'bg-emerald-100 text-emerald-700 border-emerald-300' 
+          : 'bg-rose-100 text-rose-700 border-rose-300';
+      };
+
+      if (view === 'start') {
+        return (
+          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
+            <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 text-center space-y-6">
+              <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-indigo-600" />
+              </div>
+              <h1 className="text-4xl font-bold text-slate-800">Sec 2 Math Mock Exam</h1>
+              <p className="text-lg text-slate-600">
+                Test your knowledge across 7 key topics: Linear Graphs & Simultaneous Equations, Inequalities, Expansion & Factorisation, Special Identities, Quadratics, Algebraic Fractions, and Proportions.
+              </p>
+              <div className="grid grid-cols-2 gap-4 text-left bg-slate-50 p-6 rounded-xl border border-slate-100 mb-8">
+                <div><span className="font-semibold text-slate-700">Questions:</span> {totalQuestions}</div>
+                <div><span className="font-semibold text-slate-700">Mode:</span> Practice (Immediate Feedback)</div>
+                <div><span className="font-semibold text-slate-700">Format:</span> Multiple Choice & Word Problems</div>
+                <div><span className="font-semibold text-slate-700">Level:</span> Secondary 2</div>
+              </div>
+              <button 
+                onClick={() => setView('quiz')}
+                className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-2 mx-auto"
+              >
+                <Play className="w-5 h-5" /> Start Exam
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      if (view === 'results') {
+        const score = calculateScore();
+        const percentage = Math.round((score / totalQuestions) * 100);
+        return (
+          <div className="min-h-screen bg-slate-50 p-6 flex flex-col items-center py-12">
+            <div className="max-w-3xl w-full bg-white rounded-2xl shadow-xl p-8 text-center space-y-8">
+              <h2 className="text-3xl font-bold text-slate-800">Exam Results</h2>
+              
+              <div className="relative w-48 h-48 mx-auto flex items-center justify-center bg-indigo-50 rounded-full border-8 border-indigo-100">
+                <div className="text-center">
+                  <span className="text-5xl font-extrabold text-indigo-700">{percentage}%</span>
+                  <p className="text-indigo-600 font-medium mt-1">Score</p>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-8 text-lg">
+                <div className="flex flex-col items-center">
+                  <span className="text-3xl font-bold text-emerald-600">{score}</span>
+                  <span className="text-slate-500">Correct</span>
+                </div>
+                <div className="w-px bg-slate-200"></div>
+                <div className="flex flex-col items-center">
+                  <span className="text-3xl font-bold text-rose-600">{Object.keys(showFeedback).length - score}</span>
+                  <span className="text-slate-500">Incorrect</span>
+                </div>
+                <div className="w-px bg-slate-200"></div>
+                <div className="flex flex-col items-center">
+                  <span className="text-3xl font-bold text-slate-400">{totalQuestions - Object.keys(showFeedback).length}</span>
+                  <span className="text-slate-500">Skipped</span>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row gap-4 justify-center">
+                <button 
+                  onClick={() => setView('quiz')}
+                  className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors"
+                >
+                  Review Answers
+                </button>
+                <button 
+                  onClick={restartQuiz}
+                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <RefreshCcw className="w-5 h-5" /> Retake Exam
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const isAnswered = answers[currentIndex] !== undefined;
+      const hasChecked = showFeedback[currentIndex];
+      const selectedIsCorrect = isAnswered && question.answerOptions[answers[currentIndex]].isCorrect;
+
+      return (
+        <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+          
+          {/* Sidebar Navigation */}
+          <div className="w-full md:w-80 bg-white border-r border-slate-200 flex flex-col h-auto md:h-screen md:sticky top-0 p-6 overflow-y-auto hidden md:flex shrink-0">
+            <h3 className="text-lg font-bold text-slate-800 mb-6">Question Navigator</h3>
+            <div className="grid grid-cols-5 gap-2">
+              {quizData.map((q, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentIndex(idx)}
+                  className={`
+                    h-10 rounded-lg text-sm font-semibold flex items-center justify-center border transition-all
+                    ${currentIndex === idx ? 'ring-2 ring-indigo-500 ring-offset-2' : ''}
+                    ${getQuestionStatusColor(idx)}
+                  `}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+            </div>
+            <div className="mt-auto pt-8">
+              <button 
+                onClick={() => setView('results')}
+                className="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-semibold transition-colors"
+              >
+                Finish & View Results
+              </button>
+            </div>
+          </div>
+
+          {/* Main Quiz Area */}
+          <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+            <div className="max-w-3xl mx-auto space-y-6">
+              
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <span className="text-indigo-600 font-bold tracking-wide uppercase text-sm">
+                  Question {currentIndex + 1} of {totalQuestions}
+                </span>
+                <button 
+                  onClick={() => setView('results')}
+                  className="md:hidden text-sm font-medium text-slate-500 hover:text-slate-800"
+                >
+                  Finish
+                </button>
+              </div>
+
+              {/* Progress bar */}
+              <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-indigo-500 transition-all duration-300"
+                  style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
+                ></div>
+              </div>
+
+              {/* Question Card */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="p-6 md:p-8">
+                  <h2 className="text-xl md:text-2xl text-slate-800 font-medium leading-relaxed mb-8">
+                    <FormattedText text={question.question} />
+                  </h2>
+
+                  <div className="space-y-3">
+                    {question.answerOptions.map((option, optIdx) => {
+                      const isSelected = answers[currentIndex] === optIdx;
+                      let optionClass = "border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-700";
+                      let icon = null;
+
+                      if (hasChecked) {
+                        if (option.isCorrect) {
+                          optionClass = "border-emerald-500 bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500";
+                          icon = <CheckCircle2 className="w-5 h-5 text-emerald-600 ml-auto" />;
+                        } else if (isSelected && !option.isCorrect) {
+                          optionClass = "border-rose-500 bg-rose-50 text-rose-800 ring-1 ring-rose-500";
+                          icon = <XCircle className="w-5 h-5 text-rose-600 ml-auto" />;
+                        } else {
+                          optionClass = "border-slate-200 opacity-60 bg-slate-50 text-slate-500";
+                        }
+                      } else if (isSelected) {
+                        optionClass = "border-indigo-500 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-500";
+                      }
+
+                      return (
+                        <button
+                          key={optIdx}
+                          onClick={() => handleSelectOption(optIdx)}
+                          disabled={hasChecked}
+                          className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-center ${optionClass} ${hasChecked ? 'cursor-default' : 'cursor-pointer'}`}
+                        >
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 shrink-0
+                            ${isSelected ? (hasChecked && !option.isCorrect ? 'border-rose-500' : 'border-indigo-500') : 'border-slate-300'}
+                          `}>
+                            {isSelected && <div className={`w-2.5 h-2.5 rounded-full ${hasChecked && !option.isCorrect ? 'bg-rose-500' : 'bg-indigo-500'}`} />}
+                          </div>
+                          <span className="text-lg">
+                            <FormattedText text={option.text} />
+                          </span>
+                          {icon}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Actions & Feedback */}
+                <div className="bg-slate-50 p-6 border-t border-slate-100">
+                  <div className="flex flex-wrap gap-4 items-center justify-between">
+                    <button
+                      onClick={toggleHint}
+                      className="flex items-center gap-2 text-amber-600 hover:text-amber-700 font-medium bg-amber-50 px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <Lightbulb className="w-5 h-5" />
+                      {showHint[currentIndex] ? 'Hide Hint' : 'Show Hint'}
+                    </button>
+
+                    {!hasChecked ? (
+                      <button
+                        onClick={handleCheckAnswer}
+                        disabled={!isAnswered}
+                        className={`px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all
+                          ${isAnswered 
+                            ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg' 
+                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+                      >
+                        Check Answer
+                      </button>
+                    ) : (
+                      <div className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 ${selectedIsCorrect ? 'text-emerald-700 bg-emerald-100' : 'text-rose-700 bg-rose-100'}`}>
+                        {selectedIsCorrect ? <><CheckCircle2 className="w-5 h-5" /> Correct</> : <><XCircle className="w-5 h-5" /> Incorrect</>}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Hint Panel */}
+                  {showHint[currentIndex] && (
+                    <div className="mt-4 p-4 bg-amber-100 border border-amber-200 text-amber-800 rounded-xl flex gap-3 animate-in fade-in slide-in-from-top-2">
+                      <Lightbulb className="w-6 h-6 shrink-0 mt-0.5" />
+                      <p><FormattedText text={question.hint} /></p>
+                    </div>
+                  )}
+
+                  {/* Rationale Panel */}
+                  {hasChecked && (
+                    <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                      <h4 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Explanation</h4>
+                      <div className="p-4 bg-white border border-slate-200 rounded-xl text-slate-700 leading-relaxed shadow-sm">
+                        <p className="mb-3"><span className="font-semibold">Your selection:</span> <FormattedText text={question.answerOptions[answers[currentIndex]].rationale} /></p>
+                        
+                        {!selectedIsCorrect && (
+                           <p className="pt-3 border-t border-slate-100 text-emerald-700">
+                             <span className="font-semibold">Correct Answer:</span> <FormattedText text={question.answerOptions.find(o => o.isCorrect).rationale} />
+                           </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Navigation Controls */}
+              <div className="flex items-center justify-between pt-4">
+                <button
+                  onClick={handlePrev}
+                  disabled={currentIndex === 0}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-colors
+                    ${currentIndex === 0 ? 'text-slate-400 cursor-not-allowed' : 'text-slate-700 bg-white hover:bg-slate-200 shadow-sm border border-slate-200'}`}
+                >
+                  <ChevronLeft className="w-5 h-5" /> Previous
+                </button>
+                
+                <button
+                  onClick={handleNext}
+                  disabled={currentIndex === totalQuestions - 1}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-colors
+                    ${currentIndex === totalQuestions - 1 ? 'text-slate-400 cursor-not-allowed' : 'text-slate-700 bg-white hover:bg-slate-200 shadow-sm border border-slate-200'}`}
+                >
+                  Next <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- Quiz Data ---
+    const quizData = [
+      // --- Chapter 1: Linear Graphs and Simultaneous Equations ---
+      {
+        "questionNumber": 1,
+        "question": "What is the equation of a horizontal line passing through the point $(0, 5)$?",
+        "answerOptions": [
+          { "text": "$x = 5$", "rationale": "$x = 5$ is a vertical line where the x-coordinate is always 5.", "isCorrect": false },
+          { "text": "$y = 5$", "rationale": "A horizontal line has a gradient of zero, meaning the y-value is constant. Thus, $y = 5$.", "isCorrect": true },
+          { "text": "$y = 5x$", "rationale": "This is a slanted line passing through the origin.", "isCorrect": false },
+          { "text": "$x + y = 5$", "rationale": "This represents a slanted line with x and y intercepts of 5.", "isCorrect": false }
+        ],
+        "hint": "Horizontal lines have a constant $y$ value and are written in the form $y = c$."
+      },
+      {
+        "questionNumber": 2,
+        "question": "Solve the simultaneous equations: $x + y = 6$ and $x - y = 2$.",
+        "answerOptions": [
+          { "text": "$x = 2, y = 4$", "rationale": "Checking the second equation: $2 - 4 = -2$, not 2.", "isCorrect": false },
+          { "text": "$x = 4, y = 2$", "rationale": "Adding the two equations eliminates $y$: $(x+y) + (x-y) = 6+2 \\Rightarrow 2x = 8 \\Rightarrow x = 4$. Substituting $x=4$ back gives $4 + y = 6 \\Rightarrow y = 2$.", "isCorrect": true },
+          { "text": "$x = 5, y = 1$", "rationale": "Checking the second equation: $5 - 1 = 4$, not 2.", "isCorrect": false },
+          { "text": "$x = 3, y = 3$", "rationale": "Checking the second equation: $3 - 3 = 0$, not 2.", "isCorrect": false }
+        ],
+        "hint": "Try the Elimination Method: add the two equations together to cancel out the $y$ variable."
+      },
+      {
+        "questionNumber": 3,
+        "question": "Find the gradient and $y$-intercept of the line $2x + 4y = 12$.",
+        "answerOptions": [
+          { "text": "Gradient = $2$, $y$-intercept = $12$", "rationale": "You must rearrange the equation into the form $y = mx + c$ first.", "isCorrect": false },
+          { "text": "Gradient = $-\\frac{1}{2}$, $y$-intercept = $3$", "rationale": "Rearranging gives $4y = -2x + 12$. Dividing by 4 gives $y = -\\frac{1}{2}x + 3$. So, $m = -\\frac{1}{2}$ and $c = 3$.", "isCorrect": true },
+          { "text": "Gradient = $-2$, $y$-intercept = $12$", "rationale": "This neglects dividing the whole equation by 4 to isolate $y$.", "isCorrect": false },
+          { "text": "Gradient = $\\frac{1}{2}$, $y$-intercept = $-3$", "rationale": "This reverses the signs of the terms during rearrangement.", "isCorrect": false }
+        ],
+        "hint": "Make $y$ the subject of the formula to get it into the $y = mx + c$ form."
+      },
+      {
+        "questionNumber": 4,
+        "question": "A customer bought $2$ cups of coffee and $3$ cups of tea for $3.80$ dollars. Another customer bought $4$ cups of coffee and $5$ cups of tea for $6.90$ dollars. What is the cost of a single cup of tea?",
+        "answerOptions": [
+          { "text": "$0.70$ dollars", "rationale": "Let $c$ be coffee and $t$ be tea. Eq 1: $2c + 3t = 3.80$. Eq 2: $4c + 5t = 6.90$. Multiplying Eq 1 by 2 gives $4c + 6t = 7.60$. Subtracting Eq 2 from this gives $(4c + 6t) - (4c + 5t) = 7.60 - 6.90 \\Rightarrow t = 0.70$.", "isCorrect": true },
+          { "text": "$0.85$ dollars", "rationale": "This is the cost of a cup of coffee, not tea.", "isCorrect": false },
+          { "text": "$1.10$ dollars", "rationale": "This is an arithmetic error during the elimination step.", "isCorrect": false },
+          { "text": "$1.50$ dollars", "rationale": "This misidentifies the proportional relationship between the variables.", "isCorrect": false }
+        ],
+        "hint": "Form two simultaneous equations. Try multiplying the first equation by 2 so that the coefficients of the coffee variable match."
+      },
+
+      // --- Chapter 2: Linear Inequalities ---
+      {
+        "questionNumber": 5,
+        "question": "Solve the inequality: $-3x < 15$.",
+        "answerOptions": [
+          { "text": "$x < -5$", "rationale": "You divided by a negative number but forgot to reverse the inequality sign.", "isCorrect": false },
+          { "text": "$x > 5$", "rationale": "This is incorrect. You must divide 15 by -3, which is -5.", "isCorrect": false },
+          { "text": "$x > -5$", "rationale": "When you divide both sides by $-3$, you must reverse the inequality sign. Thus, $x > -5$.", "isCorrect": true },
+          { "text": "$x < 5$", "rationale": "This has both the wrong sign on the number and the wrong inequality direction.", "isCorrect": false }
+        ],
+        "hint": "Remember the golden rule of inequalities: when you multiply or divide by a negative number, the sign flips!"
+      },
+      {
+        "questionNumber": 6,
+        "question": "Find the greatest integer value of $x$ that satisfies $2x - 3 \\le 6$.",
+        "answerOptions": [
+          { "text": "$3$", "rationale": "3 works, but it is not the greatest integer. $2(3) - 3 = 3 \\le 6$.", "isCorrect": false },
+          { "text": "$4$", "rationale": "Adding 3 gives $2x \\le 9$. Dividing by 2 gives $x \\le 4.5$. The greatest integer less than or equal to $4.5$ is 4.", "isCorrect": true },
+          { "text": "$4.5$", "rationale": "4.5 satisfies the inequality, but the question specifically asks for an INTEGER value.", "isCorrect": false },
+          { "text": "$5$", "rationale": "If $x=5$, $2(5) - 3 = 7$, which is not less than or equal to 6.", "isCorrect": false }
+        ],
+        "hint": "Solve for $x$ as a decimal or fraction first, then find the largest whole number that fits that range."
+      },
+      {
+        "questionNumber": 7,
+        "question": "How is $x \\ge -2$ represented on a number line?",
+        "answerOptions": [
+          { "text": "Hollow circle at -2, arrow pointing left.", "rationale": "A hollow circle means 'not equal to', and pointing left means 'less than'.", "isCorrect": false },
+          { "text": "Solid circle at -2, arrow pointing left.", "rationale": "This represents $x \\le -2$.", "isCorrect": false },
+          { "text": "Hollow circle at -2, arrow pointing right.", "rationale": "This represents $x > -2$.", "isCorrect": false },
+          { "text": "Solid circle at -2, arrow pointing right.", "rationale": "A solid circle includes -2 (for the 'or equal to' part), and the arrow points right for 'greater than'.", "isCorrect": true }
+        ],
+        "hint": "'Greater than' goes right. 'Or equal to' requires a solid (filled) circle."
+      },
+      {
+        "questionNumber": 8,
+        "question": "A paper file costs $40$ cents. What is the maximum number of paper files that can be bought with $3.00$ dollars?",
+        "answerOptions": [
+          { "text": "6", "rationale": "6 files would cost $2.40, which leaves enough money for one more file.", "isCorrect": false },
+          { "text": "7", "rationale": "Set up the inequality: $40x \\le 300$ cents. $x \\le \\frac{300}{40} \\Rightarrow x \\le 7.5$. The maximum integer number of files is 7.", "isCorrect": true },
+          { "text": "8", "rationale": "8 files would cost $3.20, which is over the budget.", "isCorrect": false },
+          { "text": "9", "rationale": "This far exceeds the budget.", "isCorrect": false }
+        ],
+        "hint": "Convert $3.00 to cents to match the units, then set up an inequality: $40x \\le 300$."
+      },
+
+      // --- Chapter 3: Expansion and Factorisation ---
+      {
+        "questionNumber": 9,
+        "question": "Expand and simplify: $(2x - 3)(x + 4)$.",
+        "answerOptions": [
+          { "text": "$2x^2 - 12$", "rationale": "This only multiplies the first terms and last terms, ignoring the inner and outer terms.", "isCorrect": false },
+          { "text": "$2x^2 + 5x - 12$", "rationale": "Using distribution: $2x(x) + 2x(4) - 3(x) - 3(4) = 2x^2 + 8x - 3x - 12 = 2x^2 + 5x - 12$.", "isCorrect": true },
+          { "text": "$2x^2 + 11x - 12$", "rationale": "This incorrectly adds $8x$ and $3x$ instead of subtracting $3x$.", "isCorrect": false },
+          { "text": "$2x^2 - 5x - 12$", "rationale": "This evaluates to $-8x + 3x$ during expansion, getting the signs backwards.", "isCorrect": false }
+        ],
+        "hint": "Multiply each term in the first bracket by each term in the second bracket."
+      },
+      {
+        "questionNumber": 10,
+        "question": "Factorise the quadratic expression $x^2 + 5x + 6$.",
+        "answerOptions": [
+          { "text": "$(x + 1)(x + 6)$", "rationale": "Expanding this gives $x^2 + 7x + 6$, which has the wrong middle term.", "isCorrect": false },
+          { "text": "$(x + 2)(x + 3)$", "rationale": "You need two numbers that multiply to 6 and add to 5. Those numbers are 2 and 3.", "isCorrect": true },
+          { "text": "$(x - 2)(x - 3)$", "rationale": "Expanding this gives $x^2 - 5x + 6$, yielding a negative middle term.", "isCorrect": false },
+          { "text": "$(x + 5)(x + 1)$", "rationale": "This would multiply to a constant of 5, not 6.", "isCorrect": false }
+        ],
+        "hint": "Look for two numbers that multiply to give the last number (6) and add up to give the middle number (5)."
+      },
+      {
+        "questionNumber": 11,
+        "question": "Factorise by grouping: $ax + ay + 2x + 2y$.",
+        "answerOptions": [
+          { "text": "$(a + x)(2 + y)$", "rationale": "This grouping does not produce the correct expanded terms.", "isCorrect": false },
+          { "text": "$(a + 2)(x + y)$", "rationale": "Group the first two and last two: $a(x + y) + 2(x + y)$. Then extract $(x+y)$ to get $(a+2)(x+y)$.", "isCorrect": true },
+          { "text": "$a(x + y) + 2xy$", "rationale": "This is only partially factorised and makes a mistake on the final term.", "isCorrect": false },
+          { "text": "$(ax + 2)(ay + y)$", "rationale": "This is an incorrect factoring method.", "isCorrect": false }
+        ],
+        "hint": "Extract the common factor from the first two terms, and the common factor from the last two terms. You should see a repeated bracket."
+      },
+      {
+        "questionNumber": 12,
+        "question": "A rectangular playground is $80$ m long and $36$ m wide. It is surrounded by a footpath of uniform width $x$ m. Which expression represents the total area of the playground and footpath combined?",
+        "answerOptions": [
+          { "text": "$(x^2 + 116x + 2880) \\text{ m}^2$", "rationale": "This represents the area if the footpath was only added to one side of the length and width: $(80+x)(36+x)$.", "isCorrect": false },
+          { "text": "$(4x^2 + 116x + 2880) \\text{ m}^2$", "rationale": "This is an incorrect expansion.", "isCorrect": false },
+          { "text": "$(4x^2 + 232x + 2880) \\text{ m}^2$", "rationale": "The total length is $(80 + 2x)$ and the total width is $(36 + 2x)$. Area = $(80 + 2x)(36 + 2x) = 2880 + 160x + 72x + 4x^2 = 4x^2 + 232x + 2880$.", "isCorrect": true },
+          { "text": "$(x^2 + 232x + 2880) \\text{ m}^2$", "rationale": "This forgets to square the 2 when multiplying $2x \\times 2x$.", "isCorrect": false }
+        ],
+        "hint": "The footpath adds $x$ to BOTH sides of the length, and BOTH sides of the width. The total dimensions are $(80 + 2x)$ by $(36 + 2x)$."
+      },
+
+      // --- Chapter 4: Special Algebraic Identities ---
+      {
+        "questionNumber": 13,
+        "question": "Expand using a special algebraic identity: $(3x - 4y)^2$.",
+        "answerOptions": [
+          { "text": "$9x^2 - 16y^2$", "rationale": "This ignores the middle term $-2ab$.", "isCorrect": false },
+          { "text": "$9x^2 - 12xy + 16y^2$", "rationale": "The middle term is $-2(3x)(4y) = -24xy$, not $-12xy$.", "isCorrect": false },
+          { "text": "$9x^2 - 24xy + 16y^2$", "rationale": "Using $(a-b)^2 = a^2 - 2ab + b^2$, we get $(3x)^2 - 2(3x)(4y) + (4y)^2 = 9x^2 - 24xy + 16y^2$.", "isCorrect": true },
+          { "text": "$9x^2 + 24xy + 16y^2$", "rationale": "This uses the positive identity $(a+b)^2$.", "isCorrect": false }
+        ],
+        "hint": "Use the perfect square identity: $(a - b)^2 = a^2 - 2ab + b^2$."
+      },
+      {
+        "questionNumber": 14,
+        "question": "Factorise the difference of two squares: $16x^2 - 49$.",
+        "answerOptions": [
+          { "text": "$(4x - 7)^2$", "rationale": "Expanding this gives $16x^2 - 56x + 49$, not $16x^2 - 49$.", "isCorrect": false },
+          { "text": "$(16x + 7)(16x - 7)$", "rationale": "The square root of 16 is 4, not 16.", "isCorrect": false },
+          { "text": "$(4x + 7)(4x - 7)$", "rationale": "Using $a^2 - b^2 = (a+b)(a-b)$, where $a=4x$ and $b=7$.", "isCorrect": true },
+          { "text": "$(8x + 7)(8x - 7)$", "rationale": "The square root of 16 is 4, not 8.", "isCorrect": false }
+        ],
+        "hint": "Recognize the form $a^2 - b^2$, which factors into $(a + b)(a - b)$."
+      },
+      {
+        "questionNumber": 15,
+        "question": "Evaluate $105^2 - 5^2$ without a calculator.",
+        "answerOptions": [
+          { "text": "10000", "rationale": "This evaluates to $100^2$, but $105^2 - 5^2$ equals $110 \\times 100$.", "isCorrect": false },
+          { "text": "11000", "rationale": "Using the difference of squares: $(105 + 5)(105 - 5) = 110 \\times 100 = 11000$.", "isCorrect": true },
+          { "text": "10500", "rationale": "This is an arithmetic miscalculation.", "isCorrect": false },
+          { "text": "11025", "rationale": "This is just $105^2$, without subtracting the $5^2$.", "isCorrect": false }
+        ],
+        "hint": "Use the identity $a^2 - b^2 = (a + b)(a - b)$ to make the math easier."
+      },
+      {
+        "questionNumber": 16,
+        "question": "The area of a square photo frame is given by $(9x^2 - 42x + 49) \\text{ cm}^2$. Find an expression for the perimeter of the frame in terms of $x$.",
+        "answerOptions": [
+          { "text": "$(12x - 14) \\text{ cm}$", "rationale": "This is $(3x-7)$ multiplied by 4 incorrectly.", "isCorrect": false },
+          { "text": "$(3x - 7) \\text{ cm}$", "rationale": "This is the length of only ONE side of the square.", "isCorrect": false },
+          { "text": "$(12x - 28) \\text{ cm}$", "rationale": "Factorise the area using $(a-b)^2$: $9x^2 - 42x + 49 = (3x - 7)^2$. The side length is $(3x - 7)$. The perimeter of a square is 4 times the side length: $4(3x - 7) = 12x - 28$.", "isCorrect": true },
+          { "text": "$(6x - 14) \\text{ cm}$", "rationale": "This is the length of two sides, not the perimeter.", "isCorrect": false }
+        ],
+        "hint": "First, factorise the area expression into a perfect square to find the length of one side. Then multiply by 4 to get the perimeter."
+      },
+
+      // --- Chapter 5: Quadratic Equations and Graphs ---
+      {
+        "questionNumber": 17,
+        "question": "Solve the quadratic equation $x^2 - 8x + 15 = 0$.",
+        "answerOptions": [
+          { "text": "$x = -3, x = -5$", "rationale": "If $x = -3$, the expression becomes $9 + 24 + 15$, which is not 0.", "isCorrect": false },
+          { "text": "$x = 3, x = 5$", "rationale": "Factorising gives $(x - 3)(x - 5) = 0$. Using the Zero Product Principle, $x = 3$ or $x = 5$.", "isCorrect": true },
+          { "text": "$x = 1, x = 15$", "rationale": "These factors sum to 16, not 8.", "isCorrect": false },
+          { "text": "$x = -3, x = 5$", "rationale": "The sum of the roots here gives -2, not -8.", "isCorrect": false }
+        ],
+        "hint": "Factorise the quadratic first. Then set each bracket equal to zero."
+      },
+      {
+        "questionNumber": 18,
+        "question": "For the graph of $y = -2x^2 + 3x - 1$, does the parabola open upwards or downwards, and what kind of turning point does it have?",
+        "answerOptions": [
+          { "text": "Opens upwards, Minimum point", "rationale": "Upwards parabolas have a positive $x^2$ coefficient.", "isCorrect": false },
+          { "text": "Opens upwards, Maximum point", "rationale": "A graph cannot open upwards and have a maximum point.", "isCorrect": false },
+          { "text": "Opens downwards, Minimum point", "rationale": "A graph cannot open downwards and have a minimum point.", "isCorrect": false },
+          { "text": "Opens downwards, Maximum point", "rationale": "Because the coefficient of $x^2$ ($a = -2$) is negative, the graph is n-shaped (opens downwards) and has a maximum turning point.", "isCorrect": true }
+        ],
+        "hint": "Look at the sign of the number attached to $x^2$ (the 'a' value)."
+      },
+      {
+        "questionNumber": 19,
+        "question": "The $x$-intercepts of a quadratic graph are $-2$ and $6$. What is the equation of the line of symmetry?",
+        "answerOptions": [
+          { "text": "$x = 4$", "rationale": "This is a distance, not the midpoint.", "isCorrect": false },
+          { "text": "$x = 3$", "rationale": "This is incorrect. The midpoint of -2 and 6 is 2.", "isCorrect": false },
+          { "text": "$x = 2$", "rationale": "The line of symmetry is exactly halfway between the $x$-intercepts. Midpoint = $\\frac{-2 + 6}{2} = 2$.", "isCorrect": true },
+          { "text": "$y = 2$", "rationale": "The line of symmetry is a vertical line, which must be in the form $x = a$.", "isCorrect": false }
+        ],
+        "hint": "The line of symmetry passes through the exact midpoint of the two x-intercepts."
+      },
+      {
+        "questionNumber": 20,
+        "question": "The product of two consecutive positive integers is $72$. What is the larger integer?",
+        "answerOptions": [
+          { "text": "8", "rationale": "8 is the smaller integer in the consecutive pair (8 and 9).", "isCorrect": false },
+          { "text": "9", "rationale": "Let the integers be $x$ and $(x+1)$. Equation: $x(x+1) = 72 \\Rightarrow x^2 + x - 72 = 0$. Factorising gives $(x+9)(x-8) = 0$. Since they must be positive, $x=8$. The larger integer is $x+1 = 9$.", "isCorrect": true },
+          { "text": "12", "rationale": "12 and 6 multiply to 72, but they are not consecutive.", "isCorrect": false },
+          { "text": "18", "rationale": "This pairs with 4, not consecutive.", "isCorrect": false }
+        ],
+        "hint": "Set up a quadratic equation: $x(x+1) = 72$. Expand it, set it to zero, and factorise."
+      },
+
+      // --- Chapter 6: Algebraic Fractions and Formulae ---
+      {
+        "questionNumber": 21,
+        "question": "Simplify the algebraic fraction $\\frac{2x^2 - 8}{x - 2}$.",
+        "answerOptions": [
+          { "text": "$2x - 4$", "rationale": "This happens if you divide incorrectly without factorising the difference of squares properly.", "isCorrect": false },
+          { "text": "$2x + 4$", "rationale": "Factorise numerator: $2(x^2 - 4) = 2(x + 2)(x - 2)$. The $(x - 2)$ cancels out with the denominator, leaving $2(x + 2) = 2x + 4$.", "isCorrect": true },
+          { "text": "$2x - 8$", "rationale": "This occurs from incorrect partial cancellation.", "isCorrect": false },
+          { "text": "$x + 2$", "rationale": "This forgets the common factor of 2 extracted at the beginning.", "isCorrect": false }
+        ],
+        "hint": "Factorise the numerator completely (extract the 2, then use the difference of two squares) before cancelling."
+      },
+      {
+        "questionNumber": 22,
+        "question": "Make $x$ the subject of the formula: $y = \\frac{x - 1}{2}$.",
+        "answerOptions": [
+          { "text": "$x = 2y - 1$", "rationale": "If you multiply by 2, you must ADD 1 to isolate x, not subtract it.", "isCorrect": false },
+          { "text": "$x = 2y + 1$", "rationale": "Multiply both sides by 2 to get $2y = x - 1$. Then add 1 to both sides: $x = 2y + 1$.", "isCorrect": true },
+          { "text": "$x = \\frac{y + 1}{2}$", "rationale": "This performs the inverse operations in the wrong order.", "isCorrect": false },
+          { "text": "$x = y + 2$", "rationale": "This performs incorrect arithmetic.", "isCorrect": false }
+        ],
+        "hint": "Work backwards: undo the division by 2 first, then undo the subtraction."
+      },
+      {
+        "questionNumber": 23,
+        "question": "Solve the fractional equation: $\\frac{x}{3} + \\frac{x - 1}{2} = 2$.",
+        "answerOptions": [
+          { "text": "$x = 2$", "rationale": "Substituting 2 gives $\\frac{2}{3} + \\frac{1}{2}$, which equals $\\frac{7}{6}$, not 2.", "isCorrect": false },
+          { "text": "$x = 3$", "rationale": "Multiply all terms by the LCM (6): $2x + 3(x - 1) = 12 \\Rightarrow 2x + 3x - 3 = 12 \\Rightarrow 5x = 15 \\Rightarrow x = 3$.", "isCorrect": true },
+          { "text": "$x = 4$", "rationale": "Substituting 4 gives $\\frac{4}{3} + \\frac{3}{2}$, which equals $\\frac{17}{6}$, not 2.", "isCorrect": false },
+          { "text": "$x = 5$", "rationale": "This arises from arithmetic errors after multiplying by the LCM.", "isCorrect": false }
+        ],
+        "hint": "Multiply every single term in the equation by 6 (the LCM of 3 and 2) to eliminate the denominators."
+      },
+      {
+        "questionNumber": 24,
+        "question": "Andrew drives $280$ km at an average speed of $x$ km/h. On his return journey, his speed increases by $10$ km/h, taking him half an hour less. Which equation correctly represents this situation?",
+        "answerOptions": [
+          { "text": "$\\frac{280}{x+10} - \\frac{280}{x} = \\frac{1}{2}$", "rationale": "This subtracts the slower time from the faster time, resulting in a negative number.", "isCorrect": false },
+          { "text": "$\\frac{x}{280} - \\frac{x+10}{280} = 30$", "rationale": "This uses the formula for Speed/Distance instead of Distance/Speed.", "isCorrect": false },
+          { "text": "$\\frac{280}{x} - \\frac{280}{x+10} = \\frac{1}{2}$", "rationale": "Time = Distance/Speed. The slower journey (Time 1) takes longer. Time 1 = $\\frac{280}{x}$. Time 2 = $\\frac{280}{x+10}$. The difference is 30 mins (or $\\frac{1}{2}$ hour): $\\frac{280}{x} - \\frac{280}{x+10} = \\frac{1}{2}$.", "isCorrect": true },
+          { "text": "$\\frac{280}{x} + \\frac{280}{x+10} = \\frac{1}{2}$", "rationale": "This adds the two times together rather than finding the difference.", "isCorrect": false }
+        ],
+        "hint": "Time is equal to Distance divided by Speed. Which journey takes MORE time? Set up: (Longer Time) - (Shorter Time) = Difference."
+      },
+
+      // --- Chapter 7: Direct and Inverse Proportions ---
+      {
+        "questionNumber": 25,
+        "question": "$y$ is directly proportional to $x$. When $x = 2$, $y = 10$. Find $y$ when $x = 5$.",
+        "answerOptions": [
+          { "text": "15", "rationale": "This assumes the relationship is $y = x + 8$, which is not a direct proportion.", "isCorrect": false },
+          { "text": "20", "rationale": "This assumes $x$ was multiplied by 2, but it was multiplied by 2.5.", "isCorrect": false },
+          { "text": "25", "rationale": "Equation is $y = kx$. $10 = k(2) \\Rightarrow k = 5$. Thus, $y = 5x$. When $x=5$, $y = 5(5) = 25$.", "isCorrect": true },
+          { "text": "50", "rationale": "This miscalculates the proportion constant.", "isCorrect": false }
+        ],
+        "hint": "First, find the constant $k$ in the equation $y = kx$."
+      },
+      {
+        "questionNumber": 26,
+        "question": "$y$ is inversely proportional to $x$. When $x = 4$, $y = 3$. Find $x$ when $y = 6$.",
+        "answerOptions": [
+          { "text": "$1.5$", "rationale": "This is an arithmetic error.", "isCorrect": false },
+          { "text": "$2$", "rationale": "Equation is $xy = k$. $4 \\times 3 = 12$, so $k = 12$. When $y = 6$, $x(6) = 12 \\Rightarrow x = 2$.", "isCorrect": true },
+          { "text": "$8$", "rationale": "This assumes a direct proportion ($y$ doubled, so $x$ doubled). In inverse proportion, if $y$ doubles, $x$ halves.", "isCorrect": false },
+          { "text": "$12$", "rationale": "This is the constant $k$, not the value of $x$.", "isCorrect": false }
+        ],
+        "hint": "For inverse proportion, $x \\times y = k$. Find $k$ first."
+      },
+      {
+        "questionNumber": 27,
+        "question": "A team of 5 workers takes 12 hours to paint a wall. How long will it take 3 workers to paint the same wall (assuming they work at the same rate)?",
+        "answerOptions": [
+          { "text": "7.2 hours", "rationale": "This incorrectly assumes direct proportion (fewer workers = less time).", "isCorrect": false },
+          { "text": "15 hours", "rationale": "This is an incorrect calculation of the inverse proportion.", "isCorrect": false },
+          { "text": "20 hours", "rationale": "This is an inverse proportion problem. Total worker-hours needed = $5 \\times 12 = 60$. For 3 workers, time = $\\frac{60}{3} = 20$ hours.", "isCorrect": true },
+          { "text": "36 hours", "rationale": "This misinterprets the constant of proportionality.", "isCorrect": false }
+        ],
+        "hint": "This is an inverse proportion: fewer workers means MORE time. Find the total 'worker-hours' needed for the job first."
+      },
+      {
+        "questionNumber": 28,
+        "question": "The extension of a spring, $e$ cm, is directly proportional to the weight, $w$ kg, attached to it. If the extension is $3$ cm when a weight of $8$ kg is attached, find the extension when a weight of $50$ kg is attached.",
+        "answerOptions": [
+          { "text": "15.5 cm", "rationale": "This is an arithmetic error.", "isCorrect": false },
+          { "text": "18.75 cm", "rationale": "Using $e = kw$, we find $k = \\frac{3}{8} = 0.375$. When $w = 50$, $e = 0.375 \\times 50 = 18.75$ cm.", "isCorrect": true },
+          { "text": "20.25 cm", "rationale": "This assumes the constant $k$ is $0.405$.", "isCorrect": false },
+          { "text": "24 cm", "rationale": "This assumes the constant $k$ is $0.48$.", "isCorrect": false }
+        ],
+        "hint": "Set up a direct proportion equation $e = kw$. Find $k$ using the initial measurements provided, then plug in the new weight."
+      }
+    ];
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
