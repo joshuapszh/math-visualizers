@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sec 2 Math Mock Exam - Advanced</title>
+  
+  <!-- Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React and ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel for parsing JSX directly in the browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // --- Inline SVG Icons (Replacing lucide-react imports for pure HTML) ---
+    const CheckCircle2 = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+    );
+    const XCircle = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+    );
+    const Lightbulb = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>
+    );
+    const RefreshCcw = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21v-5h5"></path></svg>
+    );
+    const Play = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+    );
+    const ChevronLeft = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m15 18-6-6 6-6"></path></svg>
+    );
+    const ChevronRight = ({ className }) => (
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m9 18 6-6-6-6"></path></svg>
+    );
+
+
+    // --- Custom component to render inline math enclosed in $ $ ---
+    const FormattedText = ({ text }) => {
+      if (!text) return null;
+      const parts = text.split(/\$(.*?)\$/g);
+      return (
+        <span>
+          {parts.map((part, index) => {
+            if (index % 2 === 1) {
+              let html = part
+                .replace(/\\times/g, ' &times; ')
+                .replace(/\\div/g, ' &divide; ')
+                .replace(/\\Rightarrow/g, ' &rArr; ')
+                .replace(/\\le/g, ' &le; ')
+                .replace(/\\ge/g, ' &ge; ')
+                .replace(/\\pm/g, ' &plusmn; ')
+                .replace(/\\pi/g, '&pi;')
+                .replace(/\^\\circ/g, '&deg;')
+                .replace(/\\text\{([^}]+)\}/g, '<span class="font-sans text-[0.9em]">$1</span>')
+                .replace(/\\sqrt\{([^}]+)\}/g, '<span class="whitespace-nowrap">&radic;<span class="border-t border-slate-700 ml-[1px] pt-[1px]">$1</span></span>')
+                .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '<span class="inline-flex flex-col align-middle text-center mx-1" style="font-size: 0.85em; line-height: 1.2;"><span class="border-b border-slate-700 px-0.5">$1</span><span class="px-0.5">$2</span></span>')
+                .replace(/\^\{([^}]+)\}/g, '<sup class="text-[0.75em]">$1</sup>')
+                .replace(/\^([a-zA-Z0-9])/g, '<sup class="text-[0.75em]">$1</sup>');
+
+              return (
+                <span
+                  key={index}
+                  className="font-serif text-[1.1em] text-slate-800 tracking-wide mx-0.5"
+                  dangerouslySetInnerHTML={{ __html: html }}
+                />
+              );
+            }
+            return <span key={index}>{part}</span>;
+          })}
+        </span>
+      );
+    };
+
+    // --- Main App Component ---
+    function App() {
+      const [view, setView] = useState('start'); 
+      const [currentIndex, setCurrentIndex] = useState(0);
+      const [answers, setAnswers] = useState({});
+      const [showFeedback, setShowFeedback] = useState({});
+      const [showHint, setShowHint] = useState({});
+
+      const question = quizData[currentIndex];
+      const totalQuestions = quizData.length;
+
+      const handleSelectOption = (optionIndex) => {
+        if (showFeedback[currentIndex]) return;
+        setAnswers({ ...answers, [currentIndex]: optionIndex });
+      };
+
+      const handleCheckAnswer = () => {
+        if (answers[currentIndex] !== undefined) {
+          setShowFeedback({ ...showFeedback, [currentIndex]: true });
+        }
+      };
+
+      const handleNext = () => {
+        if (currentIndex < totalQuestions - 1) setCurrentIndex(currentIndex + 1);
+      };
+
+      const handlePrev = () => {
+        if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+      };
+
+      const toggleHint = () => {
+        setShowHint({ ...showHint, [currentIndex]: !showHint[currentIndex] });
+      };
+
+      const calculateScore = () => {
+        let score = 0;
+        Object.keys(showFeedback).forEach((key) => {
+          const qIndex = parseInt(key, 10);
+          const selectedOption = answers[qIndex];
+          if (selectedOption !== undefined && quizData[qIndex].answerOptions[selectedOption].isCorrect) {
+            score++;
+          }
+        });
+        return score;
+      };
+
+      const restartQuiz = () => {
+        setAnswers({});
+        setShowFeedback({});
+        setShowHint({});
+        setCurrentIndex(0);
+        setView('start');
+      };
+
+      const getQuestionStatusColor = (index) => {
+        if (!showFeedback[index]) return 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200';
+        const isCorrect = quizData[index].answerOptions[answers[index]].isCorrect;
+        return isCorrect 
+          ? 'bg-emerald-100 text-emerald-700 border-emerald-300' 
+          : 'bg-rose-100 text-rose-700 border-rose-300';
+      };
+
+      if (view === 'start') {
+        return (
+          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
+            <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 text-center space-y-6">
+              <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-indigo-600" />
+              </div>
+              <h1 className="text-4xl font-bold text-slate-800">Sec 2 Math Mock Exam</h1>
+              <span className="bg-rose-100 text-rose-700 font-semibold px-3 py-1 rounded-full text-sm inline-block mx-auto">Advanced Level</span>
+              <p className="text-lg text-slate-600">
+                A challenging test across all 7 core topics: Simultaneous Equations, Inequalities, Factorisation, Special Identities, Quadratics, Algebraic Fractions, and Proportions. Get ready to think!
+              </p>
+              <div className="grid grid-cols-2 gap-4 text-left bg-slate-50 p-6 rounded-xl border border-slate-100 mb-8">
+                <div><span className="font-semibold text-slate-700">Questions:</span> {totalQuestions}</div>
+                <div><span className="font-semibold text-slate-700">Mode:</span> Practice (Immediate Feedback)</div>
+                <div><span className="font-semibold text-slate-700">Format:</span> Multiple Choice & Multi-Step</div>
+                <div><span className="font-semibold text-slate-700">Level:</span> Secondary 2 (Advanced)</div>
+              </div>
+              <button 
+                onClick={() => setView('quiz')}
+                className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-lg transition-colors flex items-center justify-center gap-2 mx-auto"
+              >
+                <Play className="w-5 h-5" /> Start Exam
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      if (view === 'results') {
+        const score = calculateScore();
+        const percentage = Math.round((score / totalQuestions) * 100);
+        return (
+          <div className="min-h-screen bg-slate-50 p-6 flex flex-col items-center py-12">
+            <div className="max-w-3xl w-full bg-white rounded-2xl shadow-xl p-8 text-center space-y-8">
+              <h2 className="text-3xl font-bold text-slate-800">Exam Results</h2>
+              
+              <div className="relative w-48 h-48 mx-auto flex items-center justify-center bg-indigo-50 rounded-full border-8 border-indigo-100">
+                <div className="text-center">
+                  <span className="text-5xl font-extrabold text-indigo-700">{percentage}%</span>
+                  <p className="text-indigo-600 font-medium mt-1">Score</p>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-8 text-lg">
+                <div className="flex flex-col items-center">
+                  <span className="text-3xl font-bold text-emerald-600">{score}</span>
+                  <span className="text-slate-500">Correct</span>
+                </div>
+                <div className="w-px bg-slate-200"></div>
+                <div className="flex flex-col items-center">
+                  <span className="text-3xl font-bold text-rose-600">{Object.keys(showFeedback).length - score}</span>
+                  <span className="text-slate-500">Incorrect</span>
+                </div>
+                <div className="w-px bg-slate-200"></div>
+                <div className="flex flex-col items-center">
+                  <span className="text-3xl font-bold text-slate-400">{totalQuestions - Object.keys(showFeedback).length}</span>
+                  <span className="text-slate-500">Skipped</span>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row gap-4 justify-center">
+                <button 
+                  onClick={() => setView('quiz')}
+                  className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors"
+                >
+                  Review Answers
+                </button>
+                <button 
+                  onClick={restartQuiz}
+                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                >
+                  <RefreshCcw className="w-5 h-5" /> Retake Exam
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      const isAnswered = answers[currentIndex] !== undefined;
+      const hasChecked = showFeedback[currentIndex];
+      const selectedIsCorrect = isAnswered && question.answerOptions[answers[currentIndex]].isCorrect;
+
+      return (
+        <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+          <div className="w-full md:w-80 bg-white border-r border-slate-200 flex flex-col h-auto md:h-screen md:sticky top-0 p-6 overflow-y-auto hidden md:flex shrink-0">
+            <h3 className="text-lg font-bold text-slate-800 mb-6">Question Navigator</h3>
+            <div className="grid grid-cols-5 gap-2">
+              {quizData.map((q, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentIndex(idx)}
+                  className={`
+                    h-10 rounded-lg text-sm font-semibold flex items-center justify-center border transition-all
+                    ${currentIndex === idx ? 'ring-2 ring-indigo-500 ring-offset-2' : ''}
+                    ${getQuestionStatusColor(idx)}
+                  `}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+            </div>
+            <div className="mt-auto pt-8">
+              <button 
+                onClick={() => setView('results')}
+                className="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-semibold transition-colors"
+              >
+                Finish & View Results
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 p-4 md:p-8 overflow-y-auto">
+            <div className="max-w-3xl mx-auto space-y-6">
+              
+              <div className="flex items-center justify-between">
+                <span className="text-indigo-600 font-bold tracking-wide uppercase text-sm">
+                  Question {currentIndex + 1} of {totalQuestions}
+                </span>
+                <button 
+                  onClick={() => setView('results')}
+                  className="md:hidden text-sm font-medium text-slate-500 hover:text-slate-800"
+                >
+                  Finish
+                </button>
+              </div>
+
+              <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-indigo-500 transition-all duration-300"
+                  style={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
+                ></div>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="p-6 md:p-8">
+                  <h2 className="text-xl md:text-2xl text-slate-800 font-medium leading-relaxed mb-8">
+                    <FormattedText text={question.question} />
+                  </h2>
+
+                  <div className="space-y-3">
+                    {question.answerOptions.map((option, optIdx) => {
+                      const isSelected = answers[currentIndex] === optIdx;
+                      let optionClass = "border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-700";
+                      let icon = null;
+
+                      if (hasChecked) {
+                        if (option.isCorrect) {
+                          optionClass = "border-emerald-500 bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500";
+                          icon = <CheckCircle2 className="w-5 h-5 text-emerald-600 ml-auto" />;
+                        } else if (isSelected && !option.isCorrect) {
+                          optionClass = "border-rose-500 bg-rose-50 text-rose-800 ring-1 ring-rose-500";
+                          icon = <XCircle className="w-5 h-5 text-rose-600 ml-auto" />;
+                        } else {
+                          optionClass = "border-slate-200 opacity-60 bg-slate-50 text-slate-500";
+                        }
+                      } else if (isSelected) {
+                        optionClass = "border-indigo-500 bg-indigo-50 text-indigo-800 ring-1 ring-indigo-500";
+                      }
+
+                      return (
+                        <button
+                          key={optIdx}
+                          onClick={() => handleSelectOption(optIdx)}
+                          disabled={hasChecked}
+                          className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-center ${optionClass} ${hasChecked ? 'cursor-default' : 'cursor-pointer'}`}
+                        >
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 shrink-0
+                            ${isSelected ? (hasChecked && !option.isCorrect ? 'border-rose-500' : 'border-indigo-500') : 'border-slate-300'}
+                          `}>
+                            {isSelected && <div className={`w-2.5 h-2.5 rounded-full ${hasChecked && !option.isCorrect ? 'bg-rose-500' : 'bg-indigo-500'}`} />}
+                          </div>
+                          <span className="text-lg">
+                            <FormattedText text={option.text} />
+                          </span>
+                          {icon}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-6 border-t border-slate-100">
+                  <div className="flex flex-wrap gap-4 items-center justify-between">
+                    <button
+                      onClick={toggleHint}
+                      className="flex items-center gap-2 text-amber-600 hover:text-amber-700 font-medium bg-amber-50 px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <Lightbulb className="w-5 h-5" />
+                      {showHint[currentIndex] ? 'Hide Hint' : 'Show Hint'}
+                    </button>
+
+                    {!hasChecked ? (
+                      <button
+                        onClick={handleCheckAnswer}
+                        disabled={!isAnswered}
+                        className={`px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all
+                          ${isAnswered 
+                            ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg' 
+                            : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+                      >
+                        Check Answer
+                      </button>
+                    ) : (
+                      <div className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 ${selectedIsCorrect ? 'text-emerald-700 bg-emerald-100' : 'text-rose-700 bg-rose-100'}`}>
+                        {selectedIsCorrect ? <><CheckCircle2 className="w-5 h-5" /> Correct</> : <><XCircle className="w-5 h-5" /> Incorrect</>}
+                      </div>
+                    )}
+                  </div>
+
+                  {showHint[currentIndex] && (
+                    <div className="mt-4 p-4 bg-amber-100 border border-amber-200 text-amber-800 rounded-xl flex gap-3 animate-in fade-in slide-in-from-top-2">
+                      <Lightbulb className="w-6 h-6 shrink-0 mt-0.5" />
+                      <p><FormattedText text={question.hint} /></p>
+                    </div>
+                  )}
+
+                  {hasChecked && (
+                    <div className="mt-4 space-y-3 animate-in fade-in slide-in-from-top-2">
+                      <h4 className="font-semibold text-slate-700 text-sm uppercase tracking-wide">Explanation</h4>
+                      <div className="p-4 bg-white border border-slate-200 rounded-xl text-slate-700 leading-relaxed shadow-sm">
+                        <p className="mb-3"><span className="font-semibold">Your selection:</span> <FormattedText text={question.answerOptions[answers[currentIndex]].rationale} /></p>
+                        
+                        {!selectedIsCorrect && (
+                           <p className="pt-3 border-t border-slate-100 text-emerald-700">
+                             <span className="font-semibold">Correct Answer:</span> <FormattedText text={question.answerOptions.find(o => o.isCorrect).rationale} />
+                           </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4">
+                <button
+                  onClick={handlePrev}
+                  disabled={currentIndex === 0}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-colors
+                    ${currentIndex === 0 ? 'text-slate-400 cursor-not-allowed' : 'text-slate-700 bg-white hover:bg-slate-200 shadow-sm border border-slate-200'}`}
+                >
+                  <ChevronLeft className="w-5 h-5" /> Previous
+                </button>
+                
+                <button
+                  onClick={handleNext}
+                  disabled={currentIndex === totalQuestions - 1}
+                  className={`flex items-center gap-2 px-5 py-3 rounded-xl font-medium transition-colors
+                    ${currentIndex === totalQuestions - 1 ? 'text-slate-400 cursor-not-allowed' : 'text-slate-700 bg-white hover:bg-slate-200 shadow-sm border border-slate-200'}`}
+                >
+                  Next <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- Advanced Quiz Data ---
+    const quizData = [
+      // --- Chapter 1: Linear Graphs and Simultaneous Equations ---
+      {
+        "questionNumber": 1,
+        "question": "Find the equation of the straight line passing through the points $(-2, 5)$ and $(4, -7)$.",
+        "answerOptions": [
+          { "text": "$y = 2x + 9$", "rationale": "The gradient was calculated with the wrong sign.", "isCorrect": false },
+          { "text": "$y = -2x - 3$", "rationale": "The gradient is correct, but the y-intercept was miscalculated using the formula.", "isCorrect": false },
+          { "text": "$y = -2x + 1$", "rationale": "First find gradient $m = \\frac{-7 - 5}{4 - (-2)} = \\frac{-12}{6} = -2$. Use $y = mx + c$ with $(-2, 5)$: $5 = -2(-2) + c \\Rightarrow 5 = 4 + c \\Rightarrow c = 1$. The equation is $y = -2x + 1$.", "isCorrect": true },
+          { "text": "$y = -\\frac{1}{2}x + 4$", "rationale": "This formula incorrectly inverts the rise over run calculation.", "isCorrect": false }
+        ],
+        "hint": "Calculate the gradient ($m$) first using the formula $m = \\frac{y_2 - y_1}{x_2 - x_1}$. Then substitute one point back to find $c$."
+      },
+      {
+        "questionNumber": 2,
+        "question": "Solve the simultaneous equations: $3x - 2y = 12$ and $x + 4y = -10$.",
+        "answerOptions": [
+          { "text": "$x = 4, y = 0$", "rationale": "This satisfies the first equation but not the second.", "isCorrect": false },
+          { "text": "$x = 2, y = -3$", "rationale": "From eq 2, $x = -10 - 4y$. Substitute into eq 1: $3(-10 - 4y) - 2y = 12 \\Rightarrow -30 - 12y - 2y = 12 \\Rightarrow -14y = 42 \\Rightarrow y = -3$. Substitute $y$ back: $x = -10 - 4(-3) = 2$.", "isCorrect": true },
+          { "text": "$x = -2, y = -2$", "rationale": "This incorrectly satisfies $3x+2y=-10$.", "isCorrect": false },
+          { "text": "$x = -4, y = -1.5$", "rationale": "This is an arithmetic error during substitution.", "isCorrect": false }
+        ],
+        "hint": "Try the substitution method. Isolate $x$ in the second equation ($x = -10 - 4y$), then plug it into the first equation."
+      },
+      {
+        "questionNumber": 3,
+        "question": "A test has $30$ questions. A student is awarded $5$ points for every correct answer and loses $2$ points for every wrong or unattempted question. If a student scored $66$ points, how many questions did they answer correctly?",
+        "answerOptions": [
+          { "text": "16", "rationale": "If 16 were correct, the score would be $16(5) - 14(2) = 80 - 28 = 52$ points.", "isCorrect": false },
+          { "text": "20", "rationale": "If 20 were correct, the score would be $20(5) - 10(2) = 100 - 20 = 80$ points.", "isCorrect": false },
+          { "text": "18", "rationale": "Let $c$ be correct answers and $w$ be wrong answers. $c + w = 30$, so $w = 30 - c$. Points equation: $5c - 2w = 66$. Substitute $w$: $5c - 2(30 - c) = 66 \\Rightarrow 7c - 60 = 66 \\Rightarrow 7c = 126 \\Rightarrow c = 18$.", "isCorrect": true },
+          { "text": "22", "rationale": "If 22 were correct, the score would be $22(5) - 8(2) = 110 - 16 = 94$ points.", "isCorrect": false }
+        ],
+        "hint": "Form two simultaneous equations. One for the total number of questions, and one for the total points."
+      },
+
+      // --- Chapter 2: Linear Inequalities ---
+      {
+        "questionNumber": 4,
+        "question": "Solve the inequality: $\\frac{2x - 1}{3} \\ge \\frac{x + 5}{2}$.",
+        "answerOptions": [
+          { "text": "$x \\le 17$", "rationale": "The inequality sign was incorrectly reversed during multiplication.", "isCorrect": false },
+          { "text": "$x \\ge 13$", "rationale": "This happens if you mistakenly subtract the constants incorrectly.", "isCorrect": false },
+          { "text": "$x \\ge 17$", "rationale": "Multiply both sides by the LCM (6): $2(2x - 1) \\ge 3(x + 5) \\Rightarrow 4x - 2 \\ge 3x + 15$. Subtract $3x$ from both sides: $x - 2 \\ge 15$. Add 2 to both sides: $x \\ge 17$.", "isCorrect": true },
+          { "text": "$x \\le 13$", "rationale": "This contains multiple arithmetic and logic errors.", "isCorrect": false }
+        ],
+        "hint": "To eliminate the fractions, multiply both sides by the Lowest Common Multiple of 3 and 2, which is 6."
+      },
+      {
+        "questionNumber": 5,
+        "question": "Find the sum of all integer values of $x$ that satisfy the inequality $-5 < 2x - 1 \\le 5$.",
+        "answerOptions": [
+          { "text": "9", "rationale": "This sum includes 4, which is outside the range.", "isCorrect": false },
+          { "text": "5", "rationale": "Add 1 to all parts: $-4 < 2x \\le 6$. Divide by 2: $-2 < x \\le 3$. The integers are $-1, 0, 1, 2, 3$. Their sum is $(-1) + 0 + 1 + 2 + 3 = 5$.", "isCorrect": true },
+          { "text": "2", "rationale": "This sum excludes positive integers within the boundary.", "isCorrect": false },
+          { "text": "0", "rationale": "This would be the sum if the boundaries were symmetrical like $-2 < x < 2$.", "isCorrect": false }
+        ],
+        "hint": "Solve the compound inequality by isolating $x$ in the middle. Be careful with whether the boundary is strictly less than ($<$) or less than/equal to ($\\le$)."
+      },
+      {
+        "questionNumber": 6,
+        "question": "A van can carry a maximum load of $800$ kg. It is carrying a machine weighing $320$ kg and $5$ identical crates weighing $x$ kg each. What is the maximum possible integer mass of one crate?",
+        "answerOptions": [
+          { "text": "95 kg", "rationale": "This is less than the maximum possible integer.", "isCorrect": false },
+          { "text": "160 kg", "rationale": "This ignores the 320 kg machine already in the van.", "isCorrect": false },
+          { "text": "96 kg", "rationale": "Set up the inequality: $5x + 320 \\le 800$. Subtract 320: $5x \\le 480$. Divide by 5: $x \\le 96$. The maximum integer mass is exactly 96 kg.", "isCorrect": true },
+          { "text": "224 kg", "rationale": "This adds the machine weight instead of subtracting it.", "isCorrect": false }
+        ],
+        "hint": "Write an inequality to represent the total weight in the van being less than or equal to 800."
+      },
+
+      // --- Chapter 3: Expansion and Factorisation ---
+      {
+        "questionNumber": 7,
+        "question": "Expand and simplify: $2x(x - 3) - (x + 2)(x - 5)$.",
+        "answerOptions": [
+          { "text": "$x^2 - 9x - 10$", "rationale": "This occurs if you forget to distribute the negative sign to the $-10$ at the end.", "isCorrect": false },
+          { "text": "$3x^2 - 3x - 10$", "rationale": "This occurs if you incorrectly add the $x^2$ terms instead of subtracting them.", "isCorrect": false },
+          { "text": "$x^2 - 3x + 10$", "rationale": "$2x(x - 3) = 2x^2 - 6x$. Next, expand $(x+2)(x-5) = x^2 - 3x - 10$. Subtracting the second from the first: $2x^2 - 6x - (x^2 - 3x - 10) = 2x^2 - 6x - x^2 + 3x + 10 = x^2 - 3x + 10$.", "isCorrect": true },
+          { "text": "$x^2 + 3x + 10$", "rationale": "This gets the sign of the middle $x$ term wrong during subtraction.", "isCorrect": false }
+        ],
+        "hint": "Expand the brackets first, but keep the second expansion inside a set of brackets so you don't mess up distributing the minus sign!"
+      },
+      {
+        "questionNumber": 8,
+        "question": "Factorise completely by grouping: $6ax - 9ay - 4bx + 6by$.",
+        "answerOptions": [
+          { "text": "$(3a + 2b)(2x - 3y)$", "rationale": "If this were correct, expanding the $b$ terms would yield $+6bx - 9by$.", "isCorrect": false },
+          { "text": "$(3a - 2b)(2x - 3y)$", "rationale": "Group the first two and last two terms: $3a(2x - 3y) - 2b(2x - 3y)$. Extract the common bracket $(2x - 3y)$ to get $(3a - 2b)(2x - 3y)$.", "isCorrect": true },
+          { "text": "$(3a - 2b)(2x + 3y)$", "rationale": "Expanding this would give positive $y$ terms for $a$, which is incorrect.", "isCorrect": false },
+          { "text": "$(2x - 3y)(6a - 4b)$", "rationale": "This is partially correct but not 'completely' factorised, as you can still extract a 2 from the second bracket.", "isCorrect": false }
+        ],
+        "hint": "Group the first two terms and factor out $3a$. Group the last two terms and factor out $-2b$. Watch the signs!"
+      },
+      {
+        "questionNumber": 9,
+        "question": "Factorise the quadratic expression $6x^2 - 11x - 10$.",
+        "answerOptions": [
+          { "text": "$(3x - 2)(2x + 5)$", "rationale": "This expands to $6x^2 + 11x - 10$, getting the middle sign reversed.", "isCorrect": false },
+          { "text": "$(6x - 5)(x + 2)$", "rationale": "This expands to $6x^2 + 7x - 10$.", "isCorrect": false },
+          { "text": "$(3x + 2)(2x - 5)$", "rationale": "Using the cross method or splitting the middle term: factors of $6x^2$ ($3x, 2x$) and factors of $-10$ ($2, -5$) yield $3x(-5) + 2x(2) = -15x + 4x = -11x$.", "isCorrect": true },
+          { "text": "$(6x + 5)(x - 2)$", "rationale": "This expands to $6x^2 - 7x - 10$.", "isCorrect": false }
+        ],
+        "hint": "Use the multiplication frame (cross method). You need factors of $6x^2$ and factors of $-10$ that cross-multiply and add up to $-11x$."
+      },
+
+      // --- Chapter 4: Special Algebraic Identities ---
+      {
+        "questionNumber": 10,
+        "question": "Expand using a special algebraic identity: $(2a - \\frac{1}{2}b)^2$.",
+        "answerOptions": [
+          { "text": "$4a^2 - 4ab + \\frac{1}{4}b^2$", "rationale": "The middle term was miscalculated. It should be $2 \\times 2a \\times 0.5b = 2ab$.", "isCorrect": false },
+          { "text": "$4a^2 - \\frac{1}{4}b^2$", "rationale": "This is the difference of two squares identity, not the perfect square.", "isCorrect": false },
+          { "text": "$4a^2 + 2ab - \\frac{1}{4}b^2$", "rationale": "The signs are incorrect for a subtracted perfect square.", "isCorrect": false },
+          { "text": "$4a^2 - 2ab + \\frac{1}{4}b^2$", "rationale": "Using $(x - y)^2 = x^2 - 2xy + y^2$. Here $x = 2a$ and $y = \\frac{1}{2}b$. $(2a)^2 - 2(2a)(\\frac{1}{2}b) + (\\frac{1}{2}b)^2 = 4a^2 - 2ab + \\frac{1}{4}b^2$.", "isCorrect": true }
+        ],
+        "hint": "Remember the middle term is $-2(x)(y)$."
+      },
+      {
+        "questionNumber": 11,
+        "question": "Factorise completely: $16x^4 - 81$.",
+        "answerOptions": [
+          { "text": "$(4x^2 - 9)(4x^2 + 9)$", "rationale": "This is partially factorised, but the first bracket $(4x^2 - 9)$ can be factorised further.", "isCorrect": false },
+          { "text": "$(4x^2 + 9)(2x + 3)(2x - 3)$", "rationale": "Difference of squares first: $(4x^2)^2 - 9^2 = (4x^2 + 9)(4x^2 - 9)$. The second bracket is another difference of squares: $(2x)^2 - 3^2 = (2x + 3)(2x - 3)$. Final: $(4x^2 + 9)(2x + 3)(2x - 3)$.", "isCorrect": true },
+          { "text": "$(4x^2 + 9)^2$", "rationale": "This is an incorrect application of identities.", "isCorrect": false },
+          { "text": "$(2x + 3)^2(2x - 3)^2$", "rationale": "This implies $16x^4 - 72x^2 + 81$.", "isCorrect": false }
+        ],
+        "hint": "Use the difference of two squares identity. Notice that after applying it once, one of your brackets is STILL a difference of two squares!"
+      },
+      {
+        "questionNumber": 12,
+        "question": "Given that $x + y = 8$ and $xy = 12$, find the value of $x^2 + y^2$ without solving for $x$ and $y$.",
+        "answerOptions": [
+          { "text": "88", "rationale": "This adds $2xy$ instead of subtracting it from the squared sum.", "isCorrect": false },
+          { "text": "64", "rationale": "This is just $(x+y)^2$, failing to account for the $2xy$ middle term.", "isCorrect": false },
+          { "text": "40", "rationale": "Use the identity $(x+y)^2 = x^2 + 2xy + y^2$. Substitute the given values: $8^2 = x^2 + 2(12) + y^2 \\Rightarrow 64 = x^2 + y^2 + 24$. Subtract 24: $x^2 + y^2 = 40$.", "isCorrect": true },
+          { "text": "52", "rationale": "This subtracts only $1xy$ instead of $2xy$.", "isCorrect": false }
+        ],
+        "hint": "Write out the expansion for $(x+y)^2$ and substitute the numbers you know into the equation."
+      },
+
+      // --- Chapter 5: Quadratic Equations and Graphs ---
+      {
+        "questionNumber": 13,
+        "question": "Solve the quadratic equation $2x^2 + 5x - 12 = 0$.",
+        "answerOptions": [
+          { "text": "$x = -1.5, x = 4$", "rationale": "This reverses the signs of the correct roots.", "isCorrect": false },
+          { "text": "$x = 3, x = -8$", "rationale": "This expands to $2x^2 + 10x - 48 = 0$.", "isCorrect": false },
+          { "text": "$x = 1.5, x = -4$", "rationale": "Factorise the quadratic: $(2x - 3)(x + 4) = 0$. Using the Zero Product Principle, $2x - 3 = 0 \\Rightarrow x = 1.5$ or $x + 4 = 0 \\Rightarrow x = -4$.", "isCorrect": true },
+          { "text": "$x = 1.5, x = 4$", "rationale": "Both roots are positive, which would mean the last term is $+12$, not $-12$.", "isCorrect": false }
+        ],
+        "hint": "Factorise the expression first. You need to find the combination in the multiplication frame that yields a $+5x$ middle term."
+      },
+      {
+        "questionNumber": 14,
+        "question": "What are the coordinates of the minimum point for the graph of $y = x^2 - 4x - 5$?",
+        "answerOptions": [
+          { "text": "$(-2, 7)$", "rationale": "This is an arithmetic error. Substituting $-2$ yields $4 + 8 - 5 = 7$, but this is not the minimum point.", "isCorrect": false },
+          { "text": "$(4, -5)$", "rationale": "This uses the coefficient $4$ as the x-coordinate instead of calculating the line of symmetry.", "isCorrect": false },
+          { "text": "$(2, -9)$", "rationale": "The line of symmetry is $x = -\\frac{b}{2a} = -\\frac{-4}{2(1)} = 2$. Substitute $x = 2$ back into the equation: $y = (2)^2 - 4(2) - 5 = 4 - 8 - 5 = -9$. Minimum point is $(2, -9)$.", "isCorrect": true },
+          { "text": "$(2, -5)$", "rationale": "This assumes the $y$-intercept is the minimum y-value.", "isCorrect": false }
+        ],
+        "hint": "Find the line of symmetry first. If you find the $x$-intercepts (where $y=0$), the line of symmetry is exactly halfway between them. Then plug that $x$ value into the equation to find $y$."
+      },
+      {
+        "questionNumber": 15,
+        "question": "The length of a rectangle is $(x+3)$ cm and its width is $(x-2)$ cm. If its area is $36 \\text{ cm}^2$, find the value of $x$.",
+        "answerOptions": [
+          { "text": "7", "rationale": "If $x=7$, length is $10$, width is $5$. Area $= 50$.", "isCorrect": false },
+          { "text": "-7", "rationale": "$-7$ is an algebraic root, but it results in a negative width ($-9$ cm), which is physically impossible.", "isCorrect": false },
+          { "text": "42", "rationale": "This is the constant term in the rearranged equation.", "isCorrect": false },
+          { "text": "6", "rationale": "Area = Length $\\times$ Width. $(x+3)(x-2) = 36 \\Rightarrow x^2 + x - 6 = 36 \\Rightarrow x^2 + x - 42 = 0$. Factorise: $(x+7)(x-6) = 0$. Since width must be positive ($x-2>0$), $x=6$.", "isCorrect": true }
+        ],
+        "hint": "Expand $(x+3)(x-2) = 36$. Bring $36$ over to make it equal zero, then factorise again to find the roots. Discard any impossible physical dimensions."
+      },
+
+      // --- Chapter 6: Algebraic Fractions and Formulae ---
+      {
+        "questionNumber": 16,
+        "question": "Simplify the algebraic fraction $\\frac{x^2 - 9}{x^2 - 3x}$.",
+        "answerOptions": [
+          { "text": "$\\frac{3}{x}$", "rationale": "This is incorrect cancellation.", "isCorrect": false },
+          { "text": "$\\frac{x - 3}{x}$", "rationale": "This cancels the $(x+3)$ term instead of the $(x-3)$ term.", "isCorrect": false },
+          { "text": "$\\frac{x + 3}{x}$", "rationale": "Factorise the numerator (difference of squares) to $(x+3)(x-3)$. Factorise the denominator (extract common factor) to $x(x-3)$. Cancel the common $(x-3)$ term to get $\\frac{x+3}{x}$.", "isCorrect": true },
+          { "text": "$\\frac{x^2 - 3}{x^2 - 1}$", "rationale": "This attempts to cancel the $3x$ and $9$ arbitrarily.", "isCorrect": false }
+        ],
+        "hint": "Factorise the numerator using the difference of two squares. Factorise the denominator by extracting the common factor $x$."
+      },
+      {
+        "questionNumber": 17,
+        "question": "Make $x$ the subject of the formula: $y = \\frac{2x + 1}{x - 3}$.",
+        "answerOptions": [
+          { "text": "$x = \\frac{2y + 1}{y - 3}$", "rationale": "This just swaps $x$ and $y$ symmetrically, which does not accurately reflect the algebraic rearrangement.", "isCorrect": false },
+          { "text": "$x = \\frac{3y - 1}{y + 2}$", "rationale": "This has signs reversed during the factorisation step.", "isCorrect": false },
+          { "text": "$x = \\frac{3y + 1}{y - 2}$", "rationale": "Multiply by $(x-3)$: $y(x-3) = 2x+1 \\Rightarrow xy - 3y = 2x + 1$. Move $x$ terms to one side: $xy - 2x = 3y + 1$. Factor out $x$: $x(y - 2) = 3y + 1$. Divide: $x = \\frac{3y + 1}{y - 2}$.", "isCorrect": true },
+          { "text": "$x = \\frac{y - 2}{3y + 1}$", "rationale": "This is the inverted version of the correct answer.", "isCorrect": false }
+        ],
+        "hint": "Multiply both sides by the denominator, then gather every term with an $x$ onto the left side and everything else on the right side. Finally, factor out $x$."
+      },
+      {
+        "questionNumber": 18,
+        "question": "Solve the fractional equation: $\\frac{3}{x-2} - \\frac{1}{x} = 0$.",
+        "answerOptions": [
+          { "text": "$x = 1$", "rationale": "If $x=1$, the first term is $-3$ and the second is $-1$. $-3 - 1 \\neq 0$.", "isCorrect": false },
+          { "text": "$x = -2$", "rationale": "If $x=-2$, the first term is $-3/4$ and the second is $-1/-2$.", "isCorrect": false },
+          { "text": "$x = 2$", "rationale": "This makes the denominator of the first fraction zero, which is undefined.", "isCorrect": false },
+          { "text": "$x = -1$", "rationale": "Move the second fraction: $\\frac{3}{x-2} = \\frac{1}{x}$. Cross multiply: $3x = x - 2$. Subtract $x$: $2x = -2$. Divide by 2: $x = -1$.", "isCorrect": true }
+        ],
+        "hint": "Move the $-\\frac{1}{x}$ to the right side of the equals sign, then cross-multiply."
+      },
+
+      // --- Chapter 7: Direct and Inverse Proportions ---
+      {
+        "questionNumber": 19,
+        "question": "$y$ is directly proportional to $x^2$. When $x = 2$, $y = 12$. Find $y$ when $x = 4$.",
+        "answerOptions": [
+          { "text": "24", "rationale": "This assumes direct proportion to $x$, not $x^2$.", "isCorrect": false },
+          { "text": "36", "rationale": "This incorrectly scales the constant.", "isCorrect": false },
+          { "text": "144", "rationale": "This squares $x$ but forgets to multiply by the constant $k$.", "isCorrect": false },
+          { "text": "48", "rationale": "Equation: $y = kx^2$. Substitute knowns: $12 = k(2^2) = 4k \\Rightarrow k = 3$. The equation is $y = 3x^2$. When $x=4$, $y = 3(4^2) = 3(16) = 48$.", "isCorrect": true }
+        ],
+        "hint": "Set up the equation $y = kx^2$. Find the constant $k$ first."
+      },
+      {
+        "questionNumber": 20,
+        "question": "$y$ is inversely proportional to $\\sqrt{x}$. When $x = 9$, $y = 4$. Find $x$ when $y = 6$.",
+        "answerOptions": [
+          { "text": "2", "rationale": "This is $\\sqrt{x}$, but the question asks for $x$.", "isCorrect": false },
+          { "text": "16", "rationale": "This is an arithmetic error.", "isCorrect": false },
+          { "text": "8", "rationale": "This is an incorrect calculation.", "isCorrect": false },
+          { "text": "4", "rationale": "Equation: $y = \\frac{k}{\\sqrt{x}}$. Substitute knowns: $4 = \\frac{k}{\\sqrt{9}} = \\frac{k}{3} \\Rightarrow k = 12$. The equation is $y = \\frac{12}{\\sqrt{x}}$. When $y = 6$, $6 = \\frac{12}{\\sqrt{x}} \\Rightarrow \\sqrt{x} = 2 \\Rightarrow x = 4$.", "isCorrect": true }
+        ],
+        "hint": "Set up the equation $y = \\frac{k}{\\sqrt{x}}$. Solve for $k$. When solving for $x$ at the end, remember to square both sides to remove the square root."
+      },
+      {
+        "questionNumber": 21,
+        "question": "A factory has 8 identical printing machines that can complete an order in 15 hours. If 2 machines break down right before starting, how much *longer* will it take the remaining machines to complete the order?",
+        "answerOptions": [
+          { "text": "20 hours longer", "rationale": "This is the total time it takes for 6 machines, not how much *longer* it takes.", "isCorrect": false },
+          { "text": "11.25 hours longer", "rationale": "This assumes direct proportion, but this is an inverse relationship.", "isCorrect": false },
+          { "text": "4 hours longer", "rationale": "This is an arithmetic calculation error.", "isCorrect": false },
+          { "text": "5 hours longer", "rationale": "Inverse proportion: Total machine-hours = $8 \\times 15 = 120$ hours. With 6 machines left, time needed = $\\frac{120}{6} = 20$ hours. The question asks how much *longer*, so $20 - 15 = 5$ hours.", "isCorrect": true }
+        ],
+        "hint": "This is an inverse proportion. Calculate the total 'machine-hours' needed for the job first. Then divide by the number of working machines (6). Finally, read the question carefully—it asks how much *longer*."
+      }
+    ];
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
